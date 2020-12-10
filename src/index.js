@@ -1,4 +1,6 @@
 import React from 'react';
+import $ from 'jquery';
+import Popper from 'popper.js'
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
