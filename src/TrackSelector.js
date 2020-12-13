@@ -26,12 +26,12 @@ function TrackSelector() {
         })
             .then(tokenResponse => {
                 setToken(tokenResponse.data.access_token);
-
-                axios('https://api.spotify.com/v1/browse/categories?locale=sv_US', {
+                axios('https://api.spotify.com/v1/browse/categories', {
                     method: 'GET',
                     headers: { 'Authorization' : 'Bearer ' + tokenResponse.data.access_token}
                 })
                     .then (genreResponse => {
+                        console.log(genreResponse)
                         setGenres({
                             selectedGenre: genres.selectedGenre,
                             listOfGenresFromAPI: genreResponse.data.categories.items
@@ -58,11 +58,11 @@ function TrackSelector() {
             })
         });
 
-        console.log(val);
+        // console.log(val);
     }
 
     const playlistChanged = val => {
-        console.log(val);
+        // console.log(val);
         setPlaylist({
             selectedPlaylist: val,
             listOfPlaylistFromAPI: playlist.listOfPlaylistFromAPI
@@ -88,25 +88,25 @@ function TrackSelector() {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         setTrackDetail(trackInfo[0].track);
-        console.log(trackInfo[0].track) // track details
+        // console.log(trackInfo[0].track) // track details
 
         const trackName = trackInfo[0].track.name;
         const duration = trackInfo[0].track.duration_ms;
-        console.log("name is :" + trackName + " explicit is " + trackInfo[0].track.explicit);
+        console.log("name is :" + trackName);
         // console.log("name: "+trackName+" artists: "+artists+" duration: "+duration);
 
         getAudioAnalysis(trackInfo[0].track.id);
     }
 
     const getAudioAnalysis = id => {
-        console.log("song id is "+id);
+        // console.log("song id is "+id);
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
             method: 'GET',
             headers: {
                 'Authorization' : 'Bearer ' + token
             }
         }).then(e => {
-            console.log(e);
+            console.log("got song anaylsis: " +e);
         });
     }
 

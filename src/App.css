@@ -1,3 +1,14 @@
  {
  display: inline-block;
+
 }
+
+  * {
+   background: black;
+   color: white;
+   font-size: 30px;
+  }
+
+ button {
+  background: blue;
+ }
