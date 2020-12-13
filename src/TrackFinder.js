@@ -1,24 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import $ from 'jquery';
-
-
-const int = 1231212312;
-const float = 1231212.31;
-const stringz = "1231212.31";
-
-const arrayz = [1, 2, 4, 5, "apple", 234.1]
-
-const objectz = {
-    name: "hello",
-    age: 1231241,
-    height: 1.342,
-    friends: ["bob", "adam"]
-};
-console.log(objectz.friends[1])
-
-
-const youtubeAPIkey = "AIzaSyBQW8yBavbx_Zx7Kw-KB0tYj3uIHyIGD8A";
-
+import youtubeApi from './api/youtube'
+import videoDetailFinder from './api/youtubeVideoContent'
+import {parse, end, toSeconds, pattern} from 'iso8601-duration';
+// TODO MAKE
 function TrackFinder({name, artists, duration_ms}) {
 
     const [songName, setSongName] = useState(name);
@@ -26,40 +10,79 @@ function TrackFinder({name, artists, duration_ms}) {
     const [duration, setDuration] = useState(duration_ms);
     const [searchResults, setSearchResults] = useState([]);
 
-    let apple = "hello world"; // string
-    const aafsa = 1231; // int
-    const asdsa = 1.2; // float
-
     function createSearchQuery() {
         let artistNames = [];
-        songArtists.forEach(e => artistNames.push(e.name));
-        console.log(artistNames);
+        songArtists.forEach(e => artists.push(e.name));
+        console.log(artists);
         let searchQuery = songName + " ";
         artistNames.forEach(e => console.log(e)); //searchQuery.concat(e + ' ')
         console.log("SEARCH QUERY: "+searchQuery);
         return searchQuery;
     }
 
-    function videoSearch(search,maxVideos) {
-        const endpoint = "/www.googleapis.com/youtube/v3/search";
-        $.get(endpoint + youtubeAPIkey + "&type=video&part=snippet&maxResults=" + maxVideos + "&q" + search).then( data => {
-            console.log(data);
-        });
+
+    async function videosSearch(search) {
+        console.log("entered func")
+        const response = await youtubeApi.get("/search", {
+            params:{
+                q:search
+            }
+        })
+        return response;
     }
 
-    function getVideos() {
+    async function videoDetail(videoID) {
+        console.log("entered func")
+        const response = await videoDetailFinder.get("/videos", {
+            params:{
+                id:videoID
+            }
+        })
+        return response;
+    }
+
+
+    async function getVideos() {
         const search = createSearchQuery();
+        console.log("duration prop is:" + duration)
+        let songID = "NOTFOUND";
         // search youtube
-        videoSearch(search, 5);
+        videosSearch(search).then(e => {
+            const videoList = e.data.items;
+            // console.log(e.data.items);
+            videoList.forEach(e => {
+                console.log(e.id.videoId)
+                videoDetail(e.id.videoId).then(a => {
+                    const thisDur = toMilli(a.data.items[0].contentDetails.duration);
+                    console.log(thisDur);
+                    console.log(Math.abs(duration - thisDur));
+                    if (Math.abs(duration - thisDur) <=1000) {
+                        songID = e.id.videoId;
+                    }
+                })
+                // console.log(e.id.videoId);
+                //
+                // TODO left off here
+            })
+            if (songID !== "NOTFOUND") {
+                console.log("got songid of: " + songID)
+            } else {
+                console.log("couldnt find song id")
+            }
+        })
+        // console.log(videos.data.items);
+    }
+
+    function toMilli(ISO) {
+        return toSeconds( parse(ISO) ) * 1000;
     }
 
 
     useEffect(() => {
         return () => {
             const searchQuery = createSearchQuery();
-
+            console.log("searchquery is: " +searchQuery);
             // Search for songs
-            // TODO left off here
         };
     }, []);
 
