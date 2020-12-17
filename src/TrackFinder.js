@@ -8,18 +8,16 @@ import HttpsProxyAgent from 'https-proxy-agent';
 const proxy = 'http://user:pass@111.111.111.111:8080';
 const agent = HttpsProxyAgent(proxy);
 let lastChosenID = "";
-function TrackFinder({name, artists, duration_ms, foundSong}) {
+export default function TrackFinder({name, artists, duration_ms, foundSong, trackID}) {
 
     const [songName, setSongName] = useState(name);
     const [songArtists, setSongArtists] = useState([]);
     const [duration, setDuration] = useState(duration_ms);
     const [chosenVideoID, setChosenVideoID] = useState("");
-    const [downloadedURL, setDownloadedURL] = useState("");
 
-    function createSearchQuery() {
-        console.log("creating search query...")
-        console.log("songName is:" + songName)
 
+    function createSearchQuery() { // TODO add a better search
+        console.log(" -- Entered createSearchQuery -- ")
         let artistNames = [];
         artists.forEach(e => {
             const thisName = e.name;
@@ -27,21 +25,14 @@ function TrackFinder({name, artists, duration_ms, foundSong}) {
                 artistNames.push(thisName)
             }
         });
-        // console.log(artistNames);
-        // console.log("songArtists are:")
-        // setSongArtists(artistNames)
         let searchQuery = songName + " ";
-        // artistNames.forEach(e => { todo this doesn't work
-        //     console.log(e);
-        //     searchQuery.concat(e)
-        // }); //
         console.log("SEARCH QUERY: "+searchQuery);
         return searchQuery;
     }
 
 
     async function videosSearch(search) {
-        console.log("entered func videosSearch")
+        console.log("--- Entered videosSearch ---")
         const response = await youtubeApi.get("/search", {
             params:{
                 q:search
@@ -62,95 +53,59 @@ function TrackFinder({name, artists, duration_ms, foundSong}) {
 
     async function getYoutubeVideo(searchQuery) {
         // search youtube
-        videosSearch(searchQuery).then(e => {
+        videosSearch(searchQuery).then(async e => {
             const videoList = e.data.items;
-            console.log("00-----------------");
+            console.log("-- Entered getYoutubeVideo --");
             for (let video = 0;video < videoList.length; video++) {
                 console.log(videoList[video])
-                videoDetail(videoList[video].id.videoId).then(a => {
-                    const thisDur = toMilli(a.data.items[0].contentDetails.duration);
-                    // console.log(thisDur);
-                    console.log("checking this one: -> " + Math.abs(duration - thisDur));
-                    if (Math.abs(duration - thisDur) <= 1000) {
-                        console.log("set this one!")
-                        console.log(videoList[video]);
-                        setChosenVideoID(videoList[video].id.videoId);
-                    }
-                })
-                if (chosenVideoID) {
+                const thisID = await videoDetail(videoList[video].id.videoId);
+
+                const thisDur = toMilli(thisID.data.items[0].contentDetails.duration);
+                console.log("checking this one: -> " + Math.abs(duration - thisDur));
+                if (Math.abs(duration - thisDur) <= 1000) {
+                    console.log("set this one!")
+                    console.log(videoList[video]);
+                    setChosenVideoID(videoList[video].id.videoId);
                     break;
                 }
             }
         })
     }
 
-    async function getVideos() {
-        lastChosenID = "";
-        setDownloadedURL("");
-        const search = createSearchQuery();
-        console.log("duration prop is:" + duration)
-        await getYoutubeVideo(search);
-        // console.log(videos.data.items);
-    }
-
     function toMilli(ISO) {
         return toSeconds( parse(ISO) ) * 1000;
     }
 
-
     useEffect(() => {
-        return () => {
-            const searchQuery = createSearchQuery();
-            console.log("searchquery is: " +searchQuery);
-            // Search for songs
-        };
-    }, []);
-
-    useEffect(() => {
-        console.log("got youtube video ID, entered here")
+        console.log("| got youtube video ID, effect triggered | ")
         if (chosenVideoID && lastChosenID === "") {
-            console.log("its this: "+chosenVideoID);
             lastChosenID = chosenVideoID;
             videoIDtoMP3(chosenVideoID);
+        } else {
+            console.log("stopping here!")
         }
 
     }, [chosenVideoID])
 
-    useEffect(() => {
-            setSongArtists(artists);
-            setSongName(name);
-            setDuration(duration_ms);
+    useEffect(async () => {
+        console.log("----- entered fx");
+        setSongArtists(artists);
+        setSongName(name);
+        setDuration(duration_ms);
+        lastChosenID = "";
+        const search = createSearchQuery();
+        await getYoutubeVideo(search);
     }, [name, artists, duration_ms]);
 
-    useEffect(() => {
-        if (downloadedURL !== "") {
-            foundSong(songName, downloadedURL);
-            setDownloadedURL("");
-        }
-    }, [downloadedURL]);
-
-
-
     async function videoIDtoMP3(videoID) {
-        console.log("entered here--------------------------------------------")
+        console.log("-- Entered videoIDtoMP3 --")
         await ytdl.getInfo(videoID, { quality: 'highestaudio'}).then(info => {
             let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-            setDownloadedURL(audioFormats[0].url);
-            console.log(downloadedURL);
+            foundSong(songName, songArtists, duration, audioFormats[0].url, trackID);
+            setChosenVideoID("");
         });
     }
 
-    return (
-        <div>
-            <button onClick={getVideos}>
-                Search for song with YouTube
-            </button>
-            {downloadedURL ? <button onClick={() => {
-                window.open(downloadedURL)
-            }}>GO TO SONG
-            </button> : null}
-        </div>
-    );
+    return(<>
+        </>);
 }
-
-export default TrackFinder;

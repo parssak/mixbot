@@ -6,15 +6,28 @@ import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 
-function addToQueue(songName, songURL) {
+let tracklist = [];
+function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
     const newSong = {
         songName: songName,
-        songURL: songURL
+        songArtists: songArtists,
+        duration_ms: duration_ms,
+        songURL: songURL,
+        songAnalysis: analysis
     }
     tracklist.push(newSong);
 }
 
-let tracklist = [];
+function trackAlreadyIn(trackName) {
+    console.log("checking if track is already in....", trackName);
+    for (const trackObj of tracklist) {
+        console.log(trackObj.songName)
+        if (trackObj.songName === trackName)
+            return true;
+    }
+    return false;
+
+}
 
 function TrackSelector() {
     const spotify = Credentials();
@@ -94,32 +107,39 @@ function TrackSelector() {
     const selectTrack = val => {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
-        setTrackDetail(trackInfo[0].track);
-        // console.log(trackInfo[0].track) // track details
-
-        const trackName = trackInfo[0].track.name;
-        const duration = trackInfo[0].track.duration_ms;
-        console.log("name is :" + trackName);
-        // console.log("name: "+trackName+" artists: "+artists+" duration: "+duration);
-
-        getAudioAnalysis(trackInfo[0].track.id);
+        if (!trackAlreadyIn(trackInfo[0].track.name)) {
+            setTrackDetail(trackInfo[0].track);
+            const trackName = trackInfo[0].track.name;
+            const duration = trackInfo[0].track.duration_ms;
+            console.log("name is :" + trackName);
+        } else {
+            console.log("track is already in the queue");
+        }
     }
 
-    const getAudioAnalysis = id => {
+    async function getAudioAnalysis(id) {
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
             method: 'GET',
             headers: {
                 'Authorization' : 'Bearer ' + token
             }
         }).then(e => {
-            console.log("got song anaylsis: " +e);
+            return e;
         });
     }
 
-    const addSongToTracklist = (songName, songURL) => {
-        console.log("adding: "+songName);
-        addToQueue(songName, songURL);
-        console.log(tracklist);
+    const addSongToTracklist = async (songName, songArtists, duration, songURL, trackID) => {
+        if (!trackAlreadyIn(songName)) {
+            console.log("adding: " + songName);
+            const analysis = await getAudioAnalysis(trackID);
+            console.log(analysis)
+            addToQueue(songName, songArtists, duration, songURL, analysis);
+            console.log(tracklist);
+            setTrackDetail(null);
+        } else {
+            console.log("track is already in the queue");
+            setTrackDetail(null);
+        }
     }
 
     return (
@@ -132,7 +152,11 @@ function TrackSelector() {
             <div>
                 <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
                 {trackDetail && <Detail {...trackDetail} /> }
-                {trackDetail && <TrackFinder name={trackDetail.name} artists={trackDetail.artists} duration_ms={trackDetail.duration_ms} foundSong={addSongToTracklist}/>}
+                {trackDetail && <TrackFinder name={trackDetail.name}
+                                             artists={trackDetail.artists}
+                                             duration_ms={trackDetail.duration_ms}
+                                             trackID={trackDetail.id}
+                                             foundSong={addSongToTracklist}/>}
             </div>
         </form>
     );
