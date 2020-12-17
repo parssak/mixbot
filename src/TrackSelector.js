@@ -6,9 +6,18 @@ import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 
+function addToQueue(songName, songURL) {
+    const newSong = {
+        songName: songName,
+        songURL: songURL
+    }
+    tracklist.push(newSong);
+}
+
+let tracklist = [];
+
 function TrackSelector() {
     const spotify = Credentials();
-
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({selectedGenre: '', listOfGenresFromAPI: []});
     const [playlist, setPlaylist] = useState({selectedPlaylist: '', listOfPlaylistFromAPI: []});
@@ -107,6 +116,12 @@ function TrackSelector() {
         });
     }
 
+    const addSongToTracklist = (songName, songURL) => {
+        console.log("adding: "+songName);
+        addToQueue(songName, songURL);
+        console.log(tracklist);
+    }
+
     return (
         <form onSubmit={buttonClicked}>
             <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
@@ -117,7 +132,7 @@ function TrackSelector() {
             <div>
                 <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
                 {trackDetail && <Detail {...trackDetail} /> }
-                {trackDetail && <TrackFinder{...trackDetail} />}
+                {trackDetail && <TrackFinder name={trackDetail.name} artists={trackDetail.artists} duration_ms={trackDetail.duration_ms} foundSong={addSongToTracklist}/>}
             </div>
         </form>
     );

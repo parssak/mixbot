@@ -2,13 +2,13 @@ import React, {useEffect, useState} from 'react';
 import youtubeApi from './api/youtube'
 import videoDetailFinder from './api/youtubeVideoContent'
 import {parse, end, toSeconds, pattern} from 'iso8601-duration';
-import ytdl, {downloadFromInfo} from "react-native-ytdl";
+import ytdl from "react-native-ytdl";
 import HttpsProxyAgent from 'https-proxy-agent';
 
 const proxy = 'http://user:pass@111.111.111.111:8080';
 const agent = HttpsProxyAgent(proxy);
 let lastChosenID = "";
-function TrackFinder({name, artists, duration_ms}) {
+function TrackFinder({name, artists, duration_ms, foundSong}) {
 
     const [songName, setSongName] = useState(name);
     const [songArtists, setSongArtists] = useState([]);
@@ -89,7 +89,6 @@ function TrackFinder({name, artists, duration_ms}) {
         setDownloadedURL("");
         const search = createSearchQuery();
         console.log("duration prop is:" + duration)
-        let songID = "NOTFOUND";
         await getYoutubeVideo(search);
         // console.log(videos.data.items);
     }
@@ -123,6 +122,13 @@ function TrackFinder({name, artists, duration_ms}) {
             setDuration(duration_ms);
     }, [name, artists, duration_ms]);
 
+    useEffect(() => {
+        if (downloadedURL !== "") {
+            foundSong(songName, downloadedURL);
+            setDownloadedURL("");
+        }
+    }, [downloadedURL]);
+
 
 
     async function videoIDtoMP3(videoID) {
@@ -136,9 +142,6 @@ function TrackFinder({name, artists, duration_ms}) {
 
     return (
         <div>
-            {/*<h1>{songName}</h1>*/}
-            {/*<h2>{}</h2>*/}
-            {/*<h2>{duration}</h2>*/}
             <button onClick={getVideos}>
                 Search for song with YouTube
             </button>
