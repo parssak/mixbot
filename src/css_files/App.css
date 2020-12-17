@@ -1,0 +1,39 @@
+@import 'listbox.css';
+
+* {
+    background: #292a31;
+    color: white;
+    font-size: 30px;
+}
+
+.body {
+    margin: 1rem;
+}
+.dropdown {
+    margin: 1rem;
+}
+
+label {
+    font-weight: 600;
+    margin-right: 1em;
+}
+
+select {
+    width: 50%;
+    border-style: solid;
+    border-color: #4f2dc8;
+    padding: 0.4rem;
+}
+
+button {
+    background: #4f2dc8;
+    margin: 0.2rem;
+    padding: 0.5em;
+    border-radius: 0.5rem;
+    border-style: none;
+}
+
+button:hover {
+    cursor: pointer;
+}
+

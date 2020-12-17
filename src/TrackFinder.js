@@ -2,14 +2,19 @@ import React, {useEffect, useState} from 'react';
 import youtubeApi from './api/youtube'
 import videoDetailFinder from './api/youtubeVideoContent'
 import {parse, end, toSeconds, pattern} from 'iso8601-duration';
-import $ from 'jquery';
+import ytdl, {downloadFromInfo} from "react-native-ytdl";
+import HttpsProxyAgent from 'https-proxy-agent';
 
+const proxy = 'http://user:pass@111.111.111.111:8080';
+const agent = HttpsProxyAgent(proxy);
+let lastChosenID = "";
 function TrackFinder({name, artists, duration_ms}) {
 
     const [songName, setSongName] = useState(name);
     const [songArtists, setSongArtists] = useState([]);
     const [duration, setDuration] = useState(duration_ms);
     const [chosenVideoID, setChosenVideoID] = useState("");
+    const [downloadedURL, setDownloadedURL] = useState("");
 
     function createSearchQuery() {
         console.log("creating search query...")
@@ -55,33 +60,37 @@ function TrackFinder({name, artists, duration_ms}) {
         return response;
     }
 
-
-    async function getVideos() {
-        const search = createSearchQuery();
-        console.log("duration prop is:" + duration)
-        let songID = "NOTFOUND";
-        setChosenVideoID('');
+    async function getYoutubeVideo(searchQuery) {
         // search youtube
-        videosSearch(search).then(e => {
+        videosSearch(searchQuery).then(e => {
             const videoList = e.data.items;
             console.log("00-----------------");
             for (let video = 0;video < videoList.length; video++) {
-                console.log(videoList[video].id.videoId)
+                console.log(videoList[video])
                 videoDetail(videoList[video].id.videoId).then(a => {
                     const thisDur = toMilli(a.data.items[0].contentDetails.duration);
                     // console.log(thisDur);
                     console.log("checking this one: -> " + Math.abs(duration - thisDur));
                     if (Math.abs(duration - thisDur) <= 1000) {
                         console.log("set this one!")
+                        console.log(videoList[video]);
                         setChosenVideoID(videoList[video].id.videoId);
                     }
                 })
                 if (chosenVideoID) {
-                    console.log("got songid of: " + songID)
                     break;
                 }
             }
         })
+    }
+
+    async function getVideos() {
+        lastChosenID = "";
+        setDownloadedURL("");
+        const search = createSearchQuery();
+        console.log("duration prop is:" + duration)
+        let songID = "NOTFOUND";
+        await getYoutubeVideo(search);
         // console.log(videos.data.items);
     }
 
@@ -99,29 +108,44 @@ function TrackFinder({name, artists, duration_ms}) {
     }, []);
 
     useEffect(() => {
-        console.log("entered here!!!")
-        if (chosenVideoID) {
+        console.log("got youtube video ID, entered here")
+        if (chosenVideoID && lastChosenID === "") {
             console.log("its this: "+chosenVideoID);
+            lastChosenID = chosenVideoID;
             videoIDtoMP3(chosenVideoID);
         }
 
     }, [chosenVideoID])
 
-    function videoIDtoMP3(videoID) {
+    useEffect(() => {
+            setSongArtists(artists);
+            setSongName(name);
+            setDuration(duration_ms);
+    }, [name, artists, duration_ms]);
+
+
+
+    async function videoIDtoMP3(videoID) {
         console.log("entered here--------------------------------------------")
-        //https://www.npmjs.com/package/ytdl-core
-        $.get("https://www.yt-download.org/@api/button/" + videoID, function (data) {
-            console.log(data)
-        })
+        await ytdl.getInfo(videoID, { quality: 'highestaudio'}).then(info => {
+            let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
+            setDownloadedURL(audioFormats[0].url);
+            console.log(downloadedURL);
+        });
     }
 
     return (
         <div>
-            <h1>{songName}</h1>
-            <h2>{duration}</h2>
+            {/*<h1>{songName}</h1>*/}
+            {/*<h2>{}</h2>*/}
+            {/*<h2>{duration}</h2>*/}
             <button onClick={getVideos}>
-                Search for song
+                Search for song with YouTube
             </button>
+            {downloadedURL ? <button onClick={() => {
+                window.open(downloadedURL)
+            }}>GO TO SONG
+            </button> : null}
         </div>
     );
 }

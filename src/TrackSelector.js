@@ -57,8 +57,6 @@ function TrackSelector() {
                 listOfPlaylistFromAPI: playlistResponse.data.playlists.items
             })
         });
-
-        // console.log(val);
     }
 
     const playlistChanged = val => {
@@ -99,7 +97,6 @@ function TrackSelector() {
     }
 
     const getAudioAnalysis = id => {
-        // console.log("song id is "+id);
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
             method: 'GET',
             headers: {
@@ -112,11 +109,11 @@ function TrackSelector() {
 
     return (
         <form onSubmit={buttonClicked}>
-            <Dropdown label="Genre :" options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
-            <Dropdown label="Playlist :" options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
-            <button type='submit'>
+            <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
+            <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
+            {playlist.selectedPlaylist !== "" ? <button type='submit'>
                 Search
-            </button>
+            </button> : null}
             <div>
                 <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
                 {trackDetail && <Detail {...trackDetail} /> }
