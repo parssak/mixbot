@@ -7,11 +7,13 @@ import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 import TrackPlayer, {trackAlreadyIn, addToQueue} from "./TrackPlayer";
 
+const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
+
 function TrackSelector() {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({selectedGenre: '', listOfGenresFromAPI: []});
-    const [playlist, setPlaylist] = useState({selectedPlaylist: '', listOfPlaylistFromAPI: []});
+    const [playlist, setPlaylist] = useState({selectedPlaylist: '2818tC1Ba59cftJJqjWKZi', listOfPlaylistFromAPI: []});
     const [tracks, setTracks] = useState({selectedTrack: '', listOfTracksFromAPI: []});
     const [trackDetail, setTrackDetail] = useState(null);
 
@@ -42,7 +44,7 @@ function TrackSelector() {
 
     }, [genres.selectedGenre, spotify.ClientId, spotify.ClientSecret]);
 
-    const genreChanged = val => {
+    function genreChanged(val) {
         setGenres({
             selectedGenre: val,
             listOfGenresFromAPI: genres.listOfGenresFromAPI
@@ -50,7 +52,7 @@ function TrackSelector() {
 
         axios(`https://api.spotify.com/v1/browse/categories/${val}/playlists?limit=30`, {
             method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
+            headers: {'Authorization': 'Bearer ' + token}
         }).then(playlistResponse => {
             setPlaylist({
                 selectedPlaylist: playlist.selectedPlaylist,
@@ -68,6 +70,7 @@ function TrackSelector() {
 
     function playlistSearchClicked(e) {
         e.preventDefault();
+        console.log("selected playlist was" +playlist.selectedPlaylist);
         axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=30`, {
             method: 'GET',
             headers: {
@@ -86,7 +89,6 @@ function TrackSelector() {
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
             setTrackDetail(trackInfo[0].track);
-
         } else {
             console.log("track is already in the queue");
         }
@@ -105,7 +107,6 @@ function TrackSelector() {
             setTrackDetail(null);
         }
     }
-
 
     return (
         <div>

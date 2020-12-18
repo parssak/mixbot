@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 let tracklist = [];
 let currentSong = 0;
 let audioElement = new Audio();
+// let audioCtx = new AudioContext();
 
 export function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
     const newSong = {
@@ -59,6 +60,7 @@ function loadPreviousSong() {
 function setCurrentSong() {
     audioElement.pause();
     audioElement.src = tracklist[currentSong].songURL;
+    console.log(tracklist[currentSong].songURL);
     audioElement.play();
 }
 
@@ -73,6 +75,20 @@ export default function TrackPlayer() {
 
     function playTrack() {
         playSong();
+        setSongDetails();
+    }
+
+    function nextTrack() {
+        loadNextSong();
+        setSongDetails();
+    }
+
+    function previousTrack() {
+        loadPreviousSong();
+        setSongDetails();
+    }
+
+    function setSongDetails() {
         const currSong = getCurrentSong();
         if (currSong) {
             setTrackName(currSong.songName);
@@ -80,16 +96,11 @@ export default function TrackPlayer() {
         }
     }
 
-    function nextTrack() {
-
-    }
-
     return (
         <div>
-            <button onClick={() => {playTrack()}}>PLAY SONG</button>
-            <button onClick={() => {loadNextSong()}}>NEXT SONG</button>
-            <button onClick={() => {loadPreviousSong()}}>PREVIOUS SONG</button>
-            <h1>{trackName}</h1>
-            <h1>{trackArtist}</h1>
+            <button onClick={() => {playTrack()}}>Play Song</button>
+            <button onClick={() => {nextTrack()}}>Next Song</button>
+            <button onClick={() => {previousTrack()}}>Previous Song</button>
+            {trackName !== "" && <h1>Currently playing: {trackName} by {trackArtist}</h1>}
         </div>);
 }
