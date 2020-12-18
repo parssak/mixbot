@@ -30,6 +30,7 @@ function trackAlreadyIn(trackName) {
     return false;
 }
 let audioElement = new Audio();
+
 function TrackSelector() {
     const spotify = Credentials();
     const [token, setToken] = useState('');
@@ -194,7 +195,6 @@ function TrackSelector() {
             {tracklist.length > 0 && <button onClick={() => {playSong()}}>PLAY SONG</button>}
             {currentSong + 1 < tracklist.length && <button onClick={() => {loadNextSong()}}>NEXT SONG</button>}
             {currentSong - 1 >= 0 && <button onClick={() => {loadPreviousSong()}}>PREVIOUS SONG</button>}
-
         </div>
     );
 }

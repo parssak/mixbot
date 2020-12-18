@@ -3,11 +3,20 @@ import youtubeApi from './api/youtube'
 import videoDetailFinder from './api/youtubeVideoContent'
 import {parse, end, toSeconds, pattern} from 'iso8601-duration';
 import ytdl from "react-native-ytdl";
-import HttpsProxyAgent from 'https-proxy-agent';
 
-// const proxy = 'http://user:pass@111.111.111.111:8080';
-// const agent = HttpsProxyAgent(proxy);
 let lastChosenID = "";
+/**
+ * This class handles finding a track based on song name, artists, and duration
+ * and calls the foundSong prop when a song has been found.
+ *
+ * @param name: Name of the Song
+ * @param artists: An array of artist objects
+ * @param duration_ms: The duration of the song in milliseconds
+ * @param foundSong: A prop that gets called when song has been found
+ * @param trackID:
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export default function TrackFinder({name, artists, duration_ms, foundSong, trackID}) {
 
     const [songName, setSongName] = useState(name);
@@ -15,8 +24,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
     const [duration, setDuration] = useState(duration_ms);
     const [chosenVideoID, setChosenVideoID] = useState("");
 
-
-    function createSearchQuery() { // TODO add a better search
+    function createSearchQuery() {
         console.log(" -- Entered createSearchQuery -- ")
         let artistNames = [];
         artists.forEach(e => {
@@ -25,8 +33,8 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
                 artistNames.push(thisName)
             }
         });
-add        let searchQuery = songName + " " + artistNames[0];
-        console.log("SEARCH QUERY: "+searchQuery);
+        let searchQuery = songName + " " + artistNames[0];
+        console.log("SEARCH QUERY:",searchQuery);
         return searchQuery;
     }
 
@@ -42,7 +50,6 @@ add        let searchQuery = songName + " " + artistNames[0];
     }
 
     async function videoDetail(videoID) {
-        // console.log("entered func videoDetail")
         const response = await videoDetailFinder.get("/videos", {
             params:{
                 id:videoID
@@ -51,21 +58,22 @@ add        let searchQuery = songName + " " + artistNames[0];
         return response;
     }
 
+    /**
+     * Searches YouTube for song using search query, breaks when found is song
+     * @param searchQuery
+     * @returns {Promise<void>}
+     */
     async function getYoutubeVideo(searchQuery) {
-        // search youtube
         videosSearch(searchQuery).then(async e => {
             const videoList = e.data.items;
             console.log("-- Entered getYoutubeVideo --");
-
             for (let video = 0; video < videoList.length; video++) {
-
-                console.log(videoList[video])
+                // console.log(videoList[video])
                 const thisID = await videoDetail(videoList[video].id.videoId);
-
                 const thisDur = toMilli(thisID.data.items[0].contentDetails.duration);
-                console.log("checking this one: -> " + Math.abs(duration - thisDur));
+                // console.log("checking this one: -> " + Math.abs(duration - thisDur));
                 if (Math.abs(duration - thisDur) <= 1000) {
-                    console.log("set this one!")
+                    // console.log("set this one!")
                     console.log(videoList[video]);
                     setChosenVideoID(videoList[video].id.videoId);
                     break;
@@ -74,10 +82,25 @@ add        let searchQuery = songName + " " + artistNames[0];
         })
     }
 
+    /**
+     * Helper function for converting ISO8 8601 time to milliseconds
+     * @param ISO: ISO time
+     * @returns {the ISO time in milliseconds}
+     */
     function toMilli(ISO) {
         return toSeconds( parse(ISO) ) * 1000;
     }
 
+    /**
+     * This effect triggers when the chosenVideoID is
+     * found, and then get the URL for mp3 download
+     *
+     * Since this effect gets called over once for the
+     * same video being found sometimes, it will not
+     * convert the video to mp3 if it has already been
+     * called once for this current song
+     * >> “ "lastChosenID === "" ”
+     */
     useEffect(() => {
         console.log("| got youtube video ID, effect triggered | ")
         if (chosenVideoID && lastChosenID === "") {
@@ -108,6 +131,5 @@ add        let searchQuery = songName + " " + artistNames[0];
         });
     }
 
-    return(<>
-        </>);
+    return null;
 }

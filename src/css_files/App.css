@@ -37,6 +37,6 @@ button {
 button:hover {
     cursor: pointer;
     transform: scale(1.03);
-    margin-inline: 0.4rem;
+    /*margin-inline: 0.4rem;*/
 }
 
