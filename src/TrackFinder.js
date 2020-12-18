@@ -4,7 +4,6 @@ import videoDetailFinder from './api/youtubeVideoContent'
 import {parse, end, toSeconds, pattern} from 'iso8601-duration';
 import ytdl from "react-native-ytdl";
 
-let lastChosenID = "";
 /**
  * This class handles finding a track based on song name, artists, and duration
  * and calls the foundSong prop when a song has been found.
@@ -14,13 +13,12 @@ let lastChosenID = "";
  * @param duration_ms: The duration of the song in milliseconds
  * @param foundSong: A prop that gets called when song has been found
  * @param trackID:
- * @returns {JSX.Element}
- * @constructor
  */
+let lastChosenID = "";
 export default function TrackFinder({name, artists, duration_ms, foundSong, trackID}) {
 
     const [songName, setSongName] = useState(name);
-    const [songArtists, setSongArtists] = useState([]);
+    const [songArtists, setSongArtists] = useState(artists);
     const [duration, setDuration] = useState(duration_ms);
     const [chosenVideoID, setChosenVideoID] = useState("");
 
@@ -33,7 +31,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
                 artistNames.push(thisName)
             }
         });
-        let searchQuery = songName + " " + artistNames[0];
+        let searchQuery = songName + " " + artistNames[0] + " audio";
         console.log("SEARCH QUERY:",searchQuery);
         return searchQuery;
     }
@@ -106,8 +104,6 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
         if (chosenVideoID && lastChosenID === "") {
             lastChosenID = chosenVideoID;
             videoIDtoMP3(chosenVideoID);
-        } else {
-            console.log("stopping here!")
         }
 
     }, [chosenVideoID])

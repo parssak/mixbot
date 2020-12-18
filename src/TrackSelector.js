@@ -5,31 +5,7 @@ import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
-
-let tracklist = [];
-let currentSong = 0;
-
-function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
-    const newSong = {
-        songName: songName,
-        songArtists: songArtists,
-        duration_ms: duration_ms,
-        songURL: songURL,
-        songAnalysis: analysis
-    }
-    tracklist.push(newSong);
-}
-
-function trackAlreadyIn(trackName) {
-    console.log("checking if track is already in....", trackName);
-    for (const trackObj of tracklist) {
-        console.log(trackObj.songName)
-        if (trackObj.songName === trackName)
-            return true;
-    }
-    return false;
-}
-let audioElement = new Audio();
+import TrackPlayer, {trackAlreadyIn, addToQueue} from "./TrackPlayer";
 
 function TrackSelector() {
     const spotify = Credentials();
@@ -83,19 +59,19 @@ function TrackSelector() {
         });
     }
 
-    const playlistChanged = val => {
+    function playlistChanged(val) {
         setPlaylist({
             selectedPlaylist: val,
             listOfPlaylistFromAPI: playlist.listOfPlaylistFromAPI
         });
     }
 
-    const buttonClicked = e => {
+    function playlistSearchClicked(e) {
         e.preventDefault();
         axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=30`, {
             method: 'GET',
             headers: {
-                'Authorization' : 'Bearer ' + token
+                'Authorization': 'Bearer ' + token
             }
         }).then(tracksResponse => {
             setTracks({
@@ -105,7 +81,7 @@ function TrackSelector() {
         });
     }
 
-    const selectTrack = val => {
+    function selectTrack(val) {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
@@ -116,14 +92,13 @@ function TrackSelector() {
         }
     }
 
-    const addSongToTracklist = async (songName, songArtists, duration, songURL, trackID) => {
+    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID) {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName);
             // let analysis = getAudioAnalysis(trackID);
             // console.log(analysis)
             let analysis = "";
             addToQueue(songName, songArtists, duration, songURL, analysis);
-            console.log(tracklist);
             setTrackDetail(null);
         } else {
             console.log("track is already in the queue");
@@ -132,51 +107,9 @@ function TrackSelector() {
     }
 
 
-
-    function playSong() {
-        // if (tracklist.length === 0) return;
-        if (tracklist.length === 1 && audioElement.paused) {
-            audioElement.load();
-            audioElement = new Audio(tracklist[0].songURL)
-        }
-        if (audioElement.paused) {
-            console.log("is paused")
-            audioElement.play();
-        } else {
-            console.log("is playing")
-            audioElement.pause();
-        }
-    }
-
-    function loadNextSong() {
-        console.log("currentSong: ",currentSong)
-        audioElement.pause();
-        audioElement.load();
-        if (currentSong + 1 < tracklist.length) {
-            currentSong += 1;
-            setCurrentSong();
-        }
-    }
-
-    function loadPreviousSong() {
-        console.log("currentSong: ",currentSong)
-        audioElement.pause();
-        audioElement.load();
-        if (currentSong - 1 >= 0) {
-            currentSong -= 1;
-            setCurrentSong();
-        }
-    }
-
-    function setCurrentSong() {
-        audioElement.pause();
-        audioElement.src = tracklist[currentSong].songURL;
-        audioElement.play();
-    }
-
     return (
         <div>
-            <form onSubmit={buttonClicked}>
+            <form onSubmit={playlistSearchClicked}>
                 <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
                 <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
                 {playlist.selectedPlaylist !== "" ? <button type='submit'>
@@ -192,9 +125,7 @@ function TrackSelector() {
                                                  foundSong={addSongToTracklist}/>}
                 </div>
             </form>
-            {tracklist.length > 0 && <button onClick={() => {playSong()}}>PLAY SONG</button>}
-            {currentSong + 1 < tracklist.length && <button onClick={() => {loadNextSong()}}>NEXT SONG</button>}
-            {currentSong - 1 >= 0 && <button onClick={() => {loadPreviousSong()}}>PREVIOUS SONG</button>}
+            <TrackPlayer/>
         </div>
     );
 }
