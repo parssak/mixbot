@@ -56,7 +56,9 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
         videosSearch(searchQuery).then(async e => {
             const videoList = e.data.items;
             console.log("-- Entered getYoutubeVideo --");
-            for (let video = 0;video < videoList.length; video++) {
+
+            for (let video = 0; video < videoList.length; video++) {
+
                 console.log(videoList[video])
                 const thisID = await videoDetail(videoList[video].id.videoId);
 

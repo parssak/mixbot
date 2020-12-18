@@ -31,9 +31,12 @@ button {
     padding: 0.5em;
     border-radius: 0.5rem;
     border-style: none;
+    transition: all 0.1s ease;
 }
 
 button:hover {
     cursor: pointer;
+    transform: scale(1.03);
+    margin-inline: 0.4rem;
 }
 

@@ -7,6 +7,8 @@ import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 
 let tracklist = [];
+let currentSong = 0;
+
 function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
     const newSong = {
         songName: songName,
@@ -26,9 +28,8 @@ function trackAlreadyIn(trackName) {
             return true;
     }
     return false;
-
 }
-
+let audioElement = new Audio();
 function TrackSelector() {
     const spotify = Credentials();
     const [token, setToken] = useState('');
@@ -82,7 +83,6 @@ function TrackSelector() {
     }
 
     const playlistChanged = val => {
-        // console.log(val);
         setPlaylist({
             selectedPlaylist: val,
             listOfPlaylistFromAPI: playlist.listOfPlaylistFromAPI
@@ -109,30 +109,18 @@ function TrackSelector() {
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
             setTrackDetail(trackInfo[0].track);
-            const trackName = trackInfo[0].track.name;
-            const duration = trackInfo[0].track.duration_ms;
-            console.log("name is :" + trackName);
+
         } else {
             console.log("track is already in the queue");
         }
     }
 
-    async function getAudioAnalysis(id) {
-        axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
-            method: 'GET',
-            headers: {
-                'Authorization' : 'Bearer ' + token
-            }
-        }).then(e => {
-            return e;
-        });
-    }
-
     const addSongToTracklist = async (songName, songArtists, duration, songURL, trackID) => {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName);
-            const analysis = await getAudioAnalysis(trackID);
-            console.log(analysis)
+            // let analysis = getAudioAnalysis(trackID);
+            // console.log(analysis)
+            let analysis = "";
             addToQueue(songName, songArtists, duration, songURL, analysis);
             console.log(tracklist);
             setTrackDetail(null);
@@ -142,23 +130,71 @@ function TrackSelector() {
         }
     }
 
+
+
+    function playSong() {
+        // if (tracklist.length === 0) return;
+        if (tracklist.length === 1 && audioElement.paused) {
+            audioElement.load();
+            audioElement = new Audio(tracklist[0].songURL)
+        }
+        if (audioElement.paused) {
+            console.log("is paused")
+            audioElement.play();
+        } else {
+            console.log("is playing")
+            audioElement.pause();
+        }
+    }
+
+    function loadNextSong() {
+        console.log("currentSong: ",currentSong)
+        audioElement.pause();
+        audioElement.load();
+        if (currentSong + 1 < tracklist.length) {
+            currentSong += 1;
+            setCurrentSong();
+        }
+    }
+
+    function loadPreviousSong() {
+        console.log("currentSong: ",currentSong)
+        audioElement.pause();
+        audioElement.load();
+        if (currentSong - 1 >= 0) {
+            currentSong -= 1;
+            setCurrentSong();
+        }
+    }
+
+    function setCurrentSong() {
+        audioElement.pause();
+        audioElement.src = tracklist[currentSong].songURL;
+        audioElement.play();
+    }
+
     return (
-        <form onSubmit={buttonClicked}>
-            <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
-            <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
-            {playlist.selectedPlaylist !== "" ? <button type='submit'>
-                Search
-            </button> : null}
-            <div>
-                <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
-                {trackDetail && <Detail {...trackDetail} /> }
-                {trackDetail && <TrackFinder name={trackDetail.name}
-                                             artists={trackDetail.artists}
-                                             duration_ms={trackDetail.duration_ms}
-                                             trackID={trackDetail.id}
-                                             foundSong={addSongToTracklist}/>}
-            </div>
-        </form>
+        <div>
+            <form onSubmit={buttonClicked}>
+                <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
+                <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
+                {playlist.selectedPlaylist !== "" ? <button type='submit'>
+                    Search
+                </button> : null}
+                <div>
+                    <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
+                    {trackDetail && <Detail {...trackDetail} /> }
+                    {trackDetail && <TrackFinder name={trackDetail.name}
+                                                 artists={trackDetail.artists}
+                                                 duration_ms={trackDetail.duration_ms}
+                                                 trackID={trackDetail.id}
+                                                 foundSong={addSongToTracklist}/>}
+                </div>
+            </form>
+            <button onClick={() => {playSong()}}>PLAY SONG</button>
+            <button onClick={() => {loadNextSong()}}>NEXT SONG</button>
+            <button onClick={() => {loadPreviousSong()}}>PREVIOUS SONG</button>
+        </div>
     );
 }
 
