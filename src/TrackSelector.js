@@ -71,7 +71,7 @@ function TrackSelector() {
             listOfGenresFromAPI: genres.listOfGenresFromAPI
         });
 
-        axios(`https://api.spotify.com/v1/browse/categories/${val}/playlists?limit=10`, {
+        axios(`https://api.spotify.com/v1/browse/categories/${val}/playlists?limit=30`, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
         }).then(playlistResponse => {
@@ -91,7 +91,7 @@ function TrackSelector() {
 
     const buttonClicked = e => {
         e.preventDefault();
-        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=10`, {
+        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=30`, {
             method: 'GET',
             headers: {
                 'Authorization' : 'Bearer ' + token
@@ -191,9 +191,10 @@ function TrackSelector() {
                                                  foundSong={addSongToTracklist}/>}
                 </div>
             </form>
-            <button onClick={() => {playSong()}}>PLAY SONG</button>
-            <button onClick={() => {loadNextSong()}}>NEXT SONG</button>
-            <button onClick={() => {loadPreviousSong()}}>PREVIOUS SONG</button>
+            {tracklist.length > 0 && <button onClick={() => {playSong()}}>PLAY SONG</button>}
+            {currentSong + 1 < tracklist.length && <button onClick={() => {loadNextSong()}}>NEXT SONG</button>}
+            {currentSong - 1 >= 0 && <button onClick={() => {loadPreviousSong()}}>PREVIOUS SONG</button>}
+
         </div>
     );
 }

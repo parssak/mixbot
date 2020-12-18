@@ -5,8 +5,8 @@ import {parse, end, toSeconds, pattern} from 'iso8601-duration';
 import ytdl from "react-native-ytdl";
 import HttpsProxyAgent from 'https-proxy-agent';
 
-const proxy = 'http://user:pass@111.111.111.111:8080';
-const agent = HttpsProxyAgent(proxy);
+// const proxy = 'http://user:pass@111.111.111.111:8080';
+// const agent = HttpsProxyAgent(proxy);
 let lastChosenID = "";
 export default function TrackFinder({name, artists, duration_ms, foundSong, trackID}) {
 
