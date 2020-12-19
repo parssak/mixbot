@@ -43,14 +43,32 @@ button:hover {
 .slider {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
-    width: 100%; /* Full-width */
+    /*width: 250px; !* Full-width *!*/
     height: 25px; /* Specified height */
     background: #d3d3d3; /* Grey background */
     outline: none; /* Remove outline */
     opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
     -webkit-transition: .2s; /* 0.2 seconds transition on hover */
     transition: opacity .2s;
+    border-radius: 1em;
+    /*display: block;*/
+    margin: 0.3rem 0.5em 0.5em;
 }
 .slider:hover {
     opacity: 1; /* Fully shown on mouse-over */
+}
+
+.mixboard {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+.mixboard label {
+    font-size: 0.7rem;
+    margin-left: 1em;
+    margin-bottom: 0;
+    color: #8284ac;
+    font-weight: bolder;
+
 }
