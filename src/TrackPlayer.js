@@ -262,8 +262,11 @@ const track = audioCtx.createMediaElementSource(audioElement);
 console.log(track.context);
 const gainNode = audioCtx.createGain();
 gainNode.gain.value = 0.2;
-
-track.connect(gainNode).connect(audioCtx.destination);
+const lowpassNode = audioCtx.createBiquadFilter();
+lowpassNode.type = "lowpass";
+lowpassNode.frequency.value = 50000;
+lowpassNode.Q.value = 5;
+track.connect(gainNode).connect(lowpassNode).connect(audioCtx.destination);
 function loadNextSong() {
     // audioElement.pause();
     // audioElement.load();
@@ -291,6 +294,19 @@ function setCurrentSong() {
 
 function getCurrentSong() {
     return tracklist[currentSong];
+}
+
+let filtNum=0;
+let volNum=1;
+function changeFilter(amount) {
+    console.log(amount.target.value);
+    filtNum = amount.target.value;
+    lowpassNode.frequency.value = filtNum;
+}
+
+function changeVolume(amount) {
+    volNum = amount.target.value;
+    gainNode.gain.value = volNum;
 }
 
 export default function TrackPlayer() {
@@ -324,6 +340,18 @@ export default function TrackPlayer() {
     return (
         <div>
             <audio src={tempTrack}/>
+            <input
+                className={"slider"}
+                type="range"
+                min="0" max="15000"
+                onChange={changeFilter}
+                step="1"/>
+            <input
+                className={"slider"}
+                type="range"
+                min="0" max="1"
+                onChange={changeVolume}
+                step="0.01"/>
             <button onClick={() => {playTrack()}}>Play Song</button>
             <button onClick={() => {nextTrack()}}>Next Song</button>
             <button onClick={() => {previousTrack()}}>Previous Song</button>
