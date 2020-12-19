@@ -1,7 +1,7 @@
 @import 'listbox.css';
 
 * {
-    background: #292a31;
+    /*background: #292a31;*/
     color: white;
     font-size: 30px;
 }
@@ -61,7 +61,7 @@ button:hover {
 .mixboard {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 50%;
 }
 
 .mixboard label {
@@ -70,5 +70,9 @@ button:hover {
     margin-bottom: 0;
     color: #8284ac;
     font-weight: bolder;
+}
 
+.djboard {
+    display: flex;
+    flex-direction: row;
 }

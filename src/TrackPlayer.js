@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Deck from "./Deck";
 let tracklist = [];
-let currentSong = 0;
+
 // let deck1 = createDeck();
 // let deck2 = deck1; // TODO CHANGE THIS LATER!!!
 // function createDeck() {
@@ -165,33 +165,15 @@ export function trackAlreadyIn(trackName) {
 //     audioElement.play();
 // }
 
-function getCurrentSong() {
-    return tracklist[currentSong];
-}
-
 export default function TrackPlayer() {
-    const [trackName, setTrackName] = useState("");
-    const [trackArtist, setTrackArtist] = useState("");
-
-    function playTrack() {
-        // playSong();
-        setSongDetails();
-    }
-
-    function setSongDetails() {
-        const currSong = getCurrentSong();
-        if (currSong) {
-            setTrackName(currSong.songName);
-            setTrackArtist(currSong.songArtists[0].name);
-        }
-    }
-
     return (
-        <div>
+        <>
             <hr/>
-            <Deck/>
-            {/*<button onClick={() => {nextTrack()}}>Next Song</button>*/}
-            {/*<button onClick={() => {previousTrack()}}>Previous Song</button>*/}
-            {trackName !== "" && <h1>Currently playing: {trackName} by {trackArtist}</h1>}
-        </div>);
+            <div className={"djboard"}>
+                <Deck/>
+                <Deck/>
+                {/*<button onClick={() => {nextTrack()}}>Next Song</button>*/}
+                {/*<button onClick={() => {previousTrack()}}>Previous Song</button>*/}
+            </div>
+        </>);
 }
