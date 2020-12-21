@@ -48,6 +48,7 @@ export default class Deck extends React.Component {
         };
         this.playPause = this.playPause.bind(this);
         this.changeFilter = this.changeFilter.bind(this);
+        this.changeGain = this.changeGain.bind(this);
         this.changeMids = this.changeMids.bind(this);
         this.reconnectAudio = this.reconnectAudio.bind(this);
 
@@ -60,6 +61,9 @@ export default class Deck extends React.Component {
         this.state.highpassNode.type = "highpass";
         this.state.highpassNode.frequency.value = this.state.audioSettings.highpassF;
         this.state.highpassNode.Q.value = 5;
+
+        this.state.gainNode = this.state.audioCtx.createGain();
+        this.state.gainNode.gain.value = this.state.audioSettings.gain;
 
         this.reconnectAudio();
     }
@@ -79,6 +83,7 @@ export default class Deck extends React.Component {
         const track = this.state.audioCtx.createMediaElementSource(this.state.audioElement);
         track.connect(this.state.lowpassNode)
             .connect(this.state.highpassNode)
+            .connect(this.state.gainNode)
             .connect(this.state.audioCtx.destination);
     }
 
@@ -106,7 +111,11 @@ export default class Deck extends React.Component {
             this.state.audioSettings.highpassF = highpassAmount;
             this.state.highpassNode.frequency.value = this.state.audioSettings.highpassF;
         }
+    }
 
+    changeGain(amount) {
+        this.state.audioSettings.gain = amount/100;
+        this.state.gainNode.gain.value = this.state.audioSettings.gain;
     }
 
 
@@ -121,26 +130,17 @@ export default class Deck extends React.Component {
             <>
                 <div className={"mixboard"}>
                     {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
-                    {/*<Knob*/}
-                    {/*    size={70}*/}
-                    {/*    numTicks={20}*/}
-                    {/*    degrees={260}*/}
-                    {/*    min={0}*/}
-                    {/*    max={8000}*/}
-                    {/*    value={0}*/}
-                    {/*    color={true}*/}
-                    {/*    onChange={this.changeHighpass}*/}
-                    {/*/>*/}
                     <Knob
                         size={70}
                         numTicks={20}
                         degrees={260}
                         min={0}
-                        max={30000}
-                        value={15000}
+                        max={200}
+                        value={100}
                         color={true}
-                        onChange={this.changeFilter}
+                        onChange={this.changeGain}
                     />
+                    <label>GAIN</label>
                     <Knob
                         size={70}
                         numTicks={20}
