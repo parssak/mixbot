@@ -111,23 +111,25 @@ class Knob extends React.Component {
         iStyle.transform = "rotate(" + this.state.deg + "deg)";
 
         return (
-            <div className="knob" style={kStyle}>
-                <div className="ticks">
-                    {this.props.numTicks
-                        ? this.renderTicks().map((tick, i) => (
-                            <div
-                                key={i}
-                                className={
-                                    "tick" + (tick.deg <= this.currentDeg ? " active" : "")
-                                }
-                                style={tick.tickStyle}
-                            />
-                        ))
-                        : null}
-                </div>
-                <div className="knob outer" style={oStyle} onMouseDown={this.startDrag}>
-                    <div className="knob inner" style={iStyle}>
-                        <div className="grip" />
+            <div className={"knobs"}>
+                <div className="knob" style={kStyle}>
+                    <div className="ticks">
+                        {this.props.numTicks
+                            ? this.renderTicks().map((tick, i) => (
+                                <div
+                                    key={i}
+                                    className={
+                                        "tick" + (tick.deg <= this.currentDeg ? " active" : "")
+                                    }
+                                    style={tick.tickStyle}
+                                />
+                            ))
+                            : null}
+                    </div>
+                    <div className="knob outer" style={oStyle} onMouseDown={this.startDrag}>
+                        <div className="knob inner" style={iStyle}>
+                            <div className="grip" />
+                        </div>
                     </div>
                 </div>
             </div>

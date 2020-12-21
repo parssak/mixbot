@@ -1,121 +1,10 @@
 import React, {useState} from 'react';
 import Deck from "./Deck";
 let tracklist = [];
-
-// let deck1 = createDeck();
-// let deck2 = deck1; // TODO CHANGE THIS LATER!!!
-// function createDeck() {
-//     return {
-//         source : context.createMediaElementSource(currSong),
-//         analyser : context.createAnalyser(),
-//         panner : context.createPanner(),
-//         lowpass : context.createBiquadFilter(),
-//         highpass : context.createBiquadFilter(),
-//         gain : context.createGain(),
-//         scriptProcessor : context.createScriptProcessor(2048, 1, 1),
-//         playing : false
-//     };
-// }
-// function connectDeck(deck, buffer, startTime) {
-//     // TODO LEFT OFF here
-//     // const audioElement = new Audio(tracklist[0].songURL);
-//     // const track = context.createMediaElementSource(audioElement);
-//     // deck.source = track;
-//     // track.connect(context.destination);
-//     // console.log(deck.source);
-//     // deck.source.buffer = buffer;
-//     // deck.source.loop = true;
-//     if (context.state === 'suspended') {
-// // check if context is in suspended state (autoplay policy)
-//         context.resume();
-//     }
-//     context.resume();
-//     // context.
-//     // audioElement.play();
-//
-//     // deck.gain.gain.value = 1;
-//     //
-//     // deck.lowpass.type = "lowpass";
-//     // deck.lowpass.frequency.value = 30000;
-//     // deck.lowpass.Q.value = 5;
-//     //
-//     // deck.highpass.type = "highpass";
-//     // deck.highpass.frequency.value = 0;
-//     // deck.highpass.Q.value = 5;
-//     //
-//     // deck.panner.setPosition(0,0,0);
-//     //
-//     // deck.analyser.smoothingTimeConstant = 0.9;
-//     // deck.analyser.fftSize = 128;
-//     //
-//     // deck.source.connect(deck.gain);
-//     // deck.gain.connect(deck.lowpass);
-//     // deck.lowpass.connect(deck.highpass);
-//     // deck.highpass.connect(deck.panner);
-//     // deck.panner.connect(deck.analyser);
-//     // deck.panner.connect(context.destination);
-//     // deck.analyser.connect(deck.scriptProcessor);
-//     // deck.scriptProcessor.connect(context.destination);
-//
-//     // deck.pl
-//     // deck.source.start(startTime);
-//     return deck;
-// }
-// //
-// // let buffer1;
-// // let buffer2;
-// //
-// //
-// // function calcVolume(){
-// //     let fader = 0.5;
-// //     let vol1 = 1;
-// //     let vol2 = 1;
-// //     let vol = 1;
-// //     if(fader > 0){
-// //         vol = vol1 * (1 - fader);
-// //         deck1.gain.gain.value = vol;
-// //         deck2.gain.gain.value = vol2;
-// //     }else if(fader < 0){
-// //         vol = vol2 * (1 + fader);
-// //         deck2.gain.gain.value = vol;
-// //         deck1.gain.gain.value = vol1;
-// //     }else if(fader === 0){
-// //         deck1.gain.gain.value = vol1;
-// //         deck2.gain.gain.value = vol2;
-// //     }
-// // }
-//
-// function calcEffect(){
-//     let _speed1 = 1;
-//     let _speed2 = 1;
-//
-//     let _lowpass1 = 1;
-//     let _lowpass2 = 1;
-//
-//     let _highpass1 = 1;
-//     let _highpass2 = 1;
-//
-//     let _panner1X = 1;
-//     let _panner1Y = 1;
-//     let _panner2X = 1;
-//     let _panner2Y = 1;
-//
-//     deck1.panner.setPosition(_panner1X,0,-1);
-//     deck1.panner.setPosition(0, _panner1Y,-1);
-//     deck2.panner.setPosition(_panner2X,0,-1);
-//     deck2.panner.setPosition(0, _panner2Y,-1);
-//
-//     deck1.lowpass.frequency.value = _lowpass1;
-//     deck2.lowpass.frequency.value = _lowpass2;
-//
-//     deck1.highpass.frequency.value = _highpass1;
-//     deck2.highpass.frequency.value = _highpass2;
-//
-//     // deck1.source.playbackRate.value = 124;
-//     // deck2.source.playbackRate.value = _speed2;
-//
-// }
-
+let upcomingSongs = [];
+let alreadyPlayed = [];
+let currentSong = 0;
+let giveToRight = true;
 
 // --- Global Functions ---
 export function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
@@ -126,7 +15,9 @@ export function addToQueue(songName, songArtists, duration_ms, songURL, analysis
         songURL: songURL,
         songAnalysis: analysis
     }
+    console.log(songArtists);
     tracklist.push(newSong);
+    upcomingSongs.push(newSong);
 }
 
 export function trackAlreadyIn(trackName) {
@@ -166,14 +57,44 @@ export function trackAlreadyIn(trackName) {
 // }
 
 export default function TrackPlayer() {
+    const [deck1Song, setDeck1Song] = useState('');
+    const [deck2Song, setDeck2Song] = useState('');
+
+    function loadTrackA() {
+        console.log("entered");
+        let newSong = loadTrack();
+        console.log("newSong is", newSong)
+        if (newSong !== null) {
+            setDeck1Song(newSong)
+        }
+    }
+
+    function loadTrackB() {
+        let newSong = loadTrack();
+        if (newSong !== null) {
+            setDeck2Song(newSong)
+        }
+    }
+
+    function loadTrack() {
+        let nextSong = null;
+        if (upcomingSongs.length !== 0) {
+            nextSong = upcomingSongs[0];
+            alreadyPlayed.push(nextSong);
+            upcomingSongs.shift();
+        }
+        return nextSong;
+    }
+
+
     return (
-        <>
-            <hr/>
             <div className={"djboard"}>
-                <Deck/>
-                <Deck/>
-                {/*<button onClick={() => {nextTrack()}}>Next Song</button>*/}
-                {/*<button onClick={() => {previousTrack()}}>Previous Song</button>*/}
+                {tracklist.length !== 0 && <button onClick={() => loadTrackA()}>Load Track A</button>}
+                {/*<Deck thisSong={deck1Song}/>*/}
+                {/*<Deck thisSong={deck1Song}/>*/}
+                {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name}/>}
+                {tracklist.length !== 0 && <button onClick={() => loadTrackB()}>Load Track B</button>}
+                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}/>}
             </div>
-        </>);
+    );
 }
