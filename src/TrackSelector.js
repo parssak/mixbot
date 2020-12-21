@@ -96,16 +96,30 @@ function TrackSelector() {
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID) {
         if (!trackAlreadyIn(songName)) {
-            console.log("adding: " + songName);
-            // let analysis = getAudioAnalysis(trackID);
-            // console.log(analysis)
-            let analysis = "";
-            addToQueue(songName, songArtists, duration, songURL, analysis);
-            setTrackDetail(null);
+            console.log("adding: " + songName + "with id "   + trackID);
+            getAudioAnalysis(trackID, songName, songArtists, duration, songURL);
         } else {
             console.log("track is already in the queue");
             setTrackDetail(null);
         }
+    }
+
+    const getAudioAnalysis = (id, songName, songArtists, duration, songURL) => {
+        console.log("song id is "+id);
+        axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization' : 'Bearer ' + token
+            }
+        }).then(e => {
+            console.log(e);
+            addToQueue(songName, songArtists, duration, songURL, e);
+        }).catch(e => {
+            addToQueue(songName, songArtists, duration, songURL, "NOTFOUND");
+            console.log(e);
+        }).finally(() => {
+            setTrackDetail(null);
+        });
     }
 
     return (

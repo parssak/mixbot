@@ -15,7 +15,7 @@ export function addToQueue(songName, songArtists, duration_ms, songURL, analysis
         songURL: songURL,
         songAnalysis: analysis
     }
-    console.log(songArtists);
+    console.log(analysis);
     tracklist.push(newSong);
     upcomingSongs.push(newSong);
 }
@@ -62,11 +62,16 @@ export default function TrackPlayer() {
 
 
     return (
-            <div className={"djboard"}>
-                {tracklist.length !== 0 && <button onClick={() => loadTrackA()}>Load Track A</button>}
+        <div className={"djboard"}>
+            <div className={"boardpanel"}>
+                {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>}
                 {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name}/>}
-                {tracklist.length !== 0 && <button onClick={() => loadTrackB()}>Load Track B</button>}
+                {/*{deck1Song !== '' && {deck1Song.songAnalysis !== 'NOTFOUND'  && }}*/}
+            </div>
+            <div className={"boardpanel"}>
+                {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>}
                 {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}/>}
             </div>
+        </div>
     );
 }

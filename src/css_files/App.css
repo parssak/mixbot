@@ -62,10 +62,10 @@ button:hover {
 .mixboard {
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 100%;
     background-color: #212228;
     border-radius: 1em;
-    margin-inline: 0.4em;
+    /*margin-inline: 0.4em;*/
 }
 
 .mixboard label {
@@ -153,5 +153,19 @@ button:hover {
     margin-left: 1em;
     margin-right: 1em;
     margin-bottom: 1em;
+    display: inline-block;
+    width: 70%;
+}
 
+.boardpanel {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.loadbutton {
+    background-color: #d88903;
+    font-weight: bolder;
 }

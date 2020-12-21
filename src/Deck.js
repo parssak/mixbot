@@ -2,24 +2,6 @@ import React, {useState} from 'react';
 import Knob from './frontend_components/Knob';
 const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback?expire=1608414650&ei=WiHeX43CLOSItQf065KQDA&ip=142.126.73.189&id=o-AAJBaJwAGx8B3_GJrES08jyEhH_QGhdYC6GuQQndqhy_&itag=251&source=youtube&requiressl=yes&mh=rs&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1y%2Csn-vgqsknlz&ms=au%2Conr&mv=m&mvi=8&pcm2cms=yes&pl=24&gcr=ca&initcwndbps=1565000&vprv=1&mime=audio%2Fwebm&ns=7p6-huPA8cnX8iRRVq8n3lQF&gir=yes&clen=3788632&dur=222.601&lmt=1595575954110558&mt=1608392686&fvip=1&keepalive=yes&c=WEB&txp=2311222&n=t_Mzw3L5cEmB6FSWU&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpcm2cms%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRQIgPBl1k_Up0F1hd3TmAo9PtzkcM4YnhEtS1q0E_vjX8NQCIQCaCE1baqVHMIUT6Ur5WAY884hpgrJc43BuHaerr4aJfQ%3D%3D&ratebypass=yes&sig=AOq0QJ8wRQIgaVxYgumdHmI3muG_2y-a8iIZakuBHaKpgjqhXd7pTdQCIQCHYoxiwQRM7oNB9zB1j_MUaungBqDjBnC4yeU9EroMvA%3D%3D";
 
-// -- NODES --
-// let filtNum=0;
-// let volNum=1;
-// const gainNode = audioCtx.createGain();
-// gainNode.gain.value = 0.2;
-// const lowpassNode = audioCtx.createBiquadFilter();
-// lowpassNode.type = "lowpass";
-// lowpassNode.frequency.value = 10000;
-// lowpassNode.Q.value = 5;
-// track.connect(gainNode).connect(lowpassNode).connect(audioCtx.destination);
-//
-//
-// function changeFilter(amount) {
-// //     console.log(amount.target.value);
-//     filtNum = amount.target.value;
-//     lowpassNode.frequency.value = filtNum;
-// }
-
 function changeVolume(amount) {
     console.log("vol is ", amount);
 //     volNum = amount.target.value;
@@ -71,9 +53,12 @@ export default class Deck extends React.Component {
     componentDidUpdate(prevProps) {
         if (this.props.thisSong !== prevProps.thisSong) {
             console.log("The song changed!");
+
             this.state.audioElement.pause();
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);
+
+            this.state.
             this.reconnectAudio();
         }
     }
@@ -109,6 +94,11 @@ export default class Deck extends React.Component {
         } else if (amount >= 20000) {
             let highpassAmount = amount - 20000;
             this.state.audioSettings.highpassF = highpassAmount;
+            this.state.highpassNode.frequency.value = this.state.audioSettings.highpassF;
+        } else {
+            this.state.audioSettings.lowpassF = 30000;
+            this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
+            this.state.audioSettings.highpassF = 0;
             this.state.highpassNode.frequency.value = this.state.audioSettings.highpassF;
         }
     }
