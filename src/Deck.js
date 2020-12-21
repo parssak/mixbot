@@ -130,27 +130,9 @@ export default class Deck extends React.Component {
             <>
                 <div className={"mixboard"}>
                     {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
-                    <Knob
-                        size={70}
-                        numTicks={20}
-                        degrees={260}
-                        min={0}
-                        max={200}
-                        value={100}
-                        color={true}
-                        onChange={this.changeGain}
-                    />
+                    <Knob size={70} numTicks={20} degrees={260} min={0} max={200} value={100} color={true} onChange={this.changeGain}/>
                     <label>GAIN</label>
-                    <Knob
-                        size={70}
-                        numTicks={20}
-                        degrees={260}
-                        min={0}
-                        max={30000}
-                        value={15000}
-                        color={true}
-                        onChange={this.changeFilter}
-                    />
+                    <Knob size={70} numTicks={20} degrees={260} min={0} max={30000} value={15000} color={true} onChange={this.changeFilter}/>
                     <label>FILTER</label>
                     <button className={"playButton"}
                             onClick={() => {

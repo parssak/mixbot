@@ -30,32 +30,6 @@ export function trackAlreadyIn(trackName) {
     return false;
 }
 
-
-// function loadNextSong() {
-//     audioElement.pause();
-//     audioElement.load();
-//     if (currentSong + 1 < tracklist.length) {
-//         currentSong += 1;
-//         setCurrentSong();
-//     }
-// }
-
-// function loadPreviousSong() {
-//     audioElement.pause();
-//     audioElement.load();
-//     if (currentSong - 1 >= 0) {
-//         currentSong -= 1;
-//         setCurrentSong();
-//     }
-// }
-
-// function setCurrentSong() {
-//     audioElement.pause();
-//     audioElement.src = tracklist[currentSong].songURL;
-//     console.log(tracklist[currentSong].songURL);
-//     audioElement.play();
-// }
-
 export default function TrackPlayer() {
     const [deck1Song, setDeck1Song] = useState('');
     const [deck2Song, setDeck2Song] = useState('');
@@ -90,8 +64,6 @@ export default function TrackPlayer() {
     return (
             <div className={"djboard"}>
                 {tracklist.length !== 0 && <button onClick={() => loadTrackA()}>Load Track A</button>}
-                {/*<Deck thisSong={deck1Song}/>*/}
-                {/*<Deck thisSong={deck1Song}/>*/}
                 {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name}/>}
                 {tracklist.length !== 0 && <button onClick={() => loadTrackB()}>Load Track B</button>}
                 {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}/>}
