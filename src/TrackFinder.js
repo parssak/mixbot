@@ -31,7 +31,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
                 artistNames.push(thisName)
             }
         });
-        let searchQuery = songName + " " + artistNames[0] + " audio";
+        let searchQuery = songName + " by " + artistNames[0];
         console.log("SEARCH QUERY:",searchQuery);
         return searchQuery;
     }

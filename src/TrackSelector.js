@@ -6,6 +6,7 @@ import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 import TrackPlayer, {trackAlreadyIn, addToQueue} from "./TrackPlayer";
+import Waveform from "./frontend_components/Waveform";
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
@@ -71,7 +72,7 @@ function TrackSelector() {
     function playlistSearchClicked(e) {
         e.preventDefault();
         console.log("selected playlist was" +playlist.selectedPlaylist);
-        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=30`, {
+        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=40`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token
