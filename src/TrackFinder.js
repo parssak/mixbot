@@ -66,17 +66,22 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
             const videoList = e.data.items;
             console.log("-- Entered getYoutubeVideo --");
             for (let video = 0; video < videoList.length; video++) {
-                // console.log(videoList[video])
                 const thisID = await videoDetail(videoList[video].id.videoId);
                 const thisDur = toMilli(thisID.data.items[0].contentDetails.duration);
-                // console.log("checking this one: -> " + Math.abs(duration - thisDur));
                 if (Math.abs(duration - thisDur) <= 1000) {
-                    // console.log("set this one!")
                     console.log(videoList[video]);
                     setChosenVideoID(videoList[video].id.videoId);
                     break;
                 }
             }
+
+        }).finally(async () => {
+            if (chosenVideoID === "") {
+                console.log("could not find song");
+            } else {
+                console.log("found song")
+            }
+
         })
     }
 

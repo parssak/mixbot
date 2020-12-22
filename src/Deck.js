@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import Knob from './frontend_components/Knob';
 import Waveform from "./frontend_components/Waveform";
-// const tempTrack = "https://r7---sn-cxaaj5o5q5-tt1ee.googlevideo.com/videoplayback?expire=1608588824&ei=uMngX7HJNv7B2_gP3Z-r6Aw&ip=142.126.73.189&id=o-AIVZ6rL_eejugyR0HpbGeF9Vmz3blVm2c6pqNfNUba_F&itag=251&source=youtube&requiressl=yes&mh=LL&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1ee%2Csn-vgqsrnll&ms=au%2Conr&mv=m&mvi=7&pl=24&pcm2=no&initcwndbps=1531250&vprv=1&mime=audio%2Fwebm&ns=Xk5RZEdQ35HJsRwTLGpffmsF&gir=yes&clen=4411139&dur=260.061&lmt=1591475714601748&mt=1608566918&fvip=4&keepalive=yes&c=WEB&txp=5531432&n=SfhHh00q_7QSh3PFl&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cpcm2%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRQIhAJ6pJLOeNhgyMV1ssx0dQd82zMklkxhg32eW2KBOKyZtAiAPGlGEyW2mRlauMQ9dFl_3W71flG5f64_eTWp6vHQgxg%3D%3D&ratebypass=yes&sig=AOq0QJ8wRQIhAIf7fc6H0AgcXP6xkhsgmIbairOSnE3w9xy6MJhIeY2mAiBQxrHHy_3ITqFfpeMr64l77g8OMGnjKkqy8tCwt2wdsQ%3D%3D";
-const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
+const tempTrack = "https://r3---sn-cxaaj5o5q5-tt1e6.googlevideo.com/videoplayback?expire=1608610815&ei=nx_hX4vIFYqQigSZ1KmYBw&ip=142.126.73.189&id=o-AM9ISVs3xKNDLHXtBGF1d7_KISJ8oIJs4aadgh0RPSsR&itag=251&source=youtube&requiressl=yes&mh=ys&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1e6%2Csn-vgqs7nez&ms=au%2Conr&mv=m&mvi=3&pl=24&initcwndbps=1746250&vprv=1&mime=audio%2Fwebm&ns=JYjlW2BRn0WOl0ToSHx1hmQF&gir=yes&clen=3520629&dur=208.481&lmt=1574979188257302&mt=1608588765&fvip=3&keepalive=yes&c=WEB&txp=5531432&n=60yZrSdpH8w8KRAaZ&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRgIhAIINBe8OfMG6wT-lFloDYfrIXfaTNMNJPe3br4qdsBmBAiEAoMaCRCdwDUegc-2YLfLKULniG2P1VGD7ZPk7Bdeti6s%3D&ratebypass=yes&sig=AOq0QJ8wRQIgdwolAOIckS8PhXNOdVWUzc_vZqm4652bABCm0lmuIBECIQDa3gyZekQO25IIEYxY_gLIaJUxObKXAjTmTF8guVGgyw%3D%3D";
+// const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
 function changeVolume(amount) {
     console.log("vol is ", amount);
 //     volNum = amount.target.value;
@@ -20,8 +20,8 @@ export default class Deck extends React.Component {
             trackName: this.props.songName,
             trackArtist: this.props.songArtist,
             audioCtx: new AudioContext(),
-            // audioElement: new Audio(this.props.thisSong),
-            audioElement: new Audio(tempTrack),
+            audioElement: new Audio(this.props.thisSong),
+            // audioElement: new Audio(tempTrack),
             audioSettings: {
                 gain: 1,
                 lowpassF: 11000,
@@ -96,7 +96,7 @@ export default class Deck extends React.Component {
 
     changeFilter(amount) {
         console.log(amount)
-        if (amount <= 10000) {
+        if (amount <= 14000) {
             console.log("A");
             this.state.audioSettings.lowpassF = amount;
             this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
@@ -120,7 +120,6 @@ export default class Deck extends React.Component {
     }
 
     handlePosChange(e) {
-        console.log(e);
         this.setState({
             pos: e
         });
@@ -151,10 +150,10 @@ export default class Deck extends React.Component {
                     {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
                     <Knob size={70} numTicks={70} degrees={260} min={0} max={200} value={100} color={true} onChange={this.changeGain}/>
                     <label>GAIN</label>
-                    <Knob size={70} numTicks={70} degrees={260} min={1} max={30000} value={15000} color={true} onChange={this.changeFilter}/>
+                    <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter}/>
                     <label>FILTER</label>
                     <button className={"playButton"} onClick={() => {this.playPause()}}>{this.state.playing ? "Pause" : "Play"}</button>
-                    <Waveform url={this.state.audioElement} onPositionChange={this.handlePosChange} isPlaying={this.state.playing}/>
+                    <Waveform url={this.state.audioElement} onPositionChange={this.handlePosChange} isPlaying={this.state.playing} audioCtx={this.state.audioCtx} lowpassNum={this.state.lowpassF}/>
                 </div>
             </>
         );
