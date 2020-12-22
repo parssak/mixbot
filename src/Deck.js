@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
-import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
+// import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 // import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
 // import Waveform from "./frontend_components/Waveform";
@@ -42,24 +42,22 @@ export default class Deck extends Component {
         this.waveform = WaveSurfer.create({
             container: '#waveform',
             waveColor: "#beb9b9",
-            progressColor: "#9a68c9",
+            // progressColor: "#9a68c9",
             cursorColor: "#dac4f0",
             hideScrollbar: true,
-            responsive: true,
+            // responsive: true,
             // partialRender: true,
-            normalize: true,
-            height:200,
+            normalize: false,
+            height:100,
             plugins: [
-                TimelinePlugin.create({
-                    container:"#wave-timeline"
-                }),
+                // TimelinePlugin.create({
+                //     container:"#wave-timeline"
+                // }),
                 // CursorPlugin.create({
                 //     container:"#wave-cursor",
                 //     showTime: true,
                 // }),
-                RegionPlugin.create({
-
-                }),
+                RegionPlugin.create(),
             ]
         });
 
@@ -114,13 +112,36 @@ export default class Deck extends Component {
         if (this.props.songAnalysis) {
             console.log("Got song analysis!");
             let sectionArray = this.props.songAnalysis.data.sections;
+
+
             sectionArray.forEach(e => {
+                let randomColor = 'black';
+                if (e.loudness >= -10) {
+                    console.log("A");
+                    randomColor = 'rgba(123,215,255,50)'
+                } else if (e.loudness >= -20) {
+                    console.log("B");
+                    randomColor = 'rgba(123,255,123,50)'
+                } else {
+                    console.log("C");
+                    randomColor = 'rgb(208,19,19,50)'
+                }
                 let endpoint = e.start+e.duration;
                 let region = {
                     start:e.start,
                     end:endpoint,
-                    attributes:{},
-                    data:{}
+                    attributes:{
+                        label:e.confidence
+                    },
+                    data:{
+                        loudness: e.loudness,
+                        tempo: e.tempo,
+                        tempo_confidence: e.tempo_confidence,
+                        duration: e.duration,
+                    },
+                    color: randomColor,
+                    drag: false,
+                    resize: false
                     }
                 this.waveform.addRegion(region);
                 }
@@ -195,7 +216,7 @@ export default class Deck extends Component {
     render() {
         return (
             <>
-                <div className={"mixboard"}>
+                <div className={"deck"}>
                     {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
                     <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain}/>
                     <label>GAIN</label>
@@ -203,9 +224,10 @@ export default class Deck extends Component {
                     <label>FILTER</label>
                     <button className={"playButton"} onClick={() => {this.playPause()}}>{this.state.playing ? "Pause" : "Play"}</button>
                     {/*<Waveform url={this.state.audioElement} onPositionChange={this.handlePosChange} isPlaying={this.state.playing} audioCtx={this.state.audioCtx} lowpassNum={this.state.lowpassF}/>*/}
+                    <div id="waveform"/>
+                    <div id="wave-timeline"/>
                 </div>
-                <div id="waveform"/>
-                <div id="wave-timeline"/>
+
             </>
         );
     }

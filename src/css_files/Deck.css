@@ -4,7 +4,7 @@
     margin-top: 1em;
 }
 
-.mixboard {
+.deck {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -12,7 +12,7 @@
     border-radius: 1em;
 }
 
-.mixboard label {
+.deck label {
     font-size: 0.7rem;
     margin-left: 1em;
     margin-bottom: 0;
@@ -81,14 +81,14 @@
     font-weight: lighter;
 }
 
-.mixboard label {
+.deck label {
     margin-top: 0.4em;
     background-color: #212228;
     align-self: center;
     font-weight: lighter;
 }
 
-.mixboard h3 {
+.deck h3 {
     background-color: #212228;
     font-size: 0.6rem;
     font-weight: 400;
