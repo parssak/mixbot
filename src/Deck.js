@@ -19,8 +19,8 @@ export default class Deck extends Component {
             trackName: this.props.songName,
             trackArtist: this.props.songArtist,
             audioCtx: new AudioContext(),
-            // audioElement: new Audio(this.props.thisSong),
-            audioElement: new Audio(tempTrack),
+            audioElement: new Audio(this.props.thisSong),
+            // audioElement: new Audio(tempTrack),
             audioSettings: {
                 gain: 1,
                 lowpassF: 11000,
@@ -35,17 +35,7 @@ export default class Deck extends Component {
         this.changeGain = this.changeGain.bind(this);
         this.reconnectAudio = this.reconnectAudio.bind(this);
         this.handlePosChange = this.handlePosChange.bind(this);
-        //
-        // this.state.highpassNode =  this.state.audioCtx.createBiquadFilter();
-        // this.state.highpassNode.type = "highpass";
-        // this.state.highpassNode.frequency.value = this.state.audioSettings.highpassF;
-        // this.state.highpassNode.Q.value = 5;
-
-        // this.state.gainNode = this.state.audioCtx.createGain();
-        // this.state.gainNode.gain.value = this.state.audioSettings.gain;
-
-        // this.reconnectAudio();
-    }
+     }
 
     componentDidMount() {
         // wavesurfer begins here
@@ -73,7 +63,9 @@ export default class Deck extends Component {
             ]
         });
 
+
         this.waveform.load(this.state.audioElement.src);
+
         this.reconnectAudio();
     }
 
@@ -118,6 +110,26 @@ export default class Deck extends Component {
             gainNode: gain
         });
         this.waveform.backend.setFilter(lowpass, highpass);
+
+        if (this.props.songAnalysis) {
+            console.log("Got song analysis!");
+            let sectionArray = this.props.songAnalysis.data.sections;
+            sectionArray.forEach(e => {
+                let endpoint = e.start+e.duration;
+                let region = {
+                    start:e.start,
+                    end:endpoint,
+                    attributes:{},
+                    data:{}
+                    }
+                this.waveform.addRegion(region);
+                }
+            )
+        } else {
+            console.log("song analysis not got, returned:");
+            console.log(this.props.songAnalysis);
+
+        }
         // this.waveform.backend.setFilter(lowpass, highpass);
 
     }

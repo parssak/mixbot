@@ -63,13 +63,13 @@ export default function TrackPlayer() {
         <div className={"djboard"}>
             <div className={"boardpanel"}>
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>}
-                <Deck thisSong={deck1Song.songURL}/>
-                {/*{deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name}/>}*/}
+                {/*<Deck thisSong={deck1Song.songURL} />*/}
+                {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name} songAnalysis={deck1Song.songAnalysis}/>}
                 {/*{deck1Song !== '' && {deck1Song.songAnalysis !== 'NOTFOUND'  && }}*/}
             </div>
             <div className={"boardpanel"}>
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>}
-                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}/>}
+                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name} songAnalysis={deck1Song.songAnalysis}/>}
             </div>
         </div>
     );
