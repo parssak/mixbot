@@ -4,10 +4,14 @@ import WaveSurfer from 'wavesurfer.js';
 // import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 // import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
-// import Waveform from "./frontend_components/Waveform";
 
 const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback?expire=1608683629&ei=DTziX9T7BpmCir4PtcKm6AQ&ip=142.126.73.189&id=o-AMVicLbj0Gv2rQrVjovPek8wxxBV4FI5LMlCg6R1G6tz&itag=251&source=youtube&requiressl=yes&mh=rs&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1y%2Csn-vgqs7nls&ms=au%2Conr&mv=m&mvi=8&pl=24&gcr=ca&initcwndbps=1700000&vprv=1&mime=audio%2Fwebm&ns=s_KJpKjwEsZZ8AheQ_gNizUF&gir=yes&clen=3788632&dur=222.601&lmt=1595575954110558&mt=1608661718&fvip=1&keepalive=yes&c=WEB&txp=2311222&n=P9s4oVIr7EC14Ztz&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgRMh65mjTW6PwQwyNug7n8o3U7_emmK9tyYapXeysfYACIHepjV45GMhesgNEo1wTHgBd5QnjG5icCMtM_PqjfFo_&ratebypass=yes&sig=AOq0QJ8wRgIhANl_rwVxcCYUdSw5WCiK5WWQwGPeV6RqvmXBcFXpCmlMAiEAxuwr91Yd_by6vYdEcszyTD--r58Ll8EWI6QUANVTrYk%3D";
 // const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
+
+const DROP = 'DROP';
+const BEGIN = 'BEGIN';
+const COMEDOWN = 'COMEDOWN';
+const REGULAR = 'REG';
 
 export default class Deck extends Component {
     constructor(props) {
@@ -109,30 +113,91 @@ export default class Deck extends Component {
         });
         this.waveform.backend.setFilter(lowpass, highpass);
 
-        if (this.props.songAnalysis) {
+        if (this.props.songAnalysis !== 'NOTFOUND') {
             console.log("Got song analysis!");
+            console.log(this.props.songAnalysis);
             let sectionArray = this.props.songAnalysis.data.sections;
+            let baselineLoudness = this.props.songAnalysis.data.track.loudness;
+            let songSections = [];
 
-
-            sectionArray.forEach(e => {
-                let randomColor = 'black';
-                if (e.loudness >= -10) {
-                    console.log("A");
-                    randomColor = 'rgba(123,215,255,50)'
-                } else if (e.loudness >= -20) {
-                    console.log("B");
-                    randomColor = 'rgba(123,255,123,50)'
-                } else {
-                    console.log("C");
-                    randomColor = 'rgb(208,19,19,50)'
-                }
+            sectionArray.forEach(e => { // TODO left off here
+                // let loudnessTag = 0;
+                let sectionType = '';
                 let endpoint = e.start+e.duration;
+                let comparisonLoudness = (e.loudness - baselineLoudness)/baselineLoudness;
+                console.log("the comparison loudness of section",songSections.length,"is",comparisonLoudness);
+
+                // IF BEGINNING OF SONG
+                if (songSections.length === 0) {
+                    sectionType = BEGIN;
+                }
+
+                // IF LOUD === DROP
+                if (comparisonLoudness < 0) {
+                    sectionType = DROP;
+                }
+
+                // IF LAST SONG WAS DROP AND DIFFERENTIAL OF THIS IS NEGATIVE === COMEDOWN
+                let diff = 0;
+                if (songSections.length > 0) {
+                    diff = songSections[songSections.length - 1].comparisonLoudness - comparisonLoudness;
+                    if (songSections[songSections.length - 1].sectionType === DROP && diff < 0) {
+                        sectionType = COMEDOWN
+                    }
+                }
+
+                if (sectionType === '') { // the last thing to do
+                    sectionType = REGULAR;
+                }
+                let analysisSection = {
+                    sectionType: sectionType,
+                    comparisonLoudness: comparisonLoudness,
+                    differential: diff
+
+                }
+
+                let randomColor = 'rgba(162,254,231,0.3)';
+                switch (sectionType) {
+                    case "":
+                        break;
+                    case BEGIN:
+                        randomColor = 'rgba(50,255,155,0.3)';
+                        break;
+                    case DROP:
+                        randomColor = 'rgba(237,61,155,0.3)';
+                        break;
+                    case COMEDOWN:
+                        randomColor = 'rgba(123,215,255,0.3)'
+                        break;
+                }
+
+                songSections.push(analysisSection);
+                // if (songSections.length > 0) {
+                //     console.log("previous was:", songSections[songSections.length - 1].loudness);
+                //     console.log("this is",loudnessTag);
+                //     if (dropValue !== -1) {
+                //         if (loudnessTag === dropValue) {
+                //             sectionType = 'drop'
+                //         }
+                //     }
+                //     if (songSections[songSections.length - 1].sectionType === 'drop') {
+                //         sectionType = 'comedown'
+                //     } else if (songSections[songSections.length - 1].loudness - loudnessTag >= 2) {
+                //         sectionType = 'drop'
+                //         dropValue = loudnessTag
+                //     } else if (songSections[songSections.length - 1].loudness - loudnessTag >= 1) {
+                //       sectionType = 'buildup'
+                // }
+                // let songSection = {
+                //     loudness: loudnessTag,
+                //     sectionType: sectionType,
+                // }
+                // //     }
+                // songSections.push(songSection);
                 let region = {
                     start:e.start,
                     end:endpoint,
-                    attributes:{
-                        label:e.confidence
-                    },
+                    attributes:analysisSection,
                     data:{
                         loudness: e.loudness,
                         tempo: e.tempo,
@@ -149,8 +214,16 @@ export default class Deck extends Component {
         } else {
             console.log("song analysis not got, returned:");
             console.log(this.props.songAnalysis);
-
         }
+
+        this.waveform.on('region-in', e => {
+            // $('.waveform__counter').text( formatTime(wavesurfer.getCurrentTime()) );
+            // console.log(wavesurfer.current.getCurrentTime());
+            console.log("Enterd new region", e.attributes, e.data);
+            // console.log(e);
+            // onPositionChange(wavesurfer.current.getCurrentTime());
+
+        });
         // this.waveform.backend.setFilter(lowpass, highpass);
 
     }

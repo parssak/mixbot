@@ -29,17 +29,17 @@ function TrackSelector() {
         })
             .then(tokenResponse => {
                 setToken(tokenResponse.data.access_token);
-                axios('https://api.spotify.com/v1/browse/categories', {
-                    method: 'GET',
-                    headers: { 'Authorization' : 'Bearer ' + tokenResponse.data.access_token}
-                })
-                    .then (genreResponse => {
-                        console.log(genreResponse)
-                        setGenres({
-                            selectedGenre: genres.selectedGenre,
-                            listOfGenresFromAPI: genreResponse.data.categories.items
-                        })
-                    });
+                // axios('https://api.spotify.com/v1/browse/categories', {
+                //     method: 'GET',
+                //     headers: { 'Authorization' : 'Bearer ' + tokenResponse.data.access_token}
+                // })
+                //     .then (genreResponse => {
+                //         console.log(genreResponse)
+                //         setGenres({
+                //             selectedGenre: genres.selectedGenre,
+                //             listOfGenresFromAPI: genreResponse.data.categories.items
+                //         })
+                //     });
 
             });
 
