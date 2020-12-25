@@ -4,6 +4,7 @@ import WaveSurfer from 'wavesurfer.js';
 // import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 // import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
+import {end} from "iso8601-duration";
 
 const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback?expire=1608683629&ei=DTziX9T7BpmCir4PtcKm6AQ&ip=142.126.73.189&id=o-AMVicLbj0Gv2rQrVjovPek8wxxBV4FI5LMlCg6R1G6tz&itag=251&source=youtube&requiressl=yes&mh=rs&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1y%2Csn-vgqs7nls&ms=au%2Conr&mv=m&mvi=8&pl=24&gcr=ca&initcwndbps=1700000&vprv=1&mime=audio%2Fwebm&ns=s_KJpKjwEsZZ8AheQ_gNizUF&gir=yes&clen=3788632&dur=222.601&lmt=1595575954110558&mt=1608661718&fvip=1&keepalive=yes&c=WEB&txp=2311222&n=P9s4oVIr7EC14Ztz&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgRMh65mjTW6PwQwyNug7n8o3U7_emmK9tyYapXeysfYACIHepjV45GMhesgNEo1wTHgBd5QnjG5icCMtM_PqjfFo_&ratebypass=yes&sig=AOq0QJ8wRgIhANl_rwVxcCYUdSw5WCiK5WWQwGPeV6RqvmXBcFXpCmlMAiEAxuwr91Yd_by6vYdEcszyTD--r58Ll8EWI6QUANVTrYk%3D";
 // const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
@@ -32,6 +33,7 @@ export default class Deck extends Component {
                 high: 1,
                 mid: 1,
                 low: 1,
+                playbackRate: this.props.playbackRate
             }
         };
         this.playPause = this.playPause.bind(this);
@@ -67,7 +69,7 @@ export default class Deck extends Component {
 
 
         this.waveform.load(this.state.audioElement.src);
-
+        this.waveform.setPlaybackRate(this.props.playbackRate);
         this.reconnectAudio();
     }
 
@@ -119,11 +121,50 @@ export default class Deck extends Component {
             let sectionArray = this.props.songAnalysis.data.sections;
             let baselineLoudness = this.props.songAnalysis.data.track.loudness;
             let songSections = [];
+            let numSections = sectionArray.length;
+            let currSection = 0;
 
-            sectionArray.forEach(e => { // TODO left off here
+            // song analysis variables
+            let numDrops = 0;
+            let firstDropConfidence = 0;
+            let sumDropConfidence = 0;
+            let mostConfidentDrop = 0;
+
+            let numComedowns = 0;
+            let firstComedownConfidence = 0;
+            let sumComedownConfidence = 0;
+            let mostConfidentComedown = 0;
+
+            // get an array of when all bars start
+            let barStartArray = []
+            let allBars = this.props.songAnalysis.data.bars;
+
+            //TODO this is very sus !!!!!!!!!!!
+            let bpm = Math.round(this.props.songAnalysis.data.track.tempo);
+            let beat = (1/(bpm/60).toPrecision(5)).toPrecision(5);
+            let timeSig = this.props.songAnalysis.data.track.time_signature;
+            let barLength = (timeSig) * beat;
+            console.log("BAR LENGTH IS",barLength);
+
+            let songDuration = this.props.songAnalysis.data.track.duration;
+            console.log(allBars[0].start)
+            let startingPoint = 0;
+            let num32Bar = (((songDuration-startingPoint)/barLength)/8);
+            console.log(num32Bar);
+            for (let a = 0; a < num32Bar; a++) {
+                barStartArray.push(a*barLength*8);
+            }
+            console.log(barStartArray);
+
+            sectionArray.forEach(e => {
+                currSection ++;
+
                 // let loudnessTag = 0;
                 let sectionType = '';
+                let beginpoint = e.start;
                 let endpoint = e.start+e.duration;
+                let closestVal = closest(endpoint, barStartArray);
+
                 let comparisonLoudness = (e.loudness - baselineLoudness)/baselineLoudness;
                 console.log("the comparison loudness of section",songSections.length,"is",comparisonLoudness);
 
@@ -141,7 +182,7 @@ export default class Deck extends Component {
                 let diff = 0;
                 if (songSections.length > 0) {
                     diff = songSections[songSections.length - 1].comparisonLoudness - comparisonLoudness;
-                    if (songSections[songSections.length - 1].sectionType === DROP && diff < 0) {
+                    if (songSections[songSections.length - 1].sectionType === DROP && diff < 0 && sectionType !== DROP) {
                         sectionType = COMEDOWN
                     }
                 }
@@ -152,15 +193,44 @@ export default class Deck extends Component {
                 let analysisSection = {
                     sectionType: sectionType,
                     comparisonLoudness: comparisonLoudness,
-                    differential: diff
+                    differential: diff,
+                    sectionConfidence: e.confidence
+                }
 
+                // For song analysis only
+                if (sectionType === DROP) {
+
+                    if (numDrops === 0) {
+                        firstDropConfidence = e.confidence;
+                    }
+                    if (e.confidence > mostConfidentDrop) {
+                        mostConfidentDrop = e.confidence;
+                    }
+                    numDrops ++
+                    sumDropConfidence += e.confidence;
+                }
+
+                // For song analysis only
+                if (sectionType === COMEDOWN) {
+                    console.log("comedown")
+                    if (numComedowns === 0) {
+                        console.log("first comedown")
+                        firstComedownConfidence = e.confidence;
+                    }
+                    if (e.confidence > mostConfidentComedown && currSection !== numSections) {
+                        mostConfidentComedown = e.confidence;
+                    }
+                    numComedowns ++;
+                    sumComedownConfidence += e.confidence;
                 }
 
                 let randomColor = 'rgba(162,254,231,0.3)';
+                let toLoop = false;
                 switch (sectionType) {
                     case "":
                         break;
                     case BEGIN:
+                        toLoop = true;
                         randomColor = 'rgba(50,255,155,0.3)';
                         break;
                     case DROP:
@@ -171,31 +241,17 @@ export default class Deck extends Component {
                         break;
                 }
 
+                console.log(closestVal);
+                endpoint = closestVal;
+                // if (sectionType !== COMEDOWN) {
+                    beginpoint = closest(e.start, barStartArray);
+                // }
+
+
                 songSections.push(analysisSection);
-                // if (songSections.length > 0) {
-                //     console.log("previous was:", songSections[songSections.length - 1].loudness);
-                //     console.log("this is",loudnessTag);
-                //     if (dropValue !== -1) {
-                //         if (loudnessTag === dropValue) {
-                //             sectionType = 'drop'
-                //         }
-                //     }
-                //     if (songSections[songSections.length - 1].sectionType === 'drop') {
-                //         sectionType = 'comedown'
-                //     } else if (songSections[songSections.length - 1].loudness - loudnessTag >= 2) {
-                //         sectionType = 'drop'
-                //         dropValue = loudnessTag
-                //     } else if (songSections[songSections.length - 1].loudness - loudnessTag >= 1) {
-                //       sectionType = 'buildup'
-                // }
-                // let songSection = {
-                //     loudness: loudnessTag,
-                //     sectionType: sectionType,
-                // }
-                // //     }
-                // songSections.push(songSection);
+
                 let region = {
-                    start:e.start,
+                    start:beginpoint,
                     end:endpoint,
                     attributes:analysisSection,
                     data:{
@@ -203,14 +259,25 @@ export default class Deck extends Component {
                         tempo: e.tempo,
                         tempo_confidence: e.tempo_confidence,
                         duration: e.duration,
+                        begin: e.start
                     },
                     color: randomColor,
                     drag: false,
-                    resize: false
+                    resize: false,
+                    loop: toLoop
                     }
                 this.waveform.addRegion(region);
                 }
-            )
+            );
+
+            // Song Section Analysis
+            console.log("-- Completed Analysis of", songSections.length,"sections --");
+            let avgDropConfidence = (sumDropConfidence/numDrops).toPrecision(2);
+            let avgComedownConfidence = (sumComedownConfidence/numComedowns).toPrecision(2);
+            console.log("#DROPS:",numDrops,"1stDrop:",firstDropConfidence,"AvgDrop:",avgDropConfidence,"BestDrop:",mostConfidentDrop);
+            console.log("#CD:",numComedowns,"1stCD:",firstComedownConfidence,"AvgCD:",avgComedownConfidence,"BestCD:",mostConfidentComedown);
+
+
         } else {
             console.log("song analysis not got, returned:");
             console.log(this.props.songAnalysis);
@@ -274,7 +341,7 @@ export default class Deck extends Component {
         console.log("this ran")
         this.setState({
             audioSettings: {
-                gain: amount/100
+                gain: (amount/100).toPrecision(2)
             }
         })
         this.waveform.setVolume(this.state.audioSettings.gain || 1);
@@ -307,7 +374,18 @@ export default class Deck extends Component {
 }
 
 
+function closest(needle, haystack) {
+    return haystack.reduce((a, b) => {
+        let aDiff = Math.abs(a - needle);
+        let bDiff = Math.abs(b - needle);
 
+        if (aDiff == bDiff) {
+            return a > b ? a : b;
+        } else {
+            return bDiff < aDiff ? b : a;
+        }
+    });
+}
 // changeLows(amount) { // TODO
 //     console.log("lows is", amount)
 //     this.state.audioSettings.lowpassF = amount;
