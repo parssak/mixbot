@@ -12,6 +12,7 @@ const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback
 const DROP = 'DROP';
 const BEGIN = 'BEGIN';
 const COMEDOWN = 'COMEDOWN';
+const UNSURE = 'UNSURE';
 const REGULAR = 'REG';
 
 export default class Deck extends Component {
@@ -140,30 +141,57 @@ export default class Deck extends Component {
             let allBars = this.props.songAnalysis.data.bars;
 
             //TODO this is very sus !!!!!!!!!!!
-            let bpm = Math.round(this.props.songAnalysis.data.track.tempo);
-            let beat = (1/(bpm/60).toPrecision(5)).toPrecision(5);
-            let timeSig = this.props.songAnalysis.data.track.time_signature;
-            let barLength = (timeSig) * beat;
-            console.log("BAR LENGTH IS",barLength);
+            let bpm = this.props.songAnalysis.data.track.tempo;
+            let timeSig = Math.round(this.props.songAnalysis.data.track.time_signature);
+            console.log("the time sig is",timeSig);
+            let bar = this.props.songAnalysis.data.bars[0].duration;
+            let barConfidence = 0;
+            allBars.forEach(e => {
+                if (e.confidence > barConfidence) {
+                    bar = e.duration;
+                    barConfidence = e.confidence;
+                }
+            })
+
+            console.log("The most confident bar is:",bar,"with a confidence of ",barConfidence);
+
+            // let bar = 1.93235;
+            let barlength32 = bar*4;
+            // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
+            // let barLength = (timeSig) * beat;
+            console.log("BAR LENGTH IS",bar);
 
             let songDuration = this.props.songAnalysis.data.track.duration;
             console.log(allBars[0].start)
             let startingPoint = 0;
-            let num32Bar = (((songDuration-startingPoint)/barLength)/8);
+
+
+            let songBeginPoint = allBars[0].start;
+            console.log("the song begin point is",songBeginPoint);
+            console.log("--------------------------")
+
+            let num32Bar = ((songDuration)/barlength32);
             console.log(num32Bar);
-            for (let a = 0; a < num32Bar; a++) {
-                barStartArray.push(a*barLength*8);
+
+            for (let a = 0; a <= num32Bar; a++) {
+                barStartArray.push(((a)*barlength32));
             }
             console.log(barStartArray);
+            /**
+             * 
+             * 
+             * IF SECTION HAS NOT BEEN CONFORMED AND 
+             * THE DIFFERENCE IS GOOD AND CONFIDENCE IS GOOD
+             * THEN TAKE THE SUCCESSFUL AREA
+             * 
+             */
 
             sectionArray.forEach(e => {
                 currSection ++;
 
                 // let loudnessTag = 0;
-                let sectionType = '';
-                let beginpoint = e.start;
-                let endpoint = e.start+e.duration;
-                let closestVal = closest(endpoint, barStartArray);
+                let sectionType = REGULAR;
+                let is32length = false;
 
                 let comparisonLoudness = (e.loudness - baselineLoudness)/baselineLoudness;
                 console.log("the comparison loudness of section",songSections.length,"is",comparisonLoudness);
@@ -182,14 +210,15 @@ export default class Deck extends Component {
                 let diff = 0;
                 if (songSections.length > 0) {
                     diff = songSections[songSections.length - 1].comparisonLoudness - comparisonLoudness;
-                    if (songSections[songSections.length - 1].sectionType === DROP && diff < 0 && sectionType !== DROP) {
-                        sectionType = COMEDOWN
+                    if (songSections[songSections.length - 1].sectionType === DROP) {
+                        if (sectionType === DROP) {
+                            sectionType = UNSURE;
+                        } else {
+                            sectionType = COMEDOWN
+                        }
                     }
                 }
 
-                if (sectionType === '') { // the last thing to do
-                    sectionType = REGULAR;
-                }
                 let analysisSection = {
                     sectionType: sectionType,
                     comparisonLoudness: comparisonLoudness,
@@ -224,31 +253,67 @@ export default class Deck extends Component {
                     sumComedownConfidence += e.confidence;
                 }
 
-                let randomColor = 'rgba(162,254,231,0.3)';
+
+
+                songSections.push(analysisSection);
+
+
+                let beginpoint = e.start;
+                let endpoint = e.start+e.duration;
+                let closestEnd = closest(endpoint, barStartArray);
+                let closestBegin = closest(beginpoint, barStartArray);
+                let offsetBegin = closestBegin - beginpoint;
+                let offsetEnd = closestEnd - endpoint;
+                let acceptedConformEnd = false;
+                let acceptedConformBegin = false;
+
+                if (Math.abs(offsetEnd) < 2) {
+                    acceptedConformEnd = true;
+                    endpoint = closestEnd;
+                }
+
+                if (Math.abs(offsetBegin) < 2 && sectionType !== BEGIN) {
+                    acceptedConformBegin = true;
+                    beginpoint = closestBegin;
+                }
                 let toLoop = false;
+                let sizeComparison = ((endpoint - beginpoint)/barlength32).toPrecision(2);
+                if (sizeComparison % 1) {
+                    is32length = true;
+                    // toLoop = true;
+                }
+                let randomColor = 'rgba(162,254,231,0.3)';
+
                 switch (sectionType) {
                     case "":
                         break;
                     case BEGIN:
-                        toLoop = true;
+                        // toLoop = true;
                         randomColor = 'rgba(50,255,155,0.3)';
+                        if (is32length) {
+                            randomColor = 'rgba(100,255,55,0.3)';
+                        }
                         break;
                     case DROP:
                         randomColor = 'rgba(237,61,155,0.3)';
+                        if (is32length) {
+                            randomColor = 'rgba(255,31,105,0.3)';
+                        }
                         break;
                     case COMEDOWN:
                         randomColor = 'rgba(123,215,255,0.3)'
+                        if (is32length) {
+                            randomColor = 'rgba(50,150,255,0.3)' //  todo left off here
+                        }
                         break;
+                    case UNSURE:
+                        randomColor = 'rgba(34,1,255,0.2)'
+                        if (is32length) {
+                            randomColor = 'rgba(0,255,150,0.2)' //  todo left off here
+                        }
                 }
 
-                console.log(closestVal);
-                endpoint = closestVal;
-                // if (sectionType !== COMEDOWN) {
-                    beginpoint = closest(e.start, barStartArray);
-                // }
 
-
-                songSections.push(analysisSection);
 
                 let region = {
                     start:beginpoint,
@@ -259,7 +324,13 @@ export default class Deck extends Component {
                         tempo: e.tempo,
                         tempo_confidence: e.tempo_confidence,
                         duration: e.duration,
-                        begin: e.start
+                        begin: e.start,
+                        offset_beginning: offsetBegin,
+                        offset_ending: offsetEnd,
+                        conformBegin: acceptedConformBegin,
+                        conformEnd: acceptedConformEnd,
+                        difference: sizeComparison,
+                        is32length: is32length
                     },
                     color: randomColor,
                     drag: false,
@@ -375,16 +446,27 @@ export default class Deck extends Component {
 
 
 function closest(needle, haystack) {
-    return haystack.reduce((a, b) => {
-        let aDiff = Math.abs(a - needle);
-        let bDiff = Math.abs(b - needle);
-
-        if (aDiff == bDiff) {
-            return a > b ? a : b;
-        } else {
-            return bDiff < aDiff ? b : a;
+    let closeGrain = 100000000000000;
+    let grainCloseness = 100000000000000;
+    haystack.forEach(grain => {
+        let thisCloseness = Math.abs(needle - grain)
+        if (Math.abs(needle - grain) < grainCloseness) {
+            grainCloseness = thisCloseness;
+            closeGrain = grain;
         }
-    });
+    })
+    return closeGrain;
+
+    // return haystack.reduce((a, b) => {
+    //     let aDiff = Math.abs(a - needle);
+    //     let bDiff = Math.abs(b - needle);
+    //
+    //     if (aDiff == bDiff) {
+    //         return a > b ? a : b;
+    //     } else {
+    //         return bDiff < aDiff ? b : a;
+    //     }
+    // });
 }
 // changeLows(amount) { // TODO
 //     console.log("lows is", amount)
