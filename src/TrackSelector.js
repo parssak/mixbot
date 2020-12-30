@@ -7,6 +7,7 @@ import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 import TrackPlayer, {trackAlreadyIn, addToQueue} from "./TrackPlayer";
 import Waveform from "./frontend_components/Waveform";
+import Draggable from 'react-draggable';
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
@@ -124,7 +125,12 @@ function TrackSelector() {
     }
 
     return (
+        <>
+            
         <div>
+          
+
+            
             <form onSubmit={playlistSearchClicked}>
                 <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
                 <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
@@ -142,7 +148,9 @@ function TrackSelector() {
                 </div>
             </form>
             <TrackPlayer/>
-        </div>
+            </div>
+            
+            </>
     );
 }
 

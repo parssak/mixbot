@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
+import { Joystick } from 'react-joystick-component';
+import { Draggable } from 'react-draggable';
+
 // import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 // import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
@@ -21,6 +24,7 @@ export default class Deck extends Component {
         console.log("entered constructor call!");
         this.state = {
             pos: 0,
+            currSec: "NOT PLAYING",
             playing: false,
             trackName: this.props.songName,
             trackArtist: this.props.songArtist,
@@ -35,6 +39,20 @@ export default class Deck extends Component {
                 mid: 1,
                 low: 1,
                 playbackRate: this.props.playbackRate
+            },
+            currSectionAnalysis: {
+                begin: NaN,
+                endpoint: NaN,
+                comparisonLoudness: NaN,
+                differential: NaN,
+                sectionConfidence: NaN,
+                conformedBegin: NaN,
+                conformedEnd: NaN,
+                oBegin: NaN,
+                oEnd: NaN,
+                sectionColor: `rgb(255,255,255)`,
+                goodForMix: false,
+                isBest: false
             }
         };
         this.playPause = this.playPause.bind(this);
@@ -58,13 +76,6 @@ export default class Deck extends Component {
             normalize: false,
             height: 100,
             plugins: [
-                // TimelinePlugin.create({
-                //     container:"#wave-timeline"
-                // }),
-                // CursorPlugin.create({
-                //     container:"#wave-cursor",
-                //     showTime: true,
-                // }),
                 RegionPlugin.create(),
             ]
         });
@@ -131,6 +142,7 @@ export default class Deck extends Component {
 
         // let bar = 1.93235;
         let barlength32 = bar * 4;
+        let actuallength32 = bar * 8;
         // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
         // let barLength = (timeSig) * beat;
         console.log("BAR LENGTH IS", bar);
@@ -182,7 +194,7 @@ export default class Deck extends Component {
             // IF LAST SONG WAS DROP AND DIFFERENTIAL OF THIS IS NEGATIVE === COMEDOWN
             let diff = 0;
             if (songSections.length > 0) {
-                diff = songSections[songSections.length - 1].comparisonLoudness - comparisonLoudness;
+                diff = songSections[songSections.length - 1].computed.comparisonLoudness - comparisonLoudness;
                 if (songSections[songSections.length - 1].sectionType === DROP) {
                     if (sectionType === DROP) {
                         sectionType = UNSURE;
@@ -225,15 +237,20 @@ export default class Deck extends Component {
             let acceptedConformEnd = false;
             let acceptedConformBegin = false;
 
-            if (Math.abs(offsetEnd) < 2) { // if the offset is under 2 seconds conform to calculated
+            if (Math.abs(offsetEnd) < 1) { // if the offset is under 2 seconds conform to calculated
                 acceptedConformEnd = true;
                 endpoint = closestEnd;
+                endpoint = beginpoint + actuallength32;
             }
-
-            if (Math.abs(offsetBegin) < 2 && sectionType !== BEGIN) { // if the offset is under 2 seconds conform to calculated
-                acceptedConformBegin = true;
-                beginpoint = closestBegin;
-            }
+            // if (currSection > 1) {
+            //     if (Math.abs(songSections[currSection - 2].endpoint - beginpoint) < 2) {
+            //         acceptedConformBegin = true;
+            //         beginpoint = songSections[currSection - 2].endpoint;
+            //     }
+            // } else if (Math.abs(offsetBegin) < 1 && sectionType !== BEGIN) { // if the offset is under 2 seconds conform to calculated
+            //     acceptedConformBegin = true;
+            //     beginpoint = closestBegin;
+            // }
 
             let sizeComparison = ((endpoint - beginpoint) / barlength32).toPrecision(2); // checks if section is of calculated 32bar length
             if (sizeComparison % 1) {
@@ -268,6 +285,20 @@ export default class Deck extends Component {
                     if (is32length) {
                         randomColor = 'rgba(0,255,150,0.2)' //  todo left off here
                     }
+                    break;
+                default:
+                    break;
+            }
+
+            let goodForMix = false;
+            if (sectionType !== DROP) {
+                if (comparisonLoudness > 0 && comparisonLoudness < 0.1) {
+                    randomColor = 'rgba(218, 165, 32,0.3)';
+                    goodForMix = true;
+                } else if (sectionType === BEGIN) {
+                    randomColor = 'rgba(218, 165, 32,0.3)';
+                    goodForMix = true;
+                }
             }
             let analysisSection = {
                 sectionType: sectionType,
@@ -279,11 +310,17 @@ export default class Deck extends Component {
                     sectionConfidence: e.confidence, // todo left off here! i was completing up the separation from analysis to reconnect 
                     conformedBegin: acceptedConformBegin,
                     conformedEnd: acceptedConformEnd,
+                    oBegin: offsetBegin,
+                    oEnd: offsetEnd
                 },
-                sectionColor: randomColor
+                sectionColor: randomColor,
+                goodForMix: goodForMix
             }
             songSections.push(analysisSection);
         })
+
+
+
         return songSections;
     }
 
@@ -321,21 +358,102 @@ export default class Deck extends Component {
             let analyzed = this.analyzeData();
             console.log("this is analyzed");
             console.log(analyzed);
+
+
+            //! Getting the best of each region
+            let bestReg;
+            let bestDrop;
+            let bestComedown;
+            let bestOverall;
+
+            let bestRegNum = 0;
+            let bestDropNum = 0;
+            let bestComedownNum = 0;
+            let bestOverallNum = 0;
+
+            let bestRegColor = "rgb(158, 31, 255)" // royal purple
+            let bestDropColor = "rgb(242, 123, 31)"; // orange
+            let bestComedownColor = "rgb(185, 245, 66)"; // lime
+            let bestOverallColor = "rgb(66, 245, 191)"; // teal
+            let cs = 0; // currsection
+            analyzed.forEach(e => {
+                console.log(e);
+                if (e.sectionConfidence > bestOverallNum) {
+                    bestOverallNum = e.sectionConfidence;
+                    bestOverall = cs;
+                }
+
+                switch (e.sectionType) {
+                    case DROP:
+                        if (e.sectionConfidence > bestDropNum) {
+                            bestDropNum = e.sectionConfidence;
+                            bestDrop = cs;
+                        }
+                        break;
+                    case REGULAR:
+                        if (e.sectionConfidence > bestRegNum) {
+                            bestRegNum = e.sectionConfidence;
+                            bestReg = cs;
+                        }
+                        break;
+                    case COMEDOWN:
+                        if (e.sectionConfidence > bestComedownNum) {
+                            bestComedownNum = e.sectionConfidence;
+                            bestComedown = cs;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                cs++;
+            })
+            let cs1 = 0;
             analyzed.forEach(section => {
+                let thisSectionColor = section.sectionColor;
+                let isBest = false;
+                switch (section.sectionType) {
+                    case DROP:
+                        if (cs1 === bestDrop) {
+                            thisSectionColor = bestDropColor;
+                            isBest = true;
+                        }
+                        break;
+                    case REGULAR:
+                        if (cs1 === bestReg) {
+                            thisSectionColor = bestRegColor;
+                            isBest = true;
+                        }
+                        break;
+                    case COMEDOWN:
+                        if (cs1 === bestComedown) {
+                            thisSectionColor = bestComedownColor;
+                            isBest = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                if (cs1 === bestOverall) {
+                    thisSectionColor = bestOverallColor;
+                }
                 console.log(section);
                 let region = {
                     start: section.begin,
                     end: section.endpoint,
                     attributes: section.computed,
-                    color: section.sectionColor,    
+                    data: section,
+                    color: thisSectionColor,
                     drag: false,
                     resize: false,
+                    isBest: isBest
                     // loop: toLoop
                 }
                 console.log("setting waveform color as:", region.color);
                 console.log("this section started at:", region.start);
                 console.log("this section ended at:", region.end);
                 this.waveform.addRegion(region);
+                cs1++;
             })
 
 
@@ -347,13 +465,44 @@ export default class Deck extends Component {
         this.waveform.on('region-in', e => {
             // $('.waveform__counter').text( formatTime(wavesurfer.getCurrentTime()) );
             // console.log(wavesurfer.current.getCurrentTime());
-            console.log("Enterd new region", e.attributes, e.data);
-            // console.log(e);
-            // onPositionChange(wavesurfer.current.getCurrentTime());
 
+            /**
+             * comparisonLoudness: comparisonLoudness,
+                    differential: diff,
+                    sectionConfidence: e.confidence,
+                    conformedBegin: acceptedConformBegin,
+                    conformedEnd: acceptedConformEnd,
+                    oBegin: offsetBegin,
+                    oEnd: offsetEnd
+             */
+
+
+            console.log("Entered:", e);
+            let thisSection = e.data;
+            let computed = thisSection.computed;
+            console.log("thisSection:",thisSection);
+            console.log("computed:",computed);
+            this.setState({
+                currSec: thisSection.sectionType,
+                currSectionAnalysis: {
+                    begin: thisSection.begin,
+                    endpoint: thisSection.endpoint,
+                    comparisonLoudness: computed.comparisonLoudness,
+                    differential: computed.differential,
+                    sectionConfidence: computed.sectionConfidence,
+                    conformedBegin: computed.comformedBegin,
+                    conformedEnd: computed.comformedEnd,
+                    oBegin: computed.oBegin,
+                    oEnd: computed.oEnd,
+                    sectionColor: thisSection.sectionColor,
+                    goodForMix: thisSection.goodForMix,
+                    isBest: thisSection.isBest
+                }
+            })
+            console.log(computed.comformedBegin);
+            console.log(computed.comformedEnd);
+            console.log(this.state.currSectionAnalysis);
         });
-        // this.waveform.backend.setFilter(lowpass, highpass);
-
     }
 
     playPause() {
@@ -414,11 +563,24 @@ export default class Deck extends Component {
         });
     }
 
+
     render() {
         return (
             <>
                 <div className={"deck"}>
                     {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
+                    <div className={"deckanalysis"}>
+                        <h2 style={{color: `${this.state.currSectionAnalysis.sectionColor}` }}>{this.state.currSec}</h2> 
+                        <p>GFM:{this.state.currSectionAnalysis.goodForMix}</p> 
+                        <p>BO:{this.state.currSectionAnalysis.isBest}</p> 
+                        <p>COMP:{this.state.currSectionAnalysis.comparisonLoudness}</p> 
+                        <p>DIFF:{this.state.currSectionAnalysis.differential}</p> 
+                        <p>CONFB:{this.state.currSectionAnalysis.conformedBegin}</p> 
+                        <p>CONFE:{this.state.currSectionAnalysis.conformedEnd}</p> 
+                        {/* <label style={{ fontSize: "25px", fontWeight: 600}}>{this.state.currSectionAnalysis}</label>  */}
+                    </div>
+
+
                     <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
                     <label>GAIN</label>
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
@@ -428,7 +590,6 @@ export default class Deck extends Component {
                     <div id="waveform" />
                     <div id="wave-timeline" />
                 </div>
-
             </>
         );
     }

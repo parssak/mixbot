@@ -100,7 +100,7 @@ export default function TrackPlayer() {
             <div className={"boardpanel"}>
                 {deck2BPM !== 0 && <h1>DECK B BPM: {deck2BPM} RATE:{deck2playback}</h1>}
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>}
-                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name} songAnalysis={deck1Song.songAnalysis} playbackRate={deck2playback}/>}
+                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name} songAnalysis={deck2Song.songAnalysis} playbackRate={deck2playback}/>}
             </div>
         </div>
     );
