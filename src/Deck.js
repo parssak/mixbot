@@ -24,13 +24,13 @@ export default class Deck extends Component {
         console.log("entered constructor call!");
         this.state = {
             pos: 0,
+            locked: false,
             currSec: "NOT PLAYING",
             playing: false,
             trackName: this.props.songName,
             trackArtist: this.props.songArtist,
             audioCtx: new AudioContext(),
             audioElement: new Audio(this.props.thisSong),
-            // audioElement: new Audio(tempTrack),
             audioSettings: {
                 gain: 1,
                 lowpassF: 11000,
@@ -39,6 +39,8 @@ export default class Deck extends Component {
                 mid: 1,
                 low: 1,
                 playbackRate: this.props.playbackRate
+                // playbackRate: 2
+
             },
             currSectionAnalysis: {
                 begin: NaN,
@@ -97,11 +99,36 @@ export default class Deck extends Component {
             // this.state.
             this.reconnectAudio();
         }
+        console.log("BEFORE this props is:", this.props.play, "and the waveform issss", this.waveform.isPlaying());
+        if (this.state.locked) {
+            console.log("LOCKED");
+        } else {
+            console.log("this changed!!");
+        }
+        if (this.props.play !== this.waveform.isPlaying() && !this.state.locked) {
+            
+            
+            
+            if (this.state.audioCtx.state === 'suspended') {
+                console.log("was suspended");
+                this.state.audioCtx.resume();
+                this.playPause();
+                if (this.state.audioCtx.state === 'suspended') {
+                    console.log("lol still is u wot");
+                    this.setState({
+                        locked: true
+                    });
+                }
+            }
+            
+            // this.waveform.playPause();
+            console.log("AFTER this props is:", this.props.play, "and the waveform issss", this.waveform.isPlaying());
+        }
     }
 
     analyzeData() {
         console.log("Got song analysis!");
-        console.log(this.props.songAnalysis);
+        // console.log(this.props.songAnalysis);
         let sectionArray = this.props.songAnalysis.data.sections;
         let baselineLoudness = this.props.songAnalysis.data.track.loudness;
         let allBars = this.props.songAnalysis.data.bars;
@@ -141,7 +168,7 @@ export default class Deck extends Component {
         console.log("The most confident bar is:", bar, "with a confidence of ", barConfidence);
 
         // let bar = 1.93235;
-        let barlength32 = bar * 4;
+        let barlength32 = bar * 2;
         let actuallength32 = bar * 8;
         // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
         // let barLength = (timeSig) * beat;
@@ -179,7 +206,7 @@ export default class Deck extends Component {
             let is32length = false;
 
             let comparisonLoudness = (e.loudness - baselineLoudness) / baselineLoudness;
-            console.log("the comparison loudness of section", songSections.length, "is", comparisonLoudness);
+            // console.log("the comparison loudness of section", songSections.length, "is", comparisonLoudness);
 
             // IF BEGINNING OF SONG
             if (songSections.length === 0) {
@@ -216,7 +243,7 @@ export default class Deck extends Component {
                 sumDropConfidence += e.confidence;
             }
             if (sectionType === COMEDOWN) {
-                console.log("comedown")
+                // console.log("comedown")
                 if (numComedowns === 0) { // Sets this as the first comedown 
                     firstComedownConfidence = e.confidence;
                 }
@@ -237,11 +264,13 @@ export default class Deck extends Component {
             let acceptedConformEnd = false;
             let acceptedConformBegin = false;
 
-            if (Math.abs(offsetEnd) < 1) { // if the offset is under 2 seconds conform to calculated
-                acceptedConformEnd = true;
-                endpoint = closestEnd;
-                endpoint = beginpoint + actuallength32;
-            }
+            beginpoint = closestBegin;
+            endpoint = closestEnd;
+            // if (Math.abs(offsetEnd) < 1) { // if the offset is under 2 seconds conform to calculated
+            //     acceptedConformEnd = true;
+            //     endpoint = closestEnd;
+            //     // endpoint = beginpoint + actuallength32;
+            // }
             // if (currSection > 1) {
             //     if (Math.abs(songSections[currSection - 2].endpoint - beginpoint) < 2) {
             //         acceptedConformBegin = true;
@@ -356,8 +385,8 @@ export default class Deck extends Component {
         if (this.props.songAnalysis !== 'NOTFOUND') {
 
             let analyzed = this.analyzeData();
-            console.log("this is analyzed");
-            console.log(analyzed);
+            // console.log("this is analyzed");
+            // console.log(analyzed);
 
 
             //! Getting the best of each region
@@ -377,7 +406,7 @@ export default class Deck extends Component {
             let bestOverallColor = "rgb(66, 245, 191)"; // teal
             let cs = 0; // currsection
             analyzed.forEach(e => {
-                console.log(e);
+                // console.log(e);
                 if (e.sectionConfidence > bestOverallNum) {
                     bestOverallNum = e.sectionConfidence;
                     bestOverall = cs;
@@ -437,7 +466,7 @@ export default class Deck extends Component {
                 if (cs1 === bestOverall) {
                     thisSectionColor = bestOverallColor;
                 }
-                console.log(section);
+                // console.log(section);
                 let region = {
                     start: section.begin,
                     end: section.endpoint,
@@ -449,9 +478,9 @@ export default class Deck extends Component {
                     isBest: isBest
                     // loop: toLoop
                 }
-                console.log("setting waveform color as:", region.color);
-                console.log("this section started at:", region.start);
-                console.log("this section ended at:", region.end);
+                // console.log("setting waveform color as:", region.color);
+                // console.log("this section started at:", region.start);
+                // console.log("this section ended at:", region.end);
                 this.waveform.addRegion(region);
                 cs1++;
             })
@@ -477,11 +506,11 @@ export default class Deck extends Component {
              */
 
 
-            console.log("Entered:", e);
+            // console.log("Entered:", e);
             let thisSection = e.data;
             let computed = thisSection.computed;
-            console.log("thisSection:",thisSection);
-            console.log("computed:",computed);
+            console.log("thisSection:", thisSection);
+            console.log("computed:", computed);
             this.setState({
                 currSec: thisSection.sectionType,
                 currSectionAnalysis: {
@@ -503,6 +532,13 @@ export default class Deck extends Component {
             console.log(computed.comformedEnd);
             console.log(this.state.currSectionAnalysis);
         });
+
+        this.waveform.on('ready', e => {
+            console.log("------ READY TO GO! 1 ------");
+            if (!this.props.play) {
+                this.props.prepared();    
+            }
+        });
     }
 
     playPause() {
@@ -513,18 +549,18 @@ export default class Deck extends Component {
 
         }
         this.waveform.playPause();
-        if (!this.state.playing) {
-            // this.state.audioElement.play();
-            // this.waveform.playPause();
-            this.setState({
-                playing: true
-            });
-        } else {
-            // this.state.audioElement.pause();
-            this.setState({
-                playing: false
-            });
-        }
+        this.setState({
+            playing: this.waveform.isPlaying()
+        });
+        // if (!this.state.playing) {
+        //     this.setState({
+        //         playing: true
+        //     });
+        // } else {
+        //     this.setState({
+        //         playing: false
+        //     });
+        // }
     }
 
     changeFilter(amount) {
@@ -570,13 +606,13 @@ export default class Deck extends Component {
                 <div className={"deck"}>
                     {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
                     <div className={"deckanalysis"}>
-                        <h2 style={{color: `${this.state.currSectionAnalysis.sectionColor}` }}>{this.state.currSec}</h2> 
-                        <p>GFM:{this.state.currSectionAnalysis.goodForMix}</p> 
-                        <p>BO:{this.state.currSectionAnalysis.isBest}</p> 
-                        <p>COMP:{this.state.currSectionAnalysis.comparisonLoudness}</p> 
-                        <p>DIFF:{this.state.currSectionAnalysis.differential}</p> 
-                        <p>CONFB:{this.state.currSectionAnalysis.conformedBegin}</p> 
-                        <p>CONFE:{this.state.currSectionAnalysis.conformedEnd}</p> 
+                        <h2 style={{ color: `${this.state.currSectionAnalysis.sectionColor}`, fontWeight: 800 }}>{this.state.currSec}</h2>
+                        <p>GFM:{this.state.currSectionAnalysis.goodForMix ? "YES" : "NO"}</p>
+                        <p>BO:{this.state.currSectionAnalysis.isBest ? "YES" : "NO"}</p>
+                        <p>COMP:{this.state.currSectionAnalysis.comparisonLoudness}</p>
+                        <p>DIFF:{this.state.currSectionAnalysis.differential}</p>
+                        <p>CONFB:{this.state.currSectionAnalysis.conformedBegin ? "YES" : "NO"}</p>
+                        <p>CONFE:{this.state.currSectionAnalysis.conformedEnd ? "YES" : "NO"}</p>
                         {/* <label style={{ fontSize: "25px", fontWeight: 600}}>{this.state.currSectionAnalysis}</label>  */}
                     </div>
 

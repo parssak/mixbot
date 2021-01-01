@@ -30,27 +30,33 @@ export function trackAlreadyIn(trackName) {
 export default function TrackPlayer() {
     const [deck1Song, setDeck1Song] = useState('');
     const [deck2Song, setDeck2Song] = useState('');
+    
     const [deck1BPM, setDeck1BPM] = useState(0);
     const [deck2BPM, setDeck2BPM] = useState(0);
+    
     const [deck1playback, setDeck1playback] = useState(1);
     const [deck2playback, setDeck2playback] = useState(1);
+
+    const [deck1prepared, setDeck1prepared] = useState(false);
+    const [deck2prepared, setDeck2prepared] = useState(false);
+
+    const [deck1Playing, setDeck1Playing] = useState(false);
+    const [deck2Playing, setDeck2Playing] = useState(false);
 
     function loadTrackA() {
         console.log("entered");
         let newSong = loadTrack();
-        console.log("newSong is", newSong)
+        setDeck1prepared(false);
         if (newSong !== null) {
-            setDeck1BPM(newSong.songAnalysis.data.track.tempo)
+            setDeck1BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
                 if (deck2BPM !== 0) {
-                    console.log("deck1bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck2bpm is:",deck2BPM)
+                    // console.log("deck1bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck2bpm is:",deck2BPM)
                     let ratio = (deck2BPM/newSong.songAnalysis.data.track.tempo).toPrecision(5);
-                    console.log("ratio is",ratio);
                     setDeck1playback(ratio);
                 } else {
-                    console.log("etchcase");
                     setDeck1playback(1);
                 }
             }
@@ -60,18 +66,17 @@ export default function TrackPlayer() {
 
     function loadTrackB() {
         let newSong = loadTrack();
+        setDeck2prepared(false);
         if (newSong !== null) {
-            setDeck2BPM(newSong.songAnalysis.data.track.tempo)
+            setDeck2BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
             if (deck1Song === '') {
                 setDeck2playback(1);
             } else {
                 if (deck1BPM !== 0) {
-                    console.log("deck2bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck1bpm is:",deck1BPM)
+                    // console.log("deck2bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck1bpm is:",deck1BPM)
                     let ratio = (deck1BPM/newSong.songAnalysis.data.track.tempo).toPrecision(5);
-                    console.log("ratio is",ratio);
                     setDeck2playback(ratio);
                 } else {
-                    console.log("etchcase");
                     setDeck2playback(1);
                 }
             }
@@ -89,18 +94,41 @@ export default function TrackPlayer() {
         return nextSong;
     }
 
+    function deckOneReady() {
+        if (!deck1prepared) {
+            setDeck1prepared(true);
+            console.log("D1READY");  
+            if (!deck2Playing) {
+                console.log("telling deck 1 to play");
+                setDeck1Playing(true);
+            }
+        }
+    }
+
+    function deckTwoReady() {
+        if (!deck2prepared) {
+            setDeck2prepared(true);
+            console.log("D2READY");
+            if (!deck1Playing) {
+                console.log("telling deck 2 to play");
+                setDeck2Playing(true);
+            }
+        }        
+    }
+
     return (
         <div className={"djboard"}>
             <div className={"boardpanel"}>
                 {deck1BPM !== 0 && <h1>DECK A BPM: {deck1BPM} RATE:{deck1playback}</h1>}
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>}
-                {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name} songAnalysis={deck1Song.songAnalysis} playbackRate={deck1playback}/>}
-                {/*{deck1Song !== '' && {deck1Song.songAnalysis !== 'NOTFOUND'  && }}*/}
+                {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name}
+                    songAnalysis={deck1Song.songAnalysis} playbackRate={deck1playback} prepared={deckOneReady()} play={deck1Playing}/>}
             </div>
             <div className={"boardpanel"}>
                 {deck2BPM !== 0 && <h1>DECK B BPM: {deck2BPM} RATE:{deck2playback}</h1>}
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>}
-                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name} songAnalysis={deck2Song.songAnalysis} playbackRate={deck2playback}/>}
+                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}
+                    songAnalysis={deck2Song.songAnalysis} playbackRate={deck2playback} prepared={deckTwoReady()} play={deck2Playing}/>}
             </div>
         </div>
     );
