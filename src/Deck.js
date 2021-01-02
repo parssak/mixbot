@@ -9,6 +9,7 @@ import { end } from "iso8601-duration";
 const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback?expire=1608683629&ei=DTziX9T7BpmCir4PtcKm6AQ&ip=142.126.73.189&id=o-AMVicLbj0Gv2rQrVjovPek8wxxBV4FI5LMlCg6R1G6tz&itag=251&source=youtube&requiressl=yes&mh=rs&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1y%2Csn-vgqs7nls&ms=au%2Conr&mv=m&mvi=8&pl=24&gcr=ca&initcwndbps=1700000&vprv=1&mime=audio%2Fwebm&ns=s_KJpKjwEsZZ8AheQ_gNizUF&gir=yes&clen=3788632&dur=222.601&lmt=1595575954110558&mt=1608661718&fvip=1&keepalive=yes&c=WEB&txp=2311222&n=P9s4oVIr7EC14Ztz&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgRMh65mjTW6PwQwyNug7n8o3U7_emmK9tyYapXeysfYACIHepjV45GMhesgNEo1wTHgBd5QnjG5icCMtM_PqjfFo_&ratebypass=yes&sig=AOq0QJ8wRgIhANl_rwVxcCYUdSw5WCiK5WWQwGPeV6RqvmXBcFXpCmlMAiEAxuwr91Yd_by6vYdEcszyTD--r58Ll8EWI6QUANVTrYk%3D";
 // const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
 
+
 const DROP = 'DROP';
 const BEGIN = 'BEGIN';
 const COMEDOWN = 'COMEDOWN';
@@ -17,7 +18,7 @@ const REGULAR = 'REG';
 
 /**
  * TODO
- * - Get autoplay working
+ * - Set up queueing of tracks
  */
 
 export default class Deck extends Component {
@@ -101,30 +102,25 @@ export default class Deck extends Component {
             // this.state.
             this.reconnectAudio();
         }
-        console.log("BEFORE this props is:", this.props.play, "and the waveform issss", this.waveform.isPlaying());
-        if (this.state.locked) {
-            console.log("LOCKED");
-        } else {
-            console.log("this changed!!");
-        }
-        if (this.props.play !== this.waveform.isPlaying() && !this.state.locked) {
-            
-            
-            
-            if (this.state.audioCtx.state === 'suspended') {
-                console.log("was suspended");
-                this.state.audioCtx.resume();
-                this.playPause();
-                if (this.state.audioCtx.state === 'suspended') {
-                    console.log("lol still is u wot");
-                    this.setState({
-                        locked: true
-                    });
+
+        if (this.state.audioCtx.state !== 'suspended') {
+            if (this.props.play !== this.waveform.isPlaying()) {
+                if (!this.props.play) {
+                    console.log("~~~ SHOULD BE PAUSED NGL ~~~");
+                    this.waveform.stop();
+                } else {
+                    console.log("should be allowed to play, gonna play now!");
+                    this.playPause();
+                    this.waveform.setVolume(this.state.audioSettings.gain);
                 }
+            } else {
+                if (this.state.audioSettings.gain !== this.waveform.getVolume()) {
+                    this.waveform.setVolume(this.state.audioSettings.gain);
+                }
+                console.log("everything's matching up quite nicely");
             }
-            
-            // this.waveform.playPause();
-            console.log("AFTER this props is:", this.props.play, "and the waveform issss", this.waveform.isPlaying());
+        } else {
+            console.log("Component updated, neverthethus we are still suspended");
         }
     }
 
@@ -511,8 +507,9 @@ export default class Deck extends Component {
             // console.log("Entered:", e);
             let thisSection = e.data;
             let computed = thisSection.computed;
-            console.log("thisSection:", thisSection);
-            console.log("computed:", computed);
+            //! Good for debugging
+            // console.log("thisSection:", thisSection);
+            // console.log("computed:", computed);
             this.setState({
                 currSec: thisSection.sectionType,
                 currSectionAnalysis: {
@@ -537,9 +534,32 @@ export default class Deck extends Component {
 
         this.waveform.on('ready', e => {
             console.log("------ READY TO GO! 1 ------");
-            if (!this.props.play) {
-                this.props.prepared();    
+            this.state.audioCtx.resume();
+            if (!this.waveform.isPlaying()) {
+                this.playPause();
+                this.waveform.setVolume(0.0001);
+                this.props.prepared();
             }
+            // if (this.state.audioCtx.state === 'suspended') {
+            //         console.log("--- was suspended");
+            //         this.state.audioCtx.resume();
+            //         this.playPause();
+            //         if (this.state.audioCtx.state === 'suspended') {
+            //             console.log("--- lol still is u wot");
+            //             this.setState({
+            //                 locked: true
+            //             });
+            //         }
+            // } else {
+            //     console.log("--- wasn't even suspended lul");
+            //         // this.playPause();
+            //         // if props.play == true and not playing play the friggin song dude
+            //         // if (this.props.play && !this.waveform.isPlaying()) {
+                    // if (!this.waveform.isPlaying()) {
+                    //     console.log("--- why aren't you playing stoopid, aha aha lemme fix dat");
+                    //     this.playPause();
+                    // }
+            // }
         });
     }
 
@@ -551,9 +571,18 @@ export default class Deck extends Component {
 
         }
         this.waveform.playPause();
-        this.setState({
-            playing: this.waveform.isPlaying()
-        });
+        if (this.state.playing !== this.waveform.isPlaying()) {
+            this.setState({
+                playing: this.waveform.isPlaying()
+            });
+        }
+
+        if (this.state.audioCtx.state === 'suspended') {
+            //     console.log("was suspended, resuming");
+            // this.state.audioCtx.resume();
+            console.log("still suspended!");
+
+        }
         // if (!this.state.playing) {
         //     this.setState({
         //         playing: true

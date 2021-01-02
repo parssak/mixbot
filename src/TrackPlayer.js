@@ -3,6 +3,9 @@ import Deck from "./Deck";
 let tracklist = [];
 let upcomingSongs = [];
 let alreadyPlayed = [];
+
+const silenceTrack = "https://raw.githubusercontent.com/anars/blank-audio/master/1-second-of-silence.mp3";
+
 // --- Global Functions ---
 export function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
     const newSong = {
@@ -130,6 +133,7 @@ export default function TrackPlayer() {
                 {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}
                     songAnalysis={deck2Song.songAnalysis} playbackRate={deck2playback} prepared={deckTwoReady()} play={deck2Playing}/>}
             </div>
+            {/* <iframe title="finesse" src={{silenceTrack}}allow="autoplay" id="audio"></iframe> */}
         </div>
     );
 }
