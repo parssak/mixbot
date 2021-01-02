@@ -3,9 +3,6 @@ import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
 import { Joystick } from 'react-joystick-component';
 import { Draggable } from 'react-draggable';
-
-// import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
-// import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
 import { end } from "iso8601-duration";
 
@@ -17,6 +14,11 @@ const BEGIN = 'BEGIN';
 const COMEDOWN = 'COMEDOWN';
 const UNSURE = 'UNSURE';
 const REGULAR = 'REG';
+
+/**
+ * TODO
+ * - Get autoplay working
+ */
 
 export default class Deck extends Component {
     constructor(props) {
