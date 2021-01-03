@@ -28,6 +28,7 @@ export default class Deck extends Component {
         this.state = {
             pos: 0,
             locked: false,
+            scheduledDemise: false,
             currSec: "NOT PLAYING",
             playing: false,
             trackName: this.props.songName,
@@ -527,9 +528,34 @@ export default class Deck extends Component {
                     isBest: thisSection.isBest
                 }
             })
-            console.log(computed.comformedBegin);
-            console.log(computed.comformedEnd);
-            console.log(this.state.currSectionAnalysis);
+            // console.log(computed.comformedBegin);
+            // console.log(computed.comformedEnd);
+            console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
+
+            if (thisSection.sectionType === COMEDOWN) {
+                console.log("drop da beat");
+                this.props.playOtherTrack();
+            }
+
+            // if (!this.state.scheduledDemise) {
+            // if (thisSection.sectionType !== BEGIN && !this.state.scheduledDemise) {
+            //     let scheduleTime = thisSection.endpoint - thisSection.begin
+            //     console.log("passing out sched time", scheduleTime);
+            //     this.props.schedule(scheduleTime);
+            //     this.setState({
+            //         scheduledDemise: true
+            //     });
+
+            // } else {
+            //     console.log("ew gross begin lol / scheduled my demise oopsie >.<");
+            // }
+                
+                // this.setState({
+                //     scheduledDemise: true
+                // });
+            // }
+            
+            // todo call this.props.schedule(with something) here
         });
 
         this.waveform.on('ready', e => {
@@ -540,6 +566,9 @@ export default class Deck extends Component {
                 this.waveform.setVolume(0.0001);
                 this.props.prepared();
             }
+            this.setState({
+                scheduledDemise: false
+            });
             // if (this.state.audioCtx.state === 'suspended') {
             //         console.log("--- was suspended");
             //         this.state.audioCtx.resume();
@@ -570,6 +599,9 @@ export default class Deck extends Component {
             this.state.audioCtx.resume();
 
         }
+        console.log("called playPause");
+        // this.waveform.play(this.props.startTime);
+        console.log("||||||| started song at", this.props.startTime);
         this.waveform.playPause();
         if (this.state.playing !== this.waveform.isPlaying()) {
             this.setState({
