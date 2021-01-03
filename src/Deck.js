@@ -43,8 +43,6 @@ export default class Deck extends Component {
                 mid: 1,
                 low: 1,
                 playbackRate: this.props.playbackRate
-                // playbackRate: 2
-
             },
             currSectionAnalysis: {
                 begin: NaN,
@@ -70,7 +68,7 @@ export default class Deck extends Component {
     }
 
     componentDidMount() {
-        console.log("big mount");
+        console.log("|| ---- COMPONENT DID MOUNT ---- ||");
         // wavesurfer begins here
         this.waveform = WaveSurfer.create({
             container: '#waveform',
@@ -94,18 +92,40 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
+        console.log("||| ---- COMPONENT DID UPDATE ---- |||");
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
-
-            console.log("The song changed!");
-            this.waveform.destroy(); // TODO PS WE NEVER GOT AROUND TO TESTING WHAT DESTROY DOES
+            console.log("|| -- THE SONG CHANGED -- ||");
+           
             this.waveform.pause();
-            this.waveform.empty();
-            this.waveform.setVolume(0);
-            this.state.audioElement.pause();
+            // this.waveform.empty();
+            // this.waveform.setVolume(0);
+
+            if (!this.waveform.isPlaying()) console.log(" Stopped playing ");
+            else console.log(" Didn't stop playing! :/ ");
+
+            this.waveform.destroy(); // TODO PS WE NEVER GOT AROUND TO TESTING WHAT DESTROY DOES
+            this.waveform = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: "#beb9b9",
+                // progressColor: "#9a68c9",
+                cursorColor: "#dac4f0",
+                hideScrollbar: true,
+                // responsive: true,
+                // partialRender: true,
+                normalize: false,
+                height: 100,
+                plugins: [
+                    RegionPlugin.create(),
+                ]
+            });
+
+            // this.state.audioElement.pause();
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);
            
             // this.state.
+            this.waveform.load(this.state.audioElement.src);
+            this.waveform.setPlaybackRate(this.props.playbackRate);
             this.reconnectAudio();
         }
 
@@ -535,7 +555,7 @@ export default class Deck extends Component {
             })
             // console.log(computed.comformedBegin);
             // console.log(computed.comformedEnd);
-            console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
+            // console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
 
             if (thisSection.sectionType === COMEDOWN) {
                 console.log("drop da beat");
@@ -672,7 +692,7 @@ export default class Deck extends Component {
         return (
             <>
                 <div className={"deck"}>
-                    {this.state.trackName !== "" && <h3>{this.state.trackName} by {this.state.trackArtist}</h3>}
+                    {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
                     <div className={"deckanalysis"}>
                         <h2 style={{ color: `${this.state.currSectionAnalysis.sectionColor}`, fontWeight: 800 }}>{this.state.currSec}</h2>
                         <p>GFM:{this.state.currSectionAnalysis.goodForMix ? "YES" : "NO"}</p>

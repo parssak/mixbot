@@ -69,6 +69,7 @@ export default function TrackPlayer() {
         console.log("entered");
         let newSong = loadTrack();
         setDeck1prepared(false);
+        setDeck1Playing(false);
         if (newSong !== null) {
             setDeck1BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
             if (deck2Song === '') {
@@ -89,6 +90,7 @@ export default function TrackPlayer() {
     function loadTrackB() {
         let newSong = loadTrack();
         setDeck2prepared(false);
+        setDeck2Playing(false);
         if (newSong !== null) {
             setDeck2BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
             if (deck1Song === '') {
