@@ -310,13 +310,13 @@ export default class Deck extends Component {
                 case COMEDOWN:
                     randomColor = 'rgba(123,215,255,0.3)'
                     if (is32length) {
-                        randomColor = 'rgba(50,150,255,0.3)' //  todo left off here
+                        randomColor = 'rgba(50,150,255,0.3)'
                     }
                     break;
                 case UNSURE:
                     randomColor = 'rgba(34,1,255,0.2)'
                     if (is32length) {
-                        randomColor = 'rgba(0,255,150,0.2)' //  todo left off here
+                        randomColor = 'rgba(0,255,150,0.2)'
                     }
                     break;
                 default:
