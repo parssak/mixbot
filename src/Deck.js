@@ -70,6 +70,7 @@ export default class Deck extends Component {
     }
 
     componentDidMount() {
+        console.log("big mount");
         // wavesurfer begins here
         this.waveform = WaveSurfer.create({
             container: '#waveform',
@@ -93,13 +94,17 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.thisSong !== prevProps.thisSong) {
-            console.log("The song changed!");
+        if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
 
+            console.log("The song changed!");
+            this.waveform.destroy(); // TODO PS WE NEVER GOT AROUND TO TESTING WHAT DESTROY DOES
+            this.waveform.pause();
+            this.waveform.empty();
+            this.waveform.setVolume(0);
             this.state.audioElement.pause();
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);
-
+           
             // this.state.
             this.reconnectAudio();
         }
