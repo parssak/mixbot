@@ -241,9 +241,9 @@ export default function TrackPlayer() {
         deck2lastBar = clock.currentTime;
         if (deck1Playing) {
             deck2offset = deck2lastBar - deck1lastBar;
-            if (deck2offset > 0) {
-                setDeck2playback(deck2playback + deck2offset);
-            }
+            // if (deck2offset > 0) {
+            //     // setDeck2playback(deck2playback + deck2offset);
+            // }
             console.log("DECK2", deck2offset);    
         }
         
@@ -266,6 +266,7 @@ export default function TrackPlayer() {
                     startTime={deck1startTime}
                     playOtherTrack={playTrackTwo}
                     hitBar={hitBarD1}
+                    offset={deck1offset}
                 />}
             </div>
             <div className={"boardpanel"}>
@@ -283,6 +284,7 @@ export default function TrackPlayer() {
                     startTime={deck2startTime}
                     playOtherTrack={playTrackOne}
                     hitBar={hitBarD2}
+                    offset={deck2offset}
                 />}
             </div>
         </div>

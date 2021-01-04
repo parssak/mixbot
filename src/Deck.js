@@ -156,6 +156,21 @@ export default class Deck extends Component {
         } else {
             console.log("Component updated, neverthethus we are still suspended");
         }
+
+       
+            
+        if (this.waveform) {
+            console.log("updated with offset:", this.props.offset);
+            if (this.props.offset != 0) {  
+                console.log("skipping some seconds!");
+                this.waveform.skip(this.props.offset);
+                if (!this.waveform.isPlaying()) {
+                    console.log("no longer playing after skipping ahead");
+                }
+            }
+            
+        }
+        
     }
 
     analyzeData() {
@@ -222,7 +237,7 @@ export default class Deck extends Component {
         console.log(barStartArray);
 
         for (let b = 0; b < barStartArray.length - 1; b++) {
-            let barColor = (b % 2 ? "rgb(255, 60, 54)" : "rgb(46, 255, 154)");
+            let barColor = (b % 2 ? "rgba(255, 60, 54,0.1)" : "rgba(46, 255, 154,0.1)");
             let barRegion = {
                 start: barStartArray[b],    
                 end: barStartArray[b + 1],
@@ -644,26 +659,6 @@ export default class Deck extends Component {
             this.setState({
                 scheduledDemise: false
             });
-            // if (this.state.audioCtx.state === 'suspended') {
-            //         console.log("--- was suspended");
-            //         this.state.audioCtx.resume();
-            //         this.playPause();
-            //         if (this.state.audioCtx.state === 'suspended') {
-            //             console.log("--- lol still is u wot");
-            //             this.setState({
-            //                 locked: true
-            //             });
-            //         }
-            // } else {
-            //     console.log("--- wasn't even suspended lul");
-            //         // this.playPause();
-            //         // if props.play == true and not playing play the friggin song dude
-            //         // if (this.props.play && !this.waveform.isPlaying()) {
-                    // if (!this.waveform.isPlaying()) {
-                    //     console.log("--- why aren't you playing stoopid, aha aha lemme fix dat");
-                    //     this.playPause();
-                    // }
-            // }
         });
     }
 
@@ -687,20 +682,9 @@ export default class Deck extends Component {
         }
 
         if (this.state.audioCtx.state === 'suspended') {
-            //     console.log("was suspended, resuming");
-            // this.state.audioCtx.resume();
             console.log("still suspended!");
 
         }
-        // if (!this.state.playing) {
-        //     this.setState({
-        //         playing: true
-        //     });
-        // } else {
-        //     this.setState({
-        //         playing: false
-        //     });
-        // }
     }
 
     changeFilter(amount) {
