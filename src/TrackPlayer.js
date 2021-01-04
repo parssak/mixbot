@@ -34,11 +34,18 @@ let deck2playtime = NaN;
 
 let deck1startTime = 0;
 let deck2startTime = 0;
+
+let mainTrack = 1; // can be 1 or 2
+
+
+let deck1lastBar = 0;
+let deck2lastBar = 0;
+
+let deck1offset = 0;
+let deck2offset = 0;
+
 export default function TrackPlayer() {
     const [clock, setClock] = useState();
-
-    // const [deck1playtime, setDeck1playtime] = useState(0);
-    // const [deck2playtime, setDeck2playtime] = useState(0);
 
     const [deck1Song, setDeck1Song] = useState('');
     const [deck2Song, setDeck2Song] = useState('');
@@ -97,7 +104,6 @@ export default function TrackPlayer() {
                 setDeck2playback(1);
             } else {
                 if (deck1BPM !== 0) {
-                    // console.log("deck2bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck1bpm is:",deck1BPM)
                     let ratio = (deck1BPM / Math.round(newSong.songAnalysis.data.track.tempo)).toPrecision(5);
                     setDeck2playback(ratio);
                 } else {
@@ -222,6 +228,26 @@ export default function TrackPlayer() {
             setDeck1Playing(true);
         }
     }
+
+    function hitBarD1() {
+        deck1lastBar = clock.currentTime;
+        if (deck2Playing) {
+            deck1offset = deck1lastBar - deck2lastBar;
+            console.log("DECK1", deck1offset);
+        }
+    }
+
+    function hitBarD2() {
+        deck2lastBar = clock.currentTime;
+        if (deck1Playing) {
+            deck2offset = deck2lastBar - deck1lastBar;
+            if (deck2offset > 0) {
+                setDeck2playback(deck2playback + deck2offset);
+            }
+            console.log("DECK2", deck2offset);    
+        }
+        
+    }
     
     return (
         <div className={"djboard"}>
@@ -236,9 +262,11 @@ export default function TrackPlayer() {
                     playbackRate={deck1playback}
                     prepared={deckOneReady()}
                     play={deck1Playing}
-                    schedule={setDeckTwoPlaytime}
+                    // schedule={setDeckTwoPlaytime}
                     startTime={deck1startTime}
-                    playOtherTrack={playTrackTwo} />}
+                    playOtherTrack={playTrackTwo}
+                    hitBar={hitBarD1}
+                />}
             </div>
             <div className={"boardpanel"}>
                 {deck2BPM !== 0 && <h1>DECK B BPM: {deck2BPM} RATE:{deck2playback}</h1>}
@@ -251,9 +279,11 @@ export default function TrackPlayer() {
                     playbackRate={deck2playback}
                     prepared={deckTwoReady()}
                     play={deck2Playing}
-                    schedule={setDeckOnePlaytime}
+                    // schedule={setDeckOnePlaytime}
                     startTime={deck2startTime}
-                    playOtherTrack={playTrackOne} />}
+                    playOtherTrack={playTrackOne}
+                    hitBar={hitBarD2}
+                />}
             </div>
         </div>
     );

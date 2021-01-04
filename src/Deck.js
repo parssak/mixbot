@@ -198,8 +198,6 @@ export default class Deck extends Component {
         })
 
         console.log("The most confident bar is:", bar, "with a confidence of ", barConfidence);
-
-        // let bar = 1.93235;
         let barlength32 = bar * 2;
         let actuallength32 = bar * 4;
         // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
@@ -222,6 +220,20 @@ export default class Deck extends Component {
             barStartArray.push(((a) * barlength32));
         }
         console.log(barStartArray);
+
+        for (let b = 0; b < barStartArray.length - 1; b++) {
+            let barColor = (b % 2 ? "rgb(255, 60, 54)" : "rgb(46, 255, 154)");
+            let barRegion = {
+                start: barStartArray[b],    
+                end: barStartArray[b + 1],
+                color: barColor,
+                drag: false,
+                resize: false,
+                computed: {}
+            };    
+            this.waveform.addRegion(barRegion);
+        }
+
         /**
          * 
          * 
@@ -518,7 +530,7 @@ export default class Deck extends Component {
                 if (cs1 === bestOverall) {
                     thisSectionColor = bestOverallColor;
                 }
-                // console.log(section);
+
                 let region = {
                     start: section.begin,
                     end: section.endpoint,
@@ -564,33 +576,41 @@ export default class Deck extends Component {
             //! Good for debugging
             // console.log("thisSection:", thisSection);
             // console.log("computed:", computed);
-            this.setState({
-                currSec: thisSection.sectionType,
-                currSectionAnalysis: {
-                    begin: thisSection.begin,
-                    endpoint: thisSection.endpoint,
-                    comparisonLoudness: computed.comparisonLoudness,
-                    differential: computed.differential,
-                    sectionConfidence: computed.sectionConfidence,
-                    conformedBegin: computed.comformedBegin,
-                    conformedEnd: computed.comformedEnd,
-                    oBegin: computed.oBegin,
-                    oEnd: computed.oEnd,
-                    sectionColor: thisSection.sectionColor,
-                    goodForMix: thisSection.goodForMix,
-                    isBest: thisSection.isBest,
-                    sizeComparison: thisSection.sizeComparison,
-                    is32: thisSection.is32
+
+            if (computed) {
+                this.setState({
+                    currSec: thisSection.sectionType,
+                    currSectionAnalysis: {
+                        begin: thisSection.begin,
+                        endpoint: thisSection.endpoint,
+                        comparisonLoudness: computed.comparisonLoudness,
+                        differential: computed.differential,
+                        sectionConfidence: computed.sectionConfidence,
+                        conformedBegin: computed.comformedBegin,
+                        conformedEnd: computed.comformedEnd,
+                        oBegin: computed.oBegin,
+                        oEnd: computed.oEnd,
+                        sectionColor: thisSection.sectionColor,
+                        goodForMix: thisSection.goodForMix,
+                        isBest: thisSection.isBest,
+                        sizeComparison: thisSection.sizeComparison,
+                        is32: thisSection.is32
+                    }
+                })
+                console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
+
+                if (thisSection.sectionType === COMEDOWN) {
+                    console.log("drop da beat");
+                    this.props.playOtherTrack();
                 }
-            })
+            } else {
+                this.props.hitBar();
+            }
+            
+            
             // console.log(computed.comformedBegin);
             // console.log(computed.comformedEnd);
-            console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
-
-            if (thisSection.sectionType === COMEDOWN) {
-                console.log("drop da beat");
-                this.props.playOtherTrack();
-            }
+            
 
             // if (!this.state.scheduledDemise) {
             // if (thisSection.sectionType !== BEGIN && !this.state.scheduledDemise) {
