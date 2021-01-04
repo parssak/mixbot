@@ -98,7 +98,7 @@ export default function TrackPlayer() {
             } else {
                 if (deck1BPM !== 0) {
                     // console.log("deck2bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck1bpm is:",deck1BPM)
-                    let ratio = (deck1BPM / newSong.songAnalysis.data.track.tempo).toPrecision(5);
+                    let ratio = (deck1BPM / Math.round(newSong.songAnalysis.data.track.tempo)).toPrecision(5);
                     setDeck2playback(ratio);
                 } else {
                     setDeck2playback(1);

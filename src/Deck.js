@@ -57,7 +57,8 @@ export default class Deck extends Component {
                 sectionColor: `rgb(255,255,255)`,
                 goodForMix: false,
                 isBest: false
-            }
+            },
+            startingPos: 0
         };
         this.playPause = this.playPause.bind(this);
         this.changeFilter = this.changeFilter.bind(this);
@@ -136,11 +137,18 @@ export default class Deck extends Component {
                     this.waveform.stop();
                 } else {
                     console.log("should be allowed to play, gonna play now!");
+                    console.log("the volume is friggin:", this.state.audioSettings.gain);
                     this.playPause();
-                    this.waveform.setVolume(this.state.audioSettings.gain);
+                    if (!this.state.audioSettings.gain) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
+                        this.waveform.setVolume(1);    
+                    } else {
+                        this.waveform.setVolume(this.state.audioSettings.gain);    
+                    }
+                    
                 }
             } else {
                 if (this.state.audioSettings.gain !== this.waveform.getVolume()) {
+                    console.log("the volume is friggin:", this.state.audioSettings.gain);
                     this.waveform.setVolume(this.state.audioSettings.gain);
                 }
                 console.log("everything's matching up quite nicely");
@@ -193,7 +201,7 @@ export default class Deck extends Component {
 
         // let bar = 1.93235;
         let barlength32 = bar * 2;
-        let actuallength32 = bar * 8;
+        let actuallength32 = bar * 4;
         // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
         // let barLength = (timeSig) * beat;
         console.log("BAR LENGTH IS", bar);
@@ -366,13 +374,32 @@ export default class Deck extends Component {
                     oBegin: offsetBegin,
                     oEnd: offsetEnd
                 },
+                sizeComparison: sizeComparison,
+                is32: is32length,
                 sectionColor: randomColor,
                 goodForMix: goodForMix
             }
             songSections.push(analysisSection);
         })
 
-
+        if (songSections.length > 2) {
+            console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
+            console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
+            if ((songSections[0].sizeComparison == 4) || (songSections[0].sizeComparison == 2 && songSections[1].sizeComparison == 2)) {
+                console.log("CASE A START POS");
+                this.setState({
+                    startingPos: 0
+                })
+            } else if (songSections[0].sizeComparison == 2.0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
+                console.log("CASE B START POS");
+                console.log("mult of 4?",songSections[1].sizeComparison % 4);
+                this.setState({
+                    startingPos: songSections[0].endpoint
+                })
+            } else {
+                console.log("CASE C START POS");
+            }
+        }
 
         return songSections;
     }
@@ -382,6 +409,7 @@ export default class Deck extends Component {
 
         // LOWPASS
         let lowpass = this.waveform.backend.ac.createBiquadFilter();
+        console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
         lowpass.frequency.value = this.state.audioSettings.lowpassF;
         lowpass.type = "lowpass";
         lowpass.Q.value = 5;
@@ -550,12 +578,14 @@ export default class Deck extends Component {
                     oEnd: computed.oEnd,
                     sectionColor: thisSection.sectionColor,
                     goodForMix: thisSection.goodForMix,
-                    isBest: thisSection.isBest
+                    isBest: thisSection.isBest,
+                    sizeComparison: thisSection.sizeComparison,
+                    is32: thisSection.is32
                 }
             })
             // console.log(computed.comformedBegin);
             // console.log(computed.comformedEnd);
-            // console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
+            console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
 
             if (thisSection.sectionType === COMEDOWN) {
                 console.log("drop da beat");
@@ -627,7 +657,9 @@ export default class Deck extends Component {
         console.log("called playPause");
         // this.waveform.play(this.props.startTime);
         console.log("||||||| started song at", this.props.startTime);
-        this.waveform.playPause();
+        // this.waveform.playPause();
+        this.waveform.play(this.state.startingPos);
+
         if (this.state.playing !== this.waveform.isPlaying()) {
             this.setState({
                 playing: this.waveform.isPlaying()
@@ -655,8 +687,18 @@ export default class Deck extends Component {
         // console.log(amount)
         if (amount <= 14000) {
             // console.log("A");
-            this.state.audioSettings.lowpassF = amount;
-            this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
+            this.setState({
+                audioSettings: {
+                    lowpassF: amount
+                },
+                // lowpassNode: {
+                //     frequency: {
+                //         value: amount
+                //     }
+                // }
+            })
+            console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
+            this.state.lowpassNode.frequency.value = amount;
         } else if (amount >= 20000) {
             // console.log("B");
             let highpassAmount = amount - 20000;
@@ -678,7 +720,7 @@ export default class Deck extends Component {
                 gain: (amount / 100).toPrecision(2)
             }
         })
-        this.waveform.setVolume(this.state.audioSettings.gain || 1);
+        this.waveform.setVolume((amount / 100).toPrecision(2) || 1);
     }
 
     handlePosChange(e) {
