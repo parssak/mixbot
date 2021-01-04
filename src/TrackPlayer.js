@@ -228,16 +228,32 @@ export default function TrackPlayer() {
             <div className={"boardpanel"}>
                 {deck1BPM !== 0 && <h1>DECK A BPM: {deck1BPM} RATE:{deck1playback}</h1>}
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>}
-                {deck1Song !== '' && <Deck thisSong={deck1Song.songURL} songName={deck1Song.songName} songArtist={deck1Song.songArtists[0].name}
-                    songAnalysis={deck1Song.songAnalysis} playbackRate={deck1playback} prepared={deckOneReady()}
-                    play={deck1Playing} schedule={setDeckTwoPlaytime} startTime={deck1startTime} playOtherTrack={playTrackTwo}/>}
+                {deck1Song !== '' && <Deck
+                    thisSong={deck1Song.songURL}
+                    songName={deck1Song.songName}
+                    songArtist={deck1Song.songArtists[0].name}
+                    songAnalysis={deck1Song.songAnalysis}
+                    playbackRate={deck1playback}
+                    prepared={deckOneReady()}
+                    play={deck1Playing}
+                    schedule={setDeckTwoPlaytime}
+                    startTime={deck1startTime}
+                    playOtherTrack={playTrackTwo} />}
             </div>
             <div className={"boardpanel"}>
                 {deck2BPM !== 0 && <h1>DECK B BPM: {deck2BPM} RATE:{deck2playback}</h1>}
                 {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>}
-                {deck2Song !== '' && <Deck thisSong={deck2Song.songURL} songName={deck2Song.songName} songArtist={deck2Song.songArtists[0].name}
-                    songAnalysis={deck2Song.songAnalysis} playbackRate={deck2playback} prepared={deckTwoReady()}
-                    play={deck2Playing} schedule={setDeckOnePlaytime} startTime={deck2startTime} playOtherTrack={playTrackOne}/>}
+                {deck2Song !== '' && <Deck
+                    thisSong={deck2Song.songURL}
+                    songName={deck2Song.songName}
+                    songArtist={deck2Song.songArtists[0].name}
+                    songAnalysis={deck2Song.songAnalysis}
+                    playbackRate={deck2playback}
+                    prepared={deckTwoReady()}
+                    play={deck2Playing}
+                    schedule={setDeckOnePlaytime}
+                    startTime={deck2startTime}
+                    playOtherTrack={playTrackOne} />}
             </div>
         </div>
     );
