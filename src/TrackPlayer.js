@@ -41,8 +41,8 @@ let mainTrack = 1; // can be 1 or 2
 let deck1lastBar = 0;
 let deck2lastBar = 0;
 
-let deck1offset = 0;
-let deck2offset = 0;
+// let deck1offset = 0;
+// let deck2offset = 0;
 
 export default function TrackPlayer() {
     const [clock, setClock] = useState();
@@ -61,6 +61,9 @@ export default function TrackPlayer() {
 
     const [deck1Playing, setDeck1Playing] = useState(false);
     const [deck2Playing, setDeck2Playing] = useState(false);
+
+    const [deck1offset, setDeck1offset] = useState(0);
+    const [deck2offset, setDeck2offset] = useState(0);
 
     useEffect(() => {
         if (!clock) {
@@ -218,9 +221,14 @@ export default function TrackPlayer() {
     }
 
     function playTrackTwo() {
-        if (!deck2Playing && deck2prepared) {
-            setDeck2Playing(true);
+        // if (!deck2Playing && deck2prepared) {
+        if (deck2prepared) {
+            console.log("time to play track dos");
+            // setDeck2Playing(true);
         }
+        setDeck2Playing(true);
+        console.log("zoinks");
+        console.log(deck2Playing);
     }
 
     function playTrackOne() {
@@ -229,22 +237,21 @@ export default function TrackPlayer() {
         }
     }
 
-    function hitBarD1() {
+    function hitBarD1() {                                   //! enable this after
         deck1lastBar = clock.currentTime;
-        if (deck2Playing) {
-            deck1offset = deck1lastBar - deck2lastBar;
-            console.log("DECK1", deck1offset);
+        if (deck2Playing) { 
+            console.log("DECK1", deck2offset);    
+            setDeck1offset(deck2lastBar - deck1lastBar);
+            // console.log("DECK1", deck1offset);
+            // setDeck1offset(deck2lastBar - deck1lastBar);
         }
     }
 
     function hitBarD2() {
         deck2lastBar = clock.currentTime;
         if (deck1Playing) {
-            deck2offset = deck2lastBar - deck1lastBar;
-            // if (deck2offset > 0) {
-            //     // setDeck2playback(deck2playback + deck2offset);
-            // }
             console.log("DECK2", deck2offset);    
+            setDeck2offset(deck1lastBar - deck2lastBar);
         }
         
     }

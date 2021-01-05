@@ -94,6 +94,7 @@ export default class Deck extends Component {
 
     componentDidUpdate(prevProps) {
         console.log("||| ---- COMPONENT DID UPDATE ---- |||");
+
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||");
            
@@ -157,19 +158,25 @@ export default class Deck extends Component {
             console.log("Component updated, neverthethus we are still suspended");
         }
 
-       
-            
-        if (this.waveform) {
-            console.log("updated with offset:", this.props.offset);
-            if (this.props.offset != 0) {  
-                console.log("skipping some seconds!");
+
+
+        // if (this.waveform) {
+        //     console.log("updated with offset:", this.props.offset);
+            if (this.props.offset > 0) {
+                console.log("skipping some seconds!", this.props.offset);
                 this.waveform.skip(this.props.offset);
-                if (!this.waveform.isPlaying()) {
-                    console.log("no longer playing after skipping ahead");
-                }
+                // this.waveform.pause();
+                // this.waveform.playPause();
+                // if (!this.waveform.isPlaying()) {
+                //     console.log("no longer playing after skipping ahead");
+                // } else {
+                //     console.log("is still playing after skipping...");
+                // }
+            } else {
+                console.log("no need! offset is :",this.props.offset);
             }
-            
-        }
+        // }
+
         
     }
 
