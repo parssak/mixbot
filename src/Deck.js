@@ -69,16 +69,13 @@ export default class Deck extends Component {
     }
 
     componentDidMount() {
-        console.log("|| ---- COMPONENT DID MOUNT ---- ||");
+        console.log("|| ---- COMPONENT DID MOUNT ---- ||", this.props.deckName);
         // wavesurfer begins here
         this.waveform = WaveSurfer.create({
             container: '#waveform',
             waveColor: "#beb9b9",
-            // progressColor: "#9a68c9",
             cursorColor: "#dac4f0",
             hideScrollbar: true,
-            // responsive: true,
-            // partialRender: true,
             normalize: false,
             height: 100,
             plugins: [
@@ -93,27 +90,20 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log("||| ---- COMPONENT DID UPDATE ---- |||");
+        console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
 
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
-            console.log("|| -- THE SONG CHANGED -- ||");
-           
+            console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
-            // this.waveform.empty();
-            // this.waveform.setVolume(0);
+            if (!this.waveform.isPlaying()) console.log(" Stopped playing ", this.props.deckName);
+            else console.log(" Didn't stop playing! :/ ", this.props.deckName);
 
-            if (!this.waveform.isPlaying()) console.log(" Stopped playing ");
-            else console.log(" Didn't stop playing! :/ ");
-
-            this.waveform.destroy(); // TODO PS WE NEVER GOT AROUND TO TESTING WHAT DESTROY DOES
+            this.waveform.destroy();
             this.waveform = WaveSurfer.create({
                 container: '#waveform',
                 waveColor: "#beb9b9",
-                // progressColor: "#9a68c9",
                 cursorColor: "#dac4f0",
                 hideScrollbar: true,
-                // responsive: true,
-                // partialRender: true,
                 normalize: false,
                 height: 100,
                 plugins: [
@@ -121,13 +111,12 @@ export default class Deck extends Component {
                 ]
             });
 
-            // this.state.audioElement.pause();
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);
-           
-            // this.state.
+
             this.waveform.load(this.state.audioElement.src);
             this.waveform.setPlaybackRate(this.props.playbackRate);
+
             this.reconnectAudio();
         }
 
@@ -141,43 +130,52 @@ export default class Deck extends Component {
                     console.log("the volume is friggin:", this.state.audioSettings.gain);
                     this.playPause();
                     if (!this.state.audioSettings.gain) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
-                        this.waveform.setVolume(1);    
+                        this.waveform.setVolume(1);
                     } else {
-                        this.waveform.setVolume(this.state.audioSettings.gain);    
+                        this.waveform.setVolume(this.state.audioSettings.gain);
                     }
-                    
+
                 }
             } else {
                 if (this.state.audioSettings.gain !== this.waveform.getVolume()) {
                     console.log("the volume is friggin:", this.state.audioSettings.gain);
                     this.waveform.setVolume(this.state.audioSettings.gain);
                 }
-                console.log("everything's matching up quite nicely");
+                console.log("everything's matching up quite nicely", this.props.deckName);
             }
         } else {
-            console.log("Component updated, neverthethus we are still suspended");
+            console.log("Component updated, neverthethus we are still suspended", this.props.deckName);
         }
 
 
 
         // if (this.waveform) {
         //     console.log("updated with offset:", this.props.offset);
-            if (this.props.offset > 0) {
+        if (this.props.offset !== prevProps.offset) {
+            console.log("offset is:", this.props.offset, "curr time is:", this.waveform.getCurrentTime());
+            if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
                 console.log("skipping some seconds!", this.props.offset);
                 this.waveform.skip(this.props.offset);
                 // this.waveform.pause();
                 // this.waveform.playPause();
-                // if (!this.waveform.isPlaying()) {
-                //     console.log("no longer playing after skipping ahead");
-                // } else {
-                //     console.log("is still playing after skipping...");
-                // }
+                if (!this.waveform.isPlaying()) {
+                    console.log("no longer playing after skipping ahead", this.props.deckName);
+                } else {
+                    console.log("is still playing after skipping...", this.props.deckName);
+                }
             } else {
-                console.log("no need! offset is :",this.props.offset);
+                console.log("no need! offset is :", this.props.offset);
             }
-        // }
+            // }
 
-        
+
+        }
+        console.log(this.props);
+        if (!this.waveform.isPlaying()) {
+            console.log("no longer playing after skipping ahead", this.props.deckName);
+        } else {
+            console.log("is still playing after skipping...", this.props.deckName);
+        }
     }
 
     analyzeData() {
@@ -243,16 +241,25 @@ export default class Deck extends Component {
         }
         console.log(barStartArray);
 
-        for (let b = 0; b < barStartArray.length - 1; b++) {
-            let barColor = (b % 2 ? "rgba(255, 60, 54,0.1)" : "rgba(46, 255, 154,0.1)");
+        let calibrationArray = [];
+
+        let numCalibrationChunks = (songDuration) / bar;
+
+        for (let c = 0; c <= numCalibrationChunks; c++) {
+            calibrationArray.push(((c) * bar));
+        }
+
+
+        for (let b = 0; b < calibrationArray.length - 1; b++) {
+            let barColor = (b % 2 ? "rgba(255, 60, 54,0.05)" : "rgba(46, 255, 154,0.05)");
             let barRegion = {
-                start: barStartArray[b],    
-                end: barStartArray[b + 1],
+                start: calibrationArray[b],
+                end: calibrationArray[b + 1],
                 color: barColor,
                 drag: false,
                 resize: false,
                 computed: {}
-            };    
+            };
             this.waveform.addRegion(barRegion);
         }
 
@@ -426,7 +433,7 @@ export default class Deck extends Component {
                 })
             } else if (songSections[0].sizeComparison == 2.0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
                 console.log("CASE B START POS");
-                console.log("mult of 4?",songSections[1].sizeComparison % 4);
+                console.log("mult of 4?", songSections[1].sizeComparison % 4);
                 this.setState({
                     startingPos: songSections[0].endpoint
                 })
@@ -628,11 +635,11 @@ export default class Deck extends Component {
             } else {
                 this.props.hitBar();
             }
-            
-            
+
+
             // console.log(computed.comformedBegin);
             // console.log(computed.comformedEnd);
-            
+
 
             // if (!this.state.scheduledDemise) {
             // if (thisSection.sectionType !== BEGIN && !this.state.scheduledDemise) {
@@ -646,12 +653,12 @@ export default class Deck extends Component {
             // } else {
             //     console.log("ew gross begin lol / scheduled my demise oopsie >.<");
             // }
-                
-                // this.setState({
-                //     scheduledDemise: true
-                // });
+
+            // this.setState({
+            //     scheduledDemise: true
+            // });
             // }
-            
+
             // todo call this.props.schedule(with something) here
         });
 
@@ -676,11 +683,11 @@ export default class Deck extends Component {
             this.state.audioCtx.resume();
 
         }
-        console.log("called playPause");
+        console.log(">>>>>>>>>>>>>>>>>>>> called playPause", this.props.deckName);
         // this.waveform.play(this.props.startTime);
         console.log("||||||| started song at", this.props.startTime);
-        // this.waveform.playPause();
-        this.waveform.play(this.state.startingPos);
+        this.waveform.playPause();
+        // this.waveform.play(this.state.startingPos);
 
         if (this.state.playing !== this.waveform.isPlaying()) {
             this.setState({
