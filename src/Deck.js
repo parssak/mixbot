@@ -147,17 +147,16 @@ export default class Deck extends Component {
             console.log("Component updated, neverthethus we are still suspended", this.props.deckName);
         }
 
-
-
-        // if (this.waveform) {
-        //     console.log("updated with offset:", this.props.offset);
         if (this.props.offset !== prevProps.offset) {
+            console.log("ZEZEZEZEZEZEE", this.props.deckName);
+            
             console.log("offset is:", this.props.offset, "curr time is:", this.waveform.getCurrentTime());
+
             if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
+
                 console.log("skipping some seconds!", this.props.offset);
                 this.waveform.skip(this.props.offset);
-                // this.waveform.pause();
-                // this.waveform.playPause();
+
                 if (!this.waveform.isPlaying()) {
                     console.log("no longer playing after skipping ahead", this.props.deckName);
                 } else {
@@ -166,15 +165,13 @@ export default class Deck extends Component {
             } else {
                 console.log("no need! offset is :", this.props.offset);
             }
-            // }
-
-
-        }
-        console.log(this.props);
-        if (!this.waveform.isPlaying()) {
-            console.log("no longer playing after skipping ahead", this.props.deckName);
         } else {
-            console.log("is still playing after skipping...", this.props.deckName);
+            console.log(this.props);
+            if (!this.waveform.isPlaying()) {
+                console.log("no longer playing after skipping ahead", this.props.deckName);
+            } else {
+                console.log("is still playing after skipping...", this.props.deckName);
+            }
         }
     }
 
