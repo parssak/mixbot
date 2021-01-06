@@ -227,8 +227,8 @@ export default function TrackPlayer() {
             // setDeck2Playing(true);
         }
         setDeck2Playing(true);
-        console.log("zoinks");
-        console.log(deck2Playing);
+        // console.log("zoinks");
+        // console.log(deck2Playing);
     }
 
     function playTrackOne() {
@@ -240,8 +240,8 @@ export default function TrackPlayer() {
     function hitBarD1() {                                   //! enable this after
         deck1lastBar = clock.currentTime;
         if (deck2Playing) { 
-            console.log("DECK1", deck2offset);    
-            setDeck1offset(deck1lastBar - deck2lastBar);
+            console.log("DECK1", deck1lastBar - deck2lastBar);    
+            // setDeck1offset(deck2lastBar - deck1lastBar);
             // console.log("DECK1", deck1offset);
             // setDeck1offset(deck2lastBar - deck1lastBar);
         }

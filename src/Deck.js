@@ -60,6 +60,9 @@ export default class Deck extends Component {
             },
             startingPos: 0
         };
+        this.lastAdjustTime = 0;
+        this.synced = false;
+        this.numSuccessful = 0;
         this.playPause = this.playPause.bind(this);
         this.changeFilter = this.changeFilter.bind(this);
         this.changeGain = this.changeGain.bind(this);
@@ -97,6 +100,11 @@ export default class Deck extends Component {
             this.waveform.pause();
             if (!this.waveform.isPlaying()) console.log(" Stopped playing ", this.props.deckName);
             else console.log(" Didn't stop playing! :/ ", this.props.deckName);
+
+
+            this.synced = false;
+            this.numSuccessful = 0;
+
 
             this.waveform.destroy();
             this.waveform = WaveSurfer.create({
@@ -147,16 +155,35 @@ export default class Deck extends Component {
             console.log("Component updated, neverthethus we are still suspended", this.props.deckName);
         }
 
-        if (this.props.offset !== prevProps.offset) {
-            console.log("ZEZEZEZEZEZEE", this.props.deckName);
+        if (Math.abs(this.props.offset) >= 0.1 && Math.abs(this.props.offset) < 0.3 && this.waveform.getCurrentTime() - this.lastAdjustTime > 1) {
+            this.numSuccessful++;
+            console.log("-------------------num succesfull:", this.numSuccessful);
+            if (this.numSuccessful >= 5) {
+                this.synced = true;
+                console.log("-------------------SYNCEDDDDD");
+            }
+        }
+
+
+        if (this.props.offset !== prevProps.offset &&
+            Math.abs(this.props.offset) < 0.3 &&
+            this.waveform.getCurrentTime() - this.lastAdjustTime > 10 &&
+            Math.abs(this.props.offset) >= 0.1 &&
+            !this.synced) {
+            console.log("ZEZEZEZEZEZEE", this.props.deckName, this.props.offset);
             
             console.log("offset is:", this.props.offset, "curr time is:", this.waveform.getCurrentTime());
+            this.numSuccessful = 0;
 
             if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
-
+                this.lastAdjustTime = this.waveform.getCurrentTime();
                 console.log("skipping some seconds!", this.props.offset);
-                this.waveform.skip(this.props.offset);
-
+                // this.waveform.pause();
+                let adjustedOffset = this.props.offset + (this.props.offset / 2);
+                console.log("difference was", adjustedOffset - this.props.offset);
+                this.waveform.pause();
+                this.waveform.skip(adjustedOffset);
+                this.waveform.playPause();
                 if (!this.waveform.isPlaying()) {
                     console.log("no longer playing after skipping ahead", this.props.deckName);
                 } else {
@@ -532,6 +559,7 @@ export default class Deck extends Component {
                 let isBest = false;
                 switch (section.sectionType) {
                     case DROP:
+                        section.endpoint -= 0.1;
                         if (cs1 === bestDrop) {
                             thisSectionColor = bestDropColor;
                             isBest = true;
@@ -571,6 +599,9 @@ export default class Deck extends Component {
                 // console.log("setting waveform color as:", region.color);
                 // console.log("this section started at:", region.start);
                 // console.log("this section ended at:", region.end);
+
+                
+
                 this.waveform.addRegion(region);
                 cs1++;
             })
@@ -580,23 +611,11 @@ export default class Deck extends Component {
             console.log("song analysis not got, returned:");
             console.log(this.props.songAnalysis);
         }
+        this.waveform.on('region-in', e => { 
+            this.props.hitBar();
+        })
 
-        this.waveform.on('region-in', e => {
-            // $('.waveform__counter').text( formatTime(wavesurfer.getCurrentTime()) );
-            // console.log(wavesurfer.current.getCurrentTime());
-
-            /**
-             * comparisonLoudness: comparisonLoudness,
-                    differential: diff,
-                    sectionConfidence: e.confidence,
-                    conformedBegin: acceptedConformBegin,
-                    conformedEnd: acceptedConformEnd,
-                    oBegin: offsetBegin,
-                    oEnd: offsetEnd
-             */
-
-
-            // console.log("Entered:", e);
+        this.waveform.on('region-out', e => {
             let thisSection = e.data;
             let computed = thisSection.computed;
             //! Good for debugging
@@ -625,36 +644,13 @@ export default class Deck extends Component {
                 })
                 console.log("DA MONEYYYY ", this.state.currSectionAnalysis);
 
-                if (thisSection.sectionType === COMEDOWN) {
+                if (thisSection.sectionType === DROP) {
                     console.log("drop da beat");
                     this.props.playOtherTrack();
                 }
             } else {
                 this.props.hitBar();
             }
-
-
-            // console.log(computed.comformedBegin);
-            // console.log(computed.comformedEnd);
-
-
-            // if (!this.state.scheduledDemise) {
-            // if (thisSection.sectionType !== BEGIN && !this.state.scheduledDemise) {
-            //     let scheduleTime = thisSection.endpoint - thisSection.begin
-            //     console.log("passing out sched time", scheduleTime);
-            //     this.props.schedule(scheduleTime);
-            //     this.setState({
-            //         scheduledDemise: true
-            //     });
-
-            // } else {
-            //     console.log("ew gross begin lol / scheduled my demise oopsie >.<");
-            // }
-
-            // this.setState({
-            //     scheduledDemise: true
-            // });
-            // }
 
             // todo call this.props.schedule(with something) here
         });
