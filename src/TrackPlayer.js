@@ -35,8 +35,8 @@ let deck2playtime = NaN;
 let deck1startTime = 0;
 let deck2startTime = 0;
 
-let mainTrack = 1; // can be 1 or 2
-
+let lastTrackSet = 0;
+let mainTrack = 0;
 
 let deck1lastBar = 0;
 let deck2lastBar = 0;
@@ -224,9 +224,13 @@ export default function TrackPlayer() {
         // if (!deck2Playing && deck2prepared) {
         if (deck2prepared) {
             console.log("time to play track dos");
-            // setDeck2Playing(true);
+            setDeck2Playing(true);
+            if (lastTrackSet === 0) {
+                lastTrackSet = 2;
+                mainTrack = 1;
+            }
         }
-        setDeck2Playing(true);
+        // setDeck2Playing(true);
         // console.log("zoinks");
         // console.log(deck2Playing);
     }
@@ -234,6 +238,11 @@ export default function TrackPlayer() {
     function playTrackOne() {
         if (!deck1Playing && deck1prepared) {
             setDeck1Playing(true);
+            if (lastTrackSet === 0) {
+                lastTrackSet = 1;
+                mainTrack = 1;
+            }
+
         }
     }
 
