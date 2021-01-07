@@ -241,9 +241,6 @@ export default function TrackPlayer() {
         deck1lastBar = clock.currentTime;
         if (deck2Playing) { 
             console.log("DECK1", deck1lastBar - deck2lastBar);    
-            // setDeck1offset(deck2lastBar - deck1lastBar);
-            // console.log("DECK1", deck1offset);
-            // setDeck1offset(deck2lastBar - deck1lastBar);
         }
     }
 

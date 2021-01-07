@@ -77,9 +77,9 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
 
         }).finally(async () => {
             if (chosenVideoID === "") {
-                console.log("could not find song");
+                // console.log("could not find song");
             } else {
-                console.log("found song")
+                // console.log("found song")
             }
 
         })

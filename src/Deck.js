@@ -64,6 +64,7 @@ export default class Deck extends Component {
         this.synced = false;
         this.numSuccessful = 0;
         this.playPause = this.playPause.bind(this);
+        this.fadeOutSong = this.fadeOutSong.bind(this);
         this.changeFilter = this.changeFilter.bind(this);
         this.changeGain = this.changeGain.bind(this);
         this.reconnectAudio = this.reconnectAudio.bind(this);
@@ -134,72 +135,74 @@ export default class Deck extends Component {
                     console.log("~~~ SHOULD BE PAUSED NGL ~~~");
                     this.waveform.stop();
                 } else {
-                    console.log("should be allowed to play, gonna play now!");
-                    console.log("the volume is friggin:", this.state.audioSettings.gain);
+                    // console.log("should be allowed to play, gonna play now!");
+                    // console.log("the volume is friggin:", this.state.audioSettings.gain);
                     this.playPause();
                     if (!this.state.audioSettings.gain) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
-                        this.waveform.setVolume(1);
+                        this.waveform.setVolume(1); //  todo was here before lunch tryung to lerp volume
                     } else {
                         this.waveform.setVolume(this.state.audioSettings.gain);
                     }
 
                 }
             } else {
-                if (this.state.audioSettings.gain !== this.waveform.getVolume()) {
-                    console.log("the volume is friggin:", this.state.audioSettings.gain);
-                    this.waveform.setVolume(this.state.audioSettings.gain);
-                }
-                console.log("everything's matching up quite nicely", this.props.deckName);
+                // if (this.state.audioSettings.gain !== this.waveform.getVolume()) {
+                //     // console.log("the volume is friggin:", this.state.audioSettings.gain);
+                //     this.waveform.setVolume(this.state.audioSettings.gain);
+                // }
+                // console.log("everything's matching up quite nicely", this.props.deckName);
             }
         } else {
-            console.log("Component updated, neverthethus we are still suspended", this.props.deckName);
+            // console.log("Component updated, neverthethus we are still suspended", this.props.deckName);
         }
 
-        if (Math.abs(this.props.offset) >= 0.1 && Math.abs(this.props.offset) < 0.3 && this.waveform.getCurrentTime() - this.lastAdjustTime > 1) {
+        if (Math.abs(this.props.offset) >= 0.1 && Math.abs(this.props.offset) < 0.3) {
             this.numSuccessful++;
             console.log("-------------------num succesfull:", this.numSuccessful);
             if (this.numSuccessful >= 5) {
                 this.synced = true;
                 console.log("-------------------SYNCEDDDDD");
             }
+        } else {
+            // console.log("fail:", Math.abs(this.props.offset) >= 0.1, Math.abs(this.props.offset) < 0.3, this.waveform.getCurrentTime() - this.lastAdjustTime);
         }
 
 
         if (this.props.offset !== prevProps.offset &&
-            Math.abs(this.props.offset) < 0.3 &&
+            // Math.abs(this.props.offset) < 1 &&
             this.waveform.getCurrentTime() - this.lastAdjustTime > 10 &&
-            Math.abs(this.props.offset) >= 0.1 &&
-            !this.synced) {
-            console.log("ZEZEZEZEZEZEE", this.props.deckName, this.props.offset);
+            Math.abs(this.props.offset) >= 0.05) {
+            // console.log("ZEZEZEZEZEZEE", this.props.deckName, this.props.offset);
             
-            console.log("offset is:", this.props.offset, "curr time is:", this.waveform.getCurrentTime());
+            // console.log("offset is:", this.props.offset, "curr time is:", this.waveform.getCurrentTime());
             this.numSuccessful = 0;
 
             if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
                 this.lastAdjustTime = this.waveform.getCurrentTime();
-                console.log("skipping some seconds!", this.props.offset);
+                // console.log("skipping some seconds!", this.props.offset);
                 // this.waveform.pause();
                 let adjustedOffset = this.props.offset + (this.props.offset / 2);
-                console.log("difference was", adjustedOffset - this.props.offset);
+                // console.log("difference was", adjustedOffset - this.props.offset);
                 this.waveform.pause();
                 this.waveform.skip(adjustedOffset);
                 this.waveform.playPause();
-                if (!this.waveform.isPlaying()) {
-                    console.log("no longer playing after skipping ahead", this.props.deckName);
-                } else {
-                    console.log("is still playing after skipping...", this.props.deckName);
-                }
+                // if (!this.waveform.isPlaying()) {
+                //     console.log("no longer playing after skipping ahead", this.props.deckName);
+                // } else {
+                //     console.log("is still playing after skipping...", this.props.deckName);
+                // }
             } else {
                 console.log("no need! offset is :", this.props.offset);
             }
-        } else {
-            console.log(this.props);
-            if (!this.waveform.isPlaying()) {
-                console.log("no longer playing after skipping ahead", this.props.deckName);
-            } else {
-                console.log("is still playing after skipping...", this.props.deckName);
-            }
         }
+        // } else {
+        //     // console.log(this.props);
+        //     if (!this.waveform.isPlaying()) {
+        //         console.log("no longer playing after skipping ahead", this.props.deckName);
+        //     } else {
+        //         console.log("is still playing after skipping...", this.props.deckName);
+        //     }
+        // }
     }
 
     analyzeData() {
@@ -679,8 +682,8 @@ export default class Deck extends Component {
         console.log(">>>>>>>>>>>>>>>>>>>> called playPause", this.props.deckName);
         // this.waveform.play(this.props.startTime);
         console.log("||||||| started song at", this.props.startTime);
-        this.waveform.playPause();
-        // this.waveform.play(this.state.startingPos);
+        // this.waveform.playPause();
+        this.waveform.play(this.state.startingPos);
 
         if (this.state.playing !== this.waveform.isPlaying()) {
             this.setState({
@@ -698,17 +701,18 @@ export default class Deck extends Component {
         // console.log(amount)
         if (amount <= 14000) {
             // console.log("A");
-            this.setState({
-                audioSettings: {
-                    lowpassF: amount
-                },
-                // lowpassNode: {
-                //     frequency: {
-                //         value: amount
-                //     }
-                // }
-            })
+            // this.setState({
+            //     audioSettings: {
+            //         lowpassF: amount
+            //     },
+            //     lowpassNode: {
+            //         frequency: {
+            //             value: amount
+            //         }
+            //     }
+            // })
             console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
+            this.state.audioSettings.lowpassF = amount;
             this.state.lowpassNode.frequency.value = amount;
         } else if (amount >= 20000) {
             // console.log("B");
@@ -740,6 +744,14 @@ export default class Deck extends Component {
         });
     }
 
+    fadeOutSong() {
+        // this.setState({
+        //     audioSettings: {
+        //         gain: 
+        //     }
+        // })
+        this.waveform.setVolume(lerp((this.state.audioSettings.gain / 100).toPrecision(2), 0, 0.1));
+    }
 
     render() {
         return (
@@ -784,6 +796,10 @@ function closest(needle, haystack) {
         }
     })
     return closeGrain;
+}
+
+function lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end
 }
 // changeLows(amount) { // TODO
 //     console.log("lows is", amount)
