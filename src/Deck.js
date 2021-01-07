@@ -598,12 +598,12 @@ export default class Deck extends Component {
         }
         this.waveform.on('region-in', e => { 
             this.props.hitBar();
-            if (e.data) {
+            if (e.data.sectionType !== undefined) {
                 console.log("has data!");
                 if (e.data.sectionType === DROP) {
                     console.log("drop da beat");
                     this.props.playOtherTrack();
-                }
+                } 
             }
         })
 
@@ -639,6 +639,9 @@ export default class Deck extends Component {
                 if (thisSection.sectionType === DROP) {
                     console.log("drop da beat");
                     this.props.playOtherTrack();
+                } else if (thisSection.sectionType === BEGIN) {
+                    console.log("shhhhshhhshh");
+                    this.fadeOutSong();
                 }
             } else {
                 this.props.hitBar();
@@ -722,14 +725,20 @@ export default class Deck extends Component {
         });
     }
 
-    fadeOutSong() {
-        // this.setState({
-        //     audioSettings: {
-        //         gain: 
-        //     }
-        // })
+    fadeOutSong() { 
         this.fadingOut = true;
-        this.waveform.setVolume(lerp((this.state.audioSettings.gain / 100).toPrecision(2), 0, 0.1));
+        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 2), 0.1));
+        if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03); 
+        if (this.waveform.getVolume() > 0.001) {
+            setTimeout(() => {
+                this.fadeOutSong();
+            }, 1000);
+        } else {
+            this.fadingOut = false;
+            this.waveform.setVolume(0);
+            this.waveform.pause();
+            this.props.finished();
+        }
     }
 
     render() {
@@ -778,6 +787,7 @@ function closest(needle, haystack) {
 }
 
 function lerp(start, end, amt) {
+    console.log("lerped this:", start, "to:", (1 - amt) * start + amt * end);
     return (1 - amt) * start + amt * end
 }
 // changeLows(amount) { // TODO

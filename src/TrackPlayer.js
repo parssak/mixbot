@@ -41,9 +41,6 @@ let mainTrack = 0;
 let deck1lastBar = 0;
 let deck2lastBar = 0;
 
-// let deck1offset = 0;
-// let deck2offset = 0;
-
 export default function TrackPlayer() {
     const [clock, setClock] = useState();
 
@@ -76,7 +73,6 @@ export default function TrackPlayer() {
     })
 
     function loadTrackA() {
-        console.log("entered");
         let newSong = loadTrack();
         setDeck1prepared(false);
         setDeck1Playing(false);
@@ -261,7 +257,15 @@ export default function TrackPlayer() {
         }
         
     }
+
+    function changeTrackA() {
+        loadTrackA();
+    }
     
+    function changeTrackB() {
+        loadTrackB();
+    }
+
     return (
         <div className={"djboard"}>
             <div className={"boardpanel"}>
@@ -281,6 +285,7 @@ export default function TrackPlayer() {
                     hitBar={hitBarD1}
                     offset={deck1offset}
                     deckName={"Deck A"}
+                    finished={changeTrackA}
                 />}
             </div>
             <div className={"boardpanel"}>
@@ -300,6 +305,7 @@ export default function TrackPlayer() {
                     hitBar={hitBarD2}
                     offset={deck2offset}
                     deckName={"Deck B"}
+                    finished={changeTrackB}
                 />}
             </div>
         </div>
