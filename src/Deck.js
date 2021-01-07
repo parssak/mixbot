@@ -62,6 +62,7 @@ export default class Deck extends Component {
         };
         this.lastAdjustTime = 0;
         this.synced = false;
+        this.totalOffset = 0;
         this.numSuccessful = 0;
         this.playPause = this.playPause.bind(this);
         this.fadeOutSong = this.fadeOutSong.bind(this);
@@ -105,7 +106,7 @@ export default class Deck extends Component {
 
             this.synced = false;
             this.numSuccessful = 0;
-
+            this.totalOffset = 0;
 
             this.waveform.destroy();
             this.waveform = WaveSurfer.create({
@@ -135,8 +136,7 @@ export default class Deck extends Component {
                     console.log("~~~ SHOULD BE PAUSED NGL ~~~");
                     this.waveform.stop();
                 } else {
-                    // console.log("should be allowed to play, gonna play now!");
-                    // console.log("the volume is friggin:", this.state.audioSettings.gain);
+
                     this.playPause();
                     if (!this.state.audioSettings.gain) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
                         this.waveform.setVolume(1); //  todo was here before lunch tryung to lerp volume
@@ -145,21 +145,14 @@ export default class Deck extends Component {
                     }
 
                 }
-            } else {
-                // if (this.state.audioSettings.gain !== this.waveform.getVolume()) {
-                //     // console.log("the volume is friggin:", this.state.audioSettings.gain);
-                //     this.waveform.setVolume(this.state.audioSettings.gain);
-                // }
-                // console.log("everything's matching up quite nicely", this.props.deckName);
-            }
-        } else {
-            // console.log("Component updated, neverthethus we are still suspended", this.props.deckName);
+            } 
         }
-
-        if (Math.abs(this.props.offset) >= 0.1 && Math.abs(this.props.offset) < 0.3) {
+        if (Math.abs(this.props.offset) < 0.1 && this.waveform.isPlaying()) {
             this.numSuccessful++;
-            console.log("-------------------num succesfull:", this.numSuccessful);
-            if (this.numSuccessful >= 5) {
+            if (Math.abs(this.props.offset) < 0.05) this.numSuccessful++;
+            if (Math.abs(this.props.offset) < 0.01) this.numSuccessful++;
+            console.log("-------------------num succesfull:", this.numSuccessful, this.props.offset, Math.abs(this.props.offset), Math.abs(this.props.offset)<0.1);
+            if (this.numSuccessful >= 3) {
                 this.synced = true;
                 console.log("-------------------SYNCEDDDDD");
             }
@@ -171,21 +164,28 @@ export default class Deck extends Component {
         if (this.props.offset !== prevProps.offset &&
             // Math.abs(this.props.offset) < 1 &&
             this.waveform.getCurrentTime() - this.lastAdjustTime > 10 &&
-            Math.abs(this.props.offset) >= 0.05) {
-            // console.log("ZEZEZEZEZEZEE", this.props.deckName, this.props.offset);
+            Math.abs(this.props.offset) >= 0.05 &&
+            this.numSuccessful < 3 &&
+            !this.synced) {
             
-            // console.log("offset is:", this.props.offset, "curr time is:", this.waveform.getCurrentTime());
             this.numSuccessful = 0;
 
             if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
                 this.lastAdjustTime = this.waveform.getCurrentTime();
                 // console.log("skipping some seconds!", this.props.offset);
                 // this.waveform.pause();
-                let adjustedOffset = this.props.offset + (this.props.offset / 2);
+                
+                // let adjustedOffset = this.props.offset + (this.props.offset / 2);
+                let adjustedOffset = this.props.offset + 0.1;
+                this.totalOffset = this.props.offset;
+                console.log(this.props.deckName, "total offset:", this.totalOffset);
+                let desiredTime = this.waveform.getCurrentTime() + this.props.offset;
                 // console.log("difference was", adjustedOffset - this.props.offset);
+                console.log(this.props.deckName, " song pos was at:", this.waveform.getCurrentTime(), "we need:", desiredTime);
                 this.waveform.pause();
                 this.waveform.skip(adjustedOffset);
                 this.waveform.playPause();
+                console.log(this.props.deckName, " now we are at:", this.waveform.getCurrentTime(), "difference is:", desiredTime - this.waveform.getCurrentTime(), "offset diff:", (this.props.offset - desiredTime - this.waveform.getCurrentTime()));
                 // if (!this.waveform.isPlaying()) {
                 //     console.log("no longer playing after skipping ahead", this.props.deckName);
                 // } else {
@@ -195,14 +195,6 @@ export default class Deck extends Component {
                 console.log("no need! offset is :", this.props.offset);
             }
         }
-        // } else {
-        //     // console.log(this.props);
-        //     if (!this.waveform.isPlaying()) {
-        //         console.log("no longer playing after skipping ahead", this.props.deckName);
-        //     } else {
-        //         console.log("is still playing after skipping...", this.props.deckName);
-        //     }
-        // }
     }
 
     analyzeData() {
