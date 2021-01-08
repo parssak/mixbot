@@ -489,9 +489,6 @@ export default class Deck extends Component {
         if (this.props.songAnalysis !== 'NOTFOUND') {
 
             let analyzed = this.analyzeData();
-            // console.log("this is analyzed");
-            // console.log(analyzed);
-
 
             //! Getting the best of each region
             let bestReg;
@@ -740,7 +737,7 @@ export default class Deck extends Component {
     }
 
     fadeInSong() {
-        console.log("fading in");
+        console.log("*****", this.props.deckName, "fading in", this.props.recommendedVolume);
         // todo something with this.props.recommendedVolume
         // if (!this.state.audioSettings.gain) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
         //     this.waveform.setVolume(1); //  todo was here before lunch tryung to lerp volume
@@ -809,7 +806,7 @@ function closest(needle, haystack) {
 }
 
 function lerp(start, end, amt) {
-    console.log("lerped this:", start, "to:", (1 - amt) * start + amt * end);
+    console.log(this.props.deckName, "lerped this:", start,end,"to:", (1 - amt) * start + amt * end);
     return (1 - amt) * start + amt * end
 }
 // changeLows(amount) { // TODO

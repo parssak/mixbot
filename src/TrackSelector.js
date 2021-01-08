@@ -1,29 +1,30 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import Dropdown from "./frontend_components/Dropdown";
 import { Credentials } from './Credentials';
 import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
-import TrackPlayer, {trackAlreadyIn, addToQueue} from "./TrackPlayer";
+import TrackPlayer, { trackAlreadyIn, addToQueue } from "./TrackPlayer";
 import Waveform from "./frontend_components/Waveform";
 import Draggable from 'react-draggable';
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
 function TrackSelector() {
+    let audio = new Audio("/christmas.mp3");
     const spotify = Credentials();
     const [token, setToken] = useState('');
-    const [genres, setGenres] = useState({selectedGenre: '', listOfGenresFromAPI: []});
-    const [playlist, setPlaylist] = useState({selectedPlaylist: '2818tC1Ba59cftJJqjWKZi', listOfPlaylistFromAPI: []});
-    const [tracks, setTracks] = useState({selectedTrack: '', listOfTracksFromAPI: []});
+    const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
+    const [playlist, setPlaylist] = useState({ selectedPlaylist: '2818tC1Ba59cftJJqjWKZi', listOfPlaylistFromAPI: [] });
+    const [tracks, setTracks] = useState({ selectedTrack: '', listOfTracksFromAPI: [] });
     const [trackDetail, setTrackDetail] = useState(null);
 
     useEffect(() => {
         axios('https://accounts.spotify.com/api/token', {
             headers: {
-                'Content-Type' : 'application/x-www-form-urlencoded',
-                'Authorization' : 'Basic ' + btoa(spotify.ClientId + ':' + spotify.ClientSecret)
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + btoa(spotify.ClientId + ':' + spotify.ClientSecret)
             },
             data: 'grant_type=client_credentials',
             method: 'POST'
@@ -54,7 +55,7 @@ function TrackSelector() {
 
         axios(`https://api.spotify.com/v1/browse/categories/${val}/playlists?limit=30`, {
             method: 'GET',
-            headers: {'Authorization': 'Bearer ' + token}
+            headers: { 'Authorization': 'Bearer ' + token }
         }).then(playlistResponse => {
             setPlaylist({
                 selectedPlaylist: playlist.selectedPlaylist,
@@ -72,7 +73,7 @@ function TrackSelector() {
 
     function playlistSearchClicked(e) {
         e.preventDefault();
-        console.log("selected playlist was" +playlist.selectedPlaylist);
+        console.log("selected playlist was" + playlist.selectedPlaylist);
         axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=40`, {
             method: 'GET',
             headers: {
@@ -98,7 +99,7 @@ function TrackSelector() {
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID) {
         if (!trackAlreadyIn(songName)) {
-            console.log("adding: " + songName + "with id "   + trackID);
+            console.log("adding: " + songName + "with id " + trackID);
             getAudioAnalysis(trackID, songName, songArtists, duration, songURL);
         } else {
             console.log("track is already in the queue");
@@ -107,11 +108,11 @@ function TrackSelector() {
     }
 
     const getAudioAnalysis = (id, songName, songArtists, duration, songURL) => {
-        console.log("song id is "+id);
+        console.log("song id is " + id);
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
             method: 'GET',
             headers: {
-                'Authorization' : 'Bearer ' + token
+                'Authorization': 'Bearer ' + token
             }
         }).then(e => {
             console.log(e);
@@ -124,33 +125,33 @@ function TrackSelector() {
         });
     }
 
+    const playSFX = () => {
+
+    }
+
     return (
         <>
-            
-        <div>
-          
-
-            
-            <form onSubmit={playlistSearchClicked}>
-                <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
-                <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
-                {playlist.selectedPlaylist !== "" ? <button type='submit'>
-                    Search
+            <div>
+                <form onSubmit={playlistSearchClicked}>
+                    <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
+                    <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
+                    {playlist.selectedPlaylist !== "" ? <button type='submit'>
+                        Search
                 </button> : null}
-                <div>
-                    <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
-                    {trackDetail && <Detail {...trackDetail} /> }
-                    {trackDetail && <TrackFinder name={trackDetail.name}
-                                                 artists={trackDetail.artists}
-                                                 duration_ms={trackDetail.duration_ms}
-                                                 trackID={trackDetail.id}
-                                                 foundSong={addSongToTracklist}/>}
-                </div>
-            </form>
-            <TrackPlayer/>
+                    <div>
+                        <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
+                        {trackDetail && <Detail {...trackDetail} />}
+                        {trackDetail && <TrackFinder name={trackDetail.name}
+                            artists={trackDetail.artists}
+                            duration_ms={trackDetail.duration_ms}
+                            trackID={trackDetail.id}
+                            foundSong={addSongToTracklist} />}
+                    </div>
+                </form>
+                <TrackPlayer />
             </div>
-            
-            </>
+
+        </>
     );
 }
 
