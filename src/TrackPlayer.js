@@ -286,6 +286,7 @@ export default function TrackPlayer() {
                     offset={deck1offset}
                     deckName={"Deck A"}
                     finished={changeTrackA}
+                    recommendedVolume={1}
                 />}
             </div>
             <div className={"boardpanel"}>
@@ -299,13 +300,13 @@ export default function TrackPlayer() {
                     playbackRate={deck2playback}
                     prepared={deckTwoReady()}
                     play={deck2Playing}
-                    // schedule={setDeckOnePlaytime}
                     startTime={deck2startTime}
                     playOtherTrack={playTrackOne}
                     hitBar={hitBarD2}
                     offset={deck2offset}
                     deckName={"Deck B"}
                     finished={changeTrackB}
+                    recommendedVolume={1}
                 />}
             </div>
         </div>
