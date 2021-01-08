@@ -107,7 +107,7 @@ export default class Deck extends Component {
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
-            
+
             this.synced = false;
             this.numSuccessful = 0;
             this.totalOffset = 0;
@@ -159,24 +159,22 @@ export default class Deck extends Component {
                 this.synced = true;
             }
 
-            if (this.numSuccessful < 5) {
-                console.log(this.props.deckName, "-------------------num succesfull:", this.numSuccessful, this.props.offset, Math.abs(this.props.offset), Math.abs(this.props.offset) < 0.1);
-                if (this.synced) {
-                    console.log(this.props.deckName, "-------------------SYNCEDDDDD");
-                }
-            }
-        } 
+            // if (this.numSuccessful < 5) {
+            //     console.log(this.props.deckName, "-------------------num succesfull:", this.numSuccessful, this.props.offset, Math.abs(this.props.offset), Math.abs(this.props.offset) < 0.1);
+            //     if (this.synced) {
+            //         console.log(this.props.deckName, "-------------------SYNCEDDDDD");
+            //     }
+            // }
+        }
 
         if (this.props.offset !== prevProps.offset &&
             this.waveform.getCurrentTime() - this.lastAdjustTime > 5 &&
             Math.abs(this.props.offset) >= 0.05 &&
-            !this.synced)
-        {
+            !this.synced) {
             this.numSuccessful = 0;
             console.log(this.props.deckName, "-> about to sync");
             if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
                 this.lastAdjustTime = this.waveform.getCurrentTime();
-                // let adjustedOffset = this.props.offset + (this.props.offset / 2);
                 let adjustedOffset = this.props.offset;
                 this.totalOffset = this.props.offset;
                 console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset, "which is", this.totalOffset / barSize, "bars");
@@ -216,10 +214,7 @@ export default class Deck extends Component {
 
         // get an array of when all bars start
         let barStartArray = []
-
-
-        // this is very sus !!!!!!!!!!!
-        // console.log("the time sig is", timeSig);
+    
         let bar = this.props.songAnalysis.data.bars[0].duration;
         let barConfidence = 0;
         allBars.forEach(e => {
@@ -228,31 +223,18 @@ export default class Deck extends Component {
                 barConfidence = e.confidence;
             }
         })
-
-        // console.log("The most confident bar is:", bar, "with a confidence of ", barConfidence);
         barSize = bar;
         let barlength32 = bar * 2;
         let actuallength32 = bar * 4;
-        // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
-        // let barLength = (timeSig) * beat;
-        // console.log("BAR LENGTH IS", bar);
-
         let songDuration = this.props.songAnalysis.data.track.duration;
-        // console.log(allBars[0].start)
         let startingPoint = 0;
-
-
         let songBeginPoint = allBars[0].start;
-        // console.log("the song begin point is", songBeginPoint);
-        // console.log("--------------------------")
 
         let num32Bar = ((songDuration) / barlength32);
-        // console.log(num32Bar);
 
         for (let a = 0; a <= num32Bar; a++) {
             barStartArray.push(((a) * barlength32));
         }
-        // console.log(barStartArray);
 
         let calibrationArray = [];
 
@@ -276,24 +258,13 @@ export default class Deck extends Component {
             this.waveform.addRegion(barRegion);
         }
 
-        /**
-         * 
-         * 
-         * IF SECTION HAS NOT BEEN CONFORMED AND 
-         * THE DIFFERENCE IS GOOD AND CONFIDENCE IS GOOD
-         * THEN TAKE THE SUCCESSFUL AREA
-         * 
-         */
-
         sectionArray.forEach(e => {
             currSection++;
-            // let loudnessTag = 0;
             let sectionType = REGULAR;
             let is32length = false;
 
             let comparisonLoudness = (e.loudness - baselineLoudness) / baselineLoudness;
-            // console.log("the comparison loudness of section", songSections.length, "is", comparisonLoudness);
-
+           
             // IF BEGINNING OF SONG
             if (songSections.length === 0) {
                 sectionType = BEGIN;
@@ -566,25 +537,16 @@ export default class Deck extends Component {
                     drag: false,
                     resize: false,
                     isBest: isBest
-                    // loop: toLoop
                 }
                 this.waveform.addRegion(region);
                 cs1++;
             })
-
-
-        } else {
-            // console.log("song analysis not got, returned:");
-            // console.log(this.props.songAnalysis);
         }
         this.waveform.on('region-in', e => {
             this.props.hitBar();
-            if (e.data.sectionType !== undefined) {
-                console.log("has data!");
+            if (e.data.sectionType !== undefined) { // has data!
                 if (e.data.sectionType === DROP) {
-                    // console.log("drop da beat");
                     this.numDropsPassed++;
-                    // this.props.playOtherTrack();
                 }
             }
         })
@@ -592,10 +554,6 @@ export default class Deck extends Component {
         this.waveform.on('region-out', e => {
             let thisSection = e.data;
             let computed = thisSection.computed;
-            //! Good for debugging
-            // console.log("thisSection:", thisSection);
-            // console.log("computed:", computed);
-
             if (computed) {
                 this.setState({
                     currSec: thisSection.sectionType,
@@ -617,21 +575,13 @@ export default class Deck extends Component {
                     }
                 })
 
-                if (thisSection.sectionType === DROP && this.numDropsPassed > 1) {
-                    //! IF OTHER SONG IS READY.... this.props.otherReady
-                    if (this.props.otherReady) {
-                        console.log("drop da beat");
-                        this.props.playOtherTrack();
-                        this.fadeOutSong();
-                    } else {
-                        console.log("was gonna drop da beat but wasn't ready for da shmoke");
-                    }
+                if (thisSection.sectionType === DROP && this.numDropsPassed > 1 && this.props.otherReady) {
+                    this.props.playOtherTrack();
+                    this.fadeOutSong();
                 }
             } else {
                 this.props.hitBar();
             }
-
-            // todo call this.props.schedule(with something) here
         });
 
         this.waveform.on('ready', e => {
@@ -654,41 +604,26 @@ export default class Deck extends Component {
     playPause() {
         // check if context is in suspended state (autoplay policy)
         if (this.state.audioCtx.state === 'suspended') {
-            //     console.log("was suspended, resuming");
             this.state.audioCtx.resume();
 
         }
-        // console.log(">>>>>>>>>>>>>>>>>>>> called playPause", this.props.deckName);
-        // this.waveform.play(this.props.startTime);
-        // console.log("||||||| started song at", this.props.startTime);
-        // this.waveform.playPause();
         this.waveform.play(this.state.startingPos);
-
         if (this.state.playing !== this.waveform.isPlaying()) {
             this.setState({
                 playing: this.waveform.isPlaying()
             });
         }
-
-        if (this.state.audioCtx.state === 'suspended') {
-            // console.log("still suspended!");
-
-        }
     }
 
     changeFilter(amount) {
-        // console.log(amount)
         if (amount <= 14000) {
-            // console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
             this.state.audioSettings.lowpassF = amount;
             this.state.lowpassNode.frequency.value = amount;
         } else if (amount >= 20000) {
-            // console.log("B");
             let highpassAmount = amount - 20000;
             this.state.audioSettings.highpassF = highpassAmount;
             this.state.highpassNode.frequency.value = this.state.audioSettings.highpassF;
         } else {
-            // console.log("C");
             this.state.audioSettings.lowpassF = 30000;
             this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
             this.state.audioSettings.highpassF = 0;
@@ -716,14 +651,14 @@ export default class Deck extends Component {
         console.log("fading out");
         this.fadingOut = true;
         this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 2), 0.1, this.props.deckName));
-        this.state.lowpassNode.frequency.value -= (this.state.lowpassNode.frequency.value/10);
+        this.state.lowpassNode.frequency.value -= (this.state.lowpassNode.frequency.value / 10);
         if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() > 0.001) {
             setTimeout(() => {
                 this.fadeOutSong();
             }, 1000);
         } else {
-            console.log(">>>>>>>   >>> ",this.props.deckName, " FADED OUT_________");
+            console.log(">>>>>>>   >>> ", this.props.deckName, " FADED OUT_________");
             this.fadingOut = false;
             this.waveform.setVolume(0);
             this.waveform.pause();
@@ -750,7 +685,7 @@ export default class Deck extends Component {
         } else {
             console.log(">>>>>>>  !!!  >>> ", this.props.deckName, " FADED IN_________!!!!");
             this.fadingIn = false;
-            this.waveform.setVolume(this.props.recommendedVolume);            
+            this.waveform.setVolume(this.props.recommendedVolume);
         }
     }
 
@@ -787,7 +722,7 @@ function closest(needle, haystack) {
 }
 
 function lerp(start, end, amt, deckname) {
-    console.log(deckname, "lerped this:", start,end,amt,"to:", (1 - amt) * start + amt * end);
+    console.log(deckname, "lerped this:", start, end, amt, "to:", (1 - amt) * start + amt * end);
     return (1 - amt) * start + amt * end
 }
 
