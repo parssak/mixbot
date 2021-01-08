@@ -15,11 +15,11 @@ const Listbox = props => {
                         <button key={idx}
                             onClick={clicked}
                             id={item.track.id}>
-                            {item.track.name} {console.log(item)}
+                            {item.track.name}
                         </button>
-                        <div className={"listbox-button-details"}>
+                        {/* <div className={"listbox-button-details"}>
                             <p>{item.track.name}</p>
-                        </div>
+                        </div> */}
                     </div>)
             }
         </div>

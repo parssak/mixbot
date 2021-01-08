@@ -3,15 +3,31 @@
 }
 
 .listbox-button {
-    background-color: hsl(269, 63%, 48%);
+    /* background-color: hsl(269, 63%, 48%); */
     /* display: block; */
+    width:45%;
     font-size: 0.7rem;
     text-align: left;
-    
 }
 
 .listbox-button button {
     width: 100%;
     text-align: left;
     background-color: none;
+    margin: 0.2rem;
+    padding: 0.5em 0.4em;
+    border-radius: 0.2rem;
+    border-style: none;
+    transition: all 0.1s ease;
+    opacity: 0.8;
+    font-family: 'Inter';
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
+.listbox-button button:hover {
+    cursor: pointer;
+    transform: scale(1.01);
+    opacity: 1;
+    /*margin-inline: 0.4rem;*/
 }

@@ -269,11 +269,26 @@ export default function TrackPlayer() {
         loadTrackB();
     }
 
+    useEffect(() => {
+        if ((upcomingSongs !== 0)) {
+            console.log("theres a song in the queue!");
+            if ((deck1BPM == 0) && (deck1Song == '')) {
+                console.log("putting it in track a");
+                loadTrackA();
+            }
+            if ((deck2BPM == 0) && (deck2Song == '')) {
+                console.log("putting it in track b");
+                loadTrackB();
+            }
+        } 
+    })
+
     return (
         <div className={"djboard"}>
             <div className={"boardpanel"}>
-                {deck1BPM !== 0 && <h1>DECK A BPM: {deck1BPM} RATE:{deck1playback}</h1>}
-                {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>}
+                <h2>DECK A</h2>
+                {deck1BPM !== 0 && <h3>BPM: {deck1BPM} RATE:{deck1playback}</h3>}
+                {/* {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>} */}
                 {deck1Song !== '' && <Deck
                     thisSong={deck1Song.songURL}
                     songName={deck1Song.songName}
@@ -295,8 +310,9 @@ export default function TrackPlayer() {
                 />}
             </div>
             <div className={"boardpanel"}>
-                {deck2BPM !== 0 && <h1>DECK B BPM: {deck2BPM} RATE:{deck2playback}</h1>}
-                {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>}
+                <h2>DECK B</h2>
+                {deck2BPM !== 0 && <h3>BPM: {deck2BPM} RATE:{deck2playback}</h3>}
+                {/* {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>} */}
                 {deck2Song !== '' && <Deck
                     thisSong={deck2Song.songURL}
                     songName={deck2Song.songName}

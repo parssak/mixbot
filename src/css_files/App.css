@@ -1,7 +1,165 @@
+@font-face {
+    font-family: 'Monument Black';
+    src: url(../artwork/fonts/monument/MonumentExtended-Black.woff) format('woff'), url(../artwork/fonts/monument/MonumentExtended-Black.ttf) format('ttf');
+}
+
+@font-face {
+    font-family: 'Monument Regular';
+    src: url(../artwork/fonts/monument/MonumentExtended-Regular.woff) format('woff'), url(../artwork/fonts/monument/MonumentExtended-Regular.ttf) format('ttf');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Thin.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Thin.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 100;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-ThinItalic.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-ThinItalic.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 200;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-ExtraLight.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-ExtraLight.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 200;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-ExtraLightItalic.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-ExtraLightItalic.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Light.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Light.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 300;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-LightItalic.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-LightItalic.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Regular.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Regular.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Italic.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Italic.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Medium.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Medium.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-MediumItalic.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-MediumItalic.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-SemiBold.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-SemiBold.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-SemiBoldItalic.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-SemiBoldItalic.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Bold.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Bold.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-ExtraBold.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-ExtraBold.woff?v=3.15") format("woff");
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url("../artwork/fonts/inter/Inter-Black.woff2?v=3.15") format("woff2"), url("../artwork/fonts/inter/Inter-Black.woff?v=3.15") format("woff");
+}
+
+/* -------------------------------------------------------
+Variable font.
+Usage:
+
+  html { font-family: 'Inter', sans-serif; }
+  @supports (font-variation-settings: normal) {
+    html { font-family: 'Inter var', sans-serif; }
+  }
+*/
+
+/* 
+@font-face {
+    font-family: 'Inter var';
+    font-weight: 100 900;
+    font-display: swap;
+    font-style: normal;
+    font-named-instance: 'Regular';
+    src: url("Inter-roman.var.woff2?v=3.15") format("woff2");
+}
+
+@font-face {
+    font-family: 'Inter var';
+    font-weight: 100 900;
+    font-display: swap;
+    font-style: italic;
+    font-named-instance: 'Italic';
+    src: url("Inter-italic.var.woff2?v=3.15") format("woff2");
+} */
+
 @import 'Listbox.css';
 @import 'Deck.css';
 @import 'Waveform.css';
-
 * {
     background: #171418;
     color: white;
@@ -9,9 +167,22 @@
     font-weight: 300;
 }
 
+.title {
+    font-family: 'Monument Black';
+    font-size: 4rem;
+}
+
+.credits {
+    display: inline-block;
+    font-family: 'Monument Regular';
+    font-size: 0.6rem;
+    color: #5c595d;
+}
+
 .body {
     margin: 1rem;
 }
+
 .dropdown {
     margin: 1rem;
 }
@@ -29,34 +200,61 @@ select {
 }
 
 button {
-    background: #4f2dc8;
+    background: #5437c0;
     margin: 0.2rem;
-    padding: 0.5em;
-    border-radius: 0.5rem;
+    padding: 0.em 0.4em;
+    border-radius: 0.2rem;
     border-style: none;
     transition: all 0.1s ease;
+    opacity: 0.8;
+    font-family: 'Inter';
+    font-weight: bolder;
+    font-size: 0.7rem;
 }
 
 button:hover {
     cursor: pointer;
-    transform: scale(1.03);
-    /*margin-inline: 0.4rem;*/
+    transform: scale(1.01);
+    opacity: 1;
 }
 
 .slider {
-    -webkit-appearance: none;  /* Override default CSS styles */
+    -webkit-appearance: none;
+    /* Override default CSS styles */
     appearance: none;
     /*width: 250px; !* Full-width *!*/
-    height: 25px; /* Specified height */
-    background: #d3d3d3; /* Grey background */
-    outline: none; /* Remove outline */
-    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    height: 25px;
+    /* Specified height */
+    background: #d3d3d3;
+    /* Grey background */
+    outline: none;
+    /* Remove outline */
+    opacity: 0.7;
+    /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s;
+    /* 0.2 seconds transition on hover */
     transition: opacity .2s;
     border-radius: 1em;
     /*display: block;*/
     margin: 0.3rem 0.5em 0.5em;
 }
+
 .slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
+    opacity: 1;
+    /* Fully shown on mouse-over */
+}
+
+.begin-mix {
+    width: 50%;
+    margin: auto;
+    justify-content: center;
+    display: flex;
+    padding: 0.5em 0.4em;
+    border-radius: 0.2rem;
+    border-style: none;
+    transition: all 0.1s ease;
+    opacity: 0.8;
+    font-family: 'Inter';
+    font-weight: 600;
+    font-size: 0.7rem;
 }

@@ -124,11 +124,13 @@ function TrackSelector() {
 
     return (
         <div>
+            <hr/>
             <TrackPlayer />
+            <hr />
             <form onSubmit={playlistSearchClicked}>
                 {/* <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} /> */}
                 {/* <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} /> */}
-                {playlist.selectedPlaylist !== "" ? <button type='submit'>Begin mix</button> : null}
+                {playlist.selectedPlaylist !== "" ? <button type='submit' className="begin-mix">BEGIN MIX</button> : null}
                 <div>
                     <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
                     {trackDetail && <Detail {...trackDetail} />}

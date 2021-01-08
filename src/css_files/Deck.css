@@ -8,8 +8,13 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    background-color: #212228;
-    border-radius: 1em;
+    background-color: #000000;
+    font-family: 'Monument Black';
+    /* border-radius: 1em; */
+}
+
+.deck * {
+    background-color: #000000;
 }
 
 .deck label {
@@ -26,13 +31,13 @@
     margin-top: 1em;
     margin-bottom: 1em;
     align-items: center;
-    background-color: #212228;
+    /* background-color: #212228; */
 }
 
 .knob {
     display: flex;
     position: relative;
-    background-color: #212228;
+    /* background-color: #212228; */
 }
 
 .knob .ticks {
@@ -87,13 +92,13 @@
 
 .deck label {
     margin-top: 0.4em;
-    background-color: #212228;
+    /* background-color: #212228; */
     align-self: center;
     font-weight: lighter;
 }
 
 .deck h3 {
-    background-color: #212228;
+    /* background-color: #212228; */
     font-size: 0.6rem;
     font-weight: 400;
     margin-left: 1em;
@@ -109,8 +114,18 @@
     width: 50%;
     margin-left: 1em;
     margin-right: 1em;
+    background-color: #000000;
+    font-family: 'Monument Black';
+    padding: 1em;
 }
 
+.boardpanel * {
+    background-color: #000000;
+}
+
+.boardpanel {
+    padding-top: 0;
+}
 .loadbutton {
     background-color: #d88903;
     font-weight: bolder;

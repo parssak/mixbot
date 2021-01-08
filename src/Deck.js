@@ -83,7 +83,7 @@ export default class Deck extends Component {
         // wavesurfer begins here
         this.waveform = WaveSurfer.create({
             container: '#waveform',
-            waveColor: "#beb9b9",
+            waveColor: "#ffffff",
             cursorColor: "#dac4f0",
             hideScrollbar: true,
             normalize: false,
@@ -116,7 +116,7 @@ export default class Deck extends Component {
             this.waveform.destroy();
             this.waveform = WaveSurfer.create({
                 container: '#waveform',
-                waveColor: "#beb9b9",
+                waveColor: "#ffffff",
                 cursorColor: "#dac4f0",
                 hideScrollbar: true,
                 normalize: false,
@@ -692,11 +692,11 @@ export default class Deck extends Component {
             <>
                 <div className={"deck"}>
                     {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
-                    <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
+                    {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
                     <label>GAIN</label>
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
-                    <label>FILTER</label>
-                    <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button>
+                    <label>FILTER</label> */}
+                    {/* <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button> */}
                     <div id="waveform" />
                     <div id="wave-timeline" />
                 </div>
