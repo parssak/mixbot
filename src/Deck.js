@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
-import { Joystick } from 'react-joystick-component';
-import { Draggable } from 'react-draggable';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
-import { end } from "iso8601-duration";
+// import { end } from "iso8601-duration";
 
 const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback?expire=1608683629&ei=DTziX9T7BpmCir4PtcKm6AQ&ip=142.126.73.189&id=o-AMVicLbj0Gv2rQrVjovPek8wxxBV4FI5LMlCg6R1G6tz&itag=251&source=youtube&requiressl=yes&mh=rs&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1y%2Csn-vgqs7nls&ms=au%2Conr&mv=m&mvi=8&pl=24&gcr=ca&initcwndbps=1700000&vprv=1&mime=audio%2Fwebm&ns=s_KJpKjwEsZZ8AheQ_gNizUF&gir=yes&clen=3788632&dur=222.601&lmt=1595575954110558&mt=1608661718&fvip=1&keepalive=yes&c=WEB&txp=2311222&n=P9s4oVIr7EC14Ztz&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgRMh65mjTW6PwQwyNug7n8o3U7_emmK9tyYapXeysfYACIHepjV45GMhesgNEo1wTHgBd5QnjG5icCMtM_PqjfFo_&ratebypass=yes&sig=AOq0QJ8wRgIhANl_rwVxcCYUdSw5WCiK5WWQwGPeV6RqvmXBcFXpCmlMAiEAxuwr91Yd_by6vYdEcszyTD--r58Ll8EWI6QUANVTrYk%3D";
 // const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
