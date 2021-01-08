@@ -126,7 +126,7 @@ export default function TrackPlayer() {
     function deckOneReady() {
         if (!deck1prepared) {
             setDeck1prepared(true);
-            console.log("D1READY");
+            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTING D1READY");
             if (!deck2Playing) {
                 console.log("telling deck 1 to play");
                 setDeck1Playing(true);
@@ -137,7 +137,7 @@ export default function TrackPlayer() {
     function deckTwoReady() {
         if (!deck2prepared) {
             setDeck2prepared(true);
-            console.log("D2READY");
+            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTING D2READY");
             if (!deck1Playing) {
                 console.log("telling deck 2 to play");
                 setDeck2Playing(true);
@@ -241,10 +241,11 @@ export default function TrackPlayer() {
         }
     }
 
-    function hitBarD1() {                                   //! enable this after
+    function hitBarD1() {                                
         deck1lastBar = clock.currentTime;
         if (deck2Playing) { 
-            console.log("DECK1", deck1lastBar - deck2lastBar);    
+            console.log("DECK1", deck1offset);    
+            setDeck1offset(deck2lastBar - deck1lastBar);
         }
     }
 
@@ -254,7 +255,6 @@ export default function TrackPlayer() {
             console.log("DECK2", deck2offset);    
             setDeck2offset(deck1lastBar-deck2lastBar);
         }
-        
     }
 
     function changeTrackA() {
@@ -280,7 +280,7 @@ export default function TrackPlayer() {
                     songArtist={deck1Song.songArtists[0].name}
                     songAnalysis={deck1Song.songAnalysis}
                     playbackRate={deck1playback}
-                    prepared={deckOneReady()}
+                    prepared={deckOneReady}
                     play={deck1Playing}
                     // schedule={setDeckTwoPlaytime}
                     startTime={deck1startTime}
@@ -291,6 +291,7 @@ export default function TrackPlayer() {
                     finished={changeTrackA}
                     recommendedVolume={1}
                     shouldSync={mainTrack !== 1}
+                    otherReady={deckTwoReady}
                 />}
             </div>
             <div className={"boardpanel"}>
@@ -302,7 +303,7 @@ export default function TrackPlayer() {
                     songArtist={deck2Song.songArtists[0].name}
                     songAnalysis={deck2Song.songAnalysis}
                     playbackRate={deck2playback}
-                    prepared={deckTwoReady()}
+                    prepared={deckTwoReady}
                     play={deck2Playing}
                     startTime={deck2startTime}
                     playOtherTrack={playTrackOne}
@@ -312,6 +313,7 @@ export default function TrackPlayer() {
                     finished={changeTrackB}
                     recommendedVolume={1}
                     shouldSync={mainTrack !== 2}
+                    otherReady={deckOneReady}
                 />}
             </div>
         </div>

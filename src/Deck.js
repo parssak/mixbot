@@ -99,7 +99,7 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        // console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
+        console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
 
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
@@ -182,11 +182,6 @@ export default class Deck extends Component {
                 this.waveform.skip(adjustedOffset);
                 this.waveform.playPause();
                 console.log("%%%   ", this.props.deckName, " now we are at:", this.waveform.getCurrentTime(), "difference is:", desiredTime - this.waveform.getCurrentTime(), "offset diff:", (this.props.offset - desiredTime - this.waveform.getCurrentTime()));
-                // if (!this.waveform.isPlaying()) {
-                //     console.log("no longer playing after skipping ahead", this.props.deckName);
-                // } else {
-                //     console.log("is still playing after skipping...", this.props.deckName);
-                // }
             } else {
                 console.log(this.props.deckName, "-> didn't sync ");
             }
@@ -194,8 +189,6 @@ export default class Deck extends Component {
     }
 
     analyzeData() {
-        console.log("Got song analysis!");
-        // console.log(this.props.songAnalysis);
         let sectionArray = this.props.songAnalysis.data.sections;
         let baselineLoudness = this.props.songAnalysis.data.track.loudness;
         let allBars = this.props.songAnalysis.data.bars;
@@ -222,7 +215,7 @@ export default class Deck extends Component {
 
 
         // this is very sus !!!!!!!!!!!
-        console.log("the time sig is", timeSig);
+        // console.log("the time sig is", timeSig);
         let bar = this.props.songAnalysis.data.bars[0].duration;
         let barConfidence = 0;
         allBars.forEach(e => {
@@ -232,30 +225,30 @@ export default class Deck extends Component {
             }
         })
 
-        console.log("The most confident bar is:", bar, "with a confidence of ", barConfidence);
+        // console.log("The most confident bar is:", bar, "with a confidence of ", barConfidence);
         barSize = bar;
         let barlength32 = bar * 2;
         let actuallength32 = bar * 4;
         // let beat = (1/(bpm/60).toPrecision(10)).toPrecision(10);
         // let barLength = (timeSig) * beat;
-        console.log("BAR LENGTH IS", bar);
+        // console.log("BAR LENGTH IS", bar);
 
         let songDuration = this.props.songAnalysis.data.track.duration;
-        console.log(allBars[0].start)
+        // console.log(allBars[0].start)
         let startingPoint = 0;
 
 
         let songBeginPoint = allBars[0].start;
-        console.log("the song begin point is", songBeginPoint);
-        console.log("--------------------------")
+        // console.log("the song begin point is", songBeginPoint);
+        // console.log("--------------------------")
 
         let num32Bar = ((songDuration) / barlength32);
-        console.log(num32Bar);
+        // console.log(num32Bar);
 
         for (let a = 0; a <= num32Bar; a++) {
             barStartArray.push(((a) * barlength32));
         }
-        console.log(barStartArray);
+        // console.log(barStartArray);
 
         let calibrationArray = [];
 
@@ -620,9 +613,14 @@ export default class Deck extends Component {
                 })
 
                 if (thisSection.sectionType === DROP) {
-                    console.log("drop da beat");
-                    this.props.playOtherTrack();
-                    this.fadeOutSong();
+                    //! IF OTHER SONG IS READY.... this.props.otherReady
+                    if (this.props.otherReady) {
+                        console.log("drop da beat");
+                        this.props.playOtherTrack();
+                        this.fadeOutSong();
+                    } else {
+                        console.log("was gonna drop da beat but wasn't ready for da shmoke");
+                    }
                 }
                 // } else if (thisSection.sectionType === BEGIN) {
                 //     console.log("shhhhshhhshh");
@@ -642,16 +640,13 @@ export default class Deck extends Component {
                 this.playPause();
                 this.props.prepared();
             }
-            this.waveform.setVolume(0.5);
-            // this.setState({
-            //     scheduledDemise: false
-            // });
+            this.waveform.setVolume(0.1);
         });
 
         this.waveform.on('play', e => {
             console.log(this.props.deckName, " JUST STARTED PLAYING GONNA FADE IT IN NOW OK");
-            this.waveform.setVolume(1);
-            // this.fadeInSong();
+            this.waveform.setVolume(0.1);
+            this.fadeInSong();
         })
     }
 
@@ -720,6 +715,7 @@ export default class Deck extends Component {
         console.log("fading out");
         this.fadingOut = true;
         this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 2), 0.1, this.props.deckName));
+        this.state.lowpassNode.frequency.value -= (this.state.lowpassNode.frequency.value/10);
         if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() > 0.001) {
             setTimeout(() => {
@@ -762,15 +758,6 @@ export default class Deck extends Component {
             <>
                 <div className={"deck"}>
                     {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
-                    {/* <div className={"deckanalysis"}>
-                        <h2 style={{ color: `${this.state.currSectionAnalysis.sectionColor}`, fontWeight: 800 }}>{this.state.currSec}</h2>
-                        <p>GFM:{this.state.currSectionAnalysis.goodForMix ? "YES" : "NO"}</p>
-                        <p>BO:{this.state.currSectionAnalysis.isBest ? "YES" : "NO"}</p>
-                        <p>COMP:{this.state.currSectionAnalysis.comparisonLoudness}</p>
-                        <p>DIFF:{this.state.currSectionAnalysis.differential}</p>
-                        <p>CONFB:{this.state.currSectionAnalysis.conformedBegin ? "YES" : "NO"}</p>
-                        <p>CONFE:{this.state.currSectionAnalysis.conformedEnd ? "YES" : "NO"}</p>
-                    </div> */}
                     <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
                     <label>GAIN</label>
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
@@ -802,20 +789,4 @@ function lerp(start, end, amt, deckname) {
     console.log(deckname, "lerped this:", start,end,amt,"to:", (1 - amt) * start + amt * end);
     return (1 - amt) * start + amt * end
 }
-// changeLows(amount) { // TODO
-//     console.log("lows is", amount)
-//     this.state.audioSettings.lowpassF = amount;
-//     this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
-// }
 
-// changeMids(amount) { // TODO
-//     console.log("mids is", amount)
-//     this.state.audioSettings.lowpassF = amount;
-//     this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
-// }
-
-// changeHighs(amount) { // TODO
-//     console.log("highs is", amount)
-//     this.state.audioSettings.lowpassF = amount;
-//     this.state.lowpassNode.frequency.value = this.state.audioSettings.lowpassF;
-// }
