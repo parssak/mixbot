@@ -6,13 +6,11 @@ import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
 import TrackPlayer, { trackAlreadyIn, addToQueue } from "./TrackPlayer";
-import Waveform from "./frontend_components/Waveform";
-import Draggable from 'react-draggable';
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
 function TrackSelector() {
-    let audio = new Audio("/christmas.mp3");
+    let audio = new Audio("./click.mp3");
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
@@ -125,13 +123,28 @@ function TrackSelector() {
         });
     }
 
-    const playSFX = () => {
+    // const playSFX = () => {
+        
+    //     audio.src = "./click.mp3"
+    //     audio.crossOrigin = 'anonymous';
+    //     audio.play();
+    // }
 
+    function playAudio() {
+        const audioEl = document.getElementsByClassName("audio-element")[0]
+        audioEl.play()
     }
 
     return (
         <>
             <div>
+                {/* <button onClick={() => {playSFX()}}>play sfx</button> */}
+                <audio className="audio-element">
+                    <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3"></source>
+                </audio>
+                <button onClick={() => { playAudio() }}>
+                    <span>Play Audio</span>
+                </button>
                 <form onSubmit={playlistSearchClicked}>
                     <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
                     <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />

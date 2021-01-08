@@ -99,15 +99,12 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
+        // console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
 
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
-            if (!this.waveform.isPlaying()) console.log(" Stopped playing ", this.props.deckName);
-            else console.log(" Didn't stop playing! :/ ", this.props.deckName);
-
-
+            
             this.synced = false;
             this.numSuccessful = 0;
             this.totalOffset = 0;
@@ -129,6 +126,7 @@ export default class Deck extends Component {
 
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);
+            // this.state.audioElement.src = this.props.thisSong;
 
             this.waveform.load(this.state.audioElement.src);
             this.waveform.setPlaybackRate(this.props.playbackRate);
@@ -140,16 +138,15 @@ export default class Deck extends Component {
             if (this.props.play !== this.waveform.isPlaying()) {
                 if (!this.props.play) {
                     console.log("~~~ SHOULD BE PAUSED NGL ~~~");
-                    this.waveform.stop();
+                    // this.waveform.stop();
+                    this.waveform.pause(); // todo testing this swap
                 } else {
                     this.playPause();
-                    this.fadeInSong();
-                    // if (!this.fadingOut) { // todo also add in fading in
-                    //     // todo remove this
-                    // }
                 }
             }
         }
+        if (!this.props.shouldSync) this.synced = true;
+
         if (Math.abs(this.props.offset) < 0.1 && this.waveform.isPlaying()) {
             this.numSuccessful++;
             if (Math.abs(this.props.offset) < 0.05) this.numSuccessful++;
@@ -164,17 +161,13 @@ export default class Deck extends Component {
                     console.log(this.props.deckName, "-------------------SYNCEDDDDD");
                 }
             }
-        } else {
-            // console.log("fail:", Math.abs(this.props.offset) >= 0.1, Math.abs(this.props.offset) < 0.3, this.waveform.getCurrentTime() - this.lastAdjustTime);
-        }
-
+        } 
 
         if (this.props.offset !== prevProps.offset &&
-            this.waveform.getCurrentTime() - this.lastAdjustTime > 10 &&
+            this.waveform.getCurrentTime() - this.lastAdjustTime > 5 &&
             Math.abs(this.props.offset) >= 0.05 &&
-            this.numSuccessful < 5 &&
-            !this.synced) {
-
+            !this.synced)
+        {
             this.numSuccessful = 0;
             console.log(this.props.deckName, "-> about to sync");
             if (this.waveform.getCurrentTime() + this.props.offset > 1 && this.props.offset != 0) {
@@ -184,7 +177,6 @@ export default class Deck extends Component {
                 this.totalOffset = this.props.offset;
                 console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset, "which is", this.totalOffset / barSize, "bars");
                 let desiredTime = this.waveform.getCurrentTime() + this.props.offset;
-                // console.log("difference was", adjustedOffset - this.props.offset);
                 console.log("%%%   ", this.props.deckName, " song pos was at:", this.waveform.getCurrentTime(), "we need:", desiredTime);
                 this.waveform.pause();
                 this.waveform.skip(adjustedOffset);
@@ -461,7 +453,6 @@ export default class Deck extends Component {
 
         // LOWPASS
         let lowpass = this.waveform.backend.ac.createBiquadFilter();
-        console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
         lowpass.frequency.value = this.state.audioSettings.lowpassF || 11000;
         lowpass.type = "lowpass";
         lowpass.Q.value = 5;
@@ -586,8 +577,8 @@ export default class Deck extends Component {
 
 
         } else {
-            console.log("song analysis not got, returned:");
-            console.log(this.props.songAnalysis);
+            // console.log("song analysis not got, returned:");
+            // console.log(this.props.songAnalysis);
         }
         this.waveform.on('region-in', e => {
             this.props.hitBar();
@@ -649,13 +640,19 @@ export default class Deck extends Component {
             this.state.audioCtx.resume();
             if (!this.waveform.isPlaying()) {
                 this.playPause();
-                this.waveform.setVolume(0.0001);
                 this.props.prepared();
             }
-            this.setState({
-                scheduledDemise: false
-            });
+            this.waveform.setVolume(0.5);
+            // this.setState({
+            //     scheduledDemise: false
+            // });
         });
+
+        this.waveform.on('play', e => {
+            console.log(this.props.deckName, " JUST STARTED PLAYING GONNA FADE IT IN NOW OK");
+            this.waveform.setVolume(1);
+            // this.fadeInSong();
+        })
     }
 
     playPause() {
@@ -665,9 +662,9 @@ export default class Deck extends Component {
             this.state.audioCtx.resume();
 
         }
-        console.log(">>>>>>>>>>>>>>>>>>>> called playPause", this.props.deckName);
+        // console.log(">>>>>>>>>>>>>>>>>>>> called playPause", this.props.deckName);
         // this.waveform.play(this.props.startTime);
-        console.log("||||||| started song at", this.props.startTime);
+        // console.log("||||||| started song at", this.props.startTime);
         // this.waveform.playPause();
         this.waveform.play(this.state.startingPos);
 
@@ -678,7 +675,7 @@ export default class Deck extends Component {
         }
 
         if (this.state.audioCtx.state === 'suspended') {
-            console.log("still suspended!");
+            // console.log("still suspended!");
 
         }
     }
@@ -686,7 +683,7 @@ export default class Deck extends Component {
     changeFilter(amount) {
         // console.log(amount)
         if (amount <= 14000) {
-            console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
+            // console.log("1. the lowpassF value is,", this.state.audioSettings.lowpassF);
             this.state.audioSettings.lowpassF = amount;
             this.state.lowpassNode.frequency.value = amount;
         } else if (amount >= 20000) {
@@ -722,13 +719,14 @@ export default class Deck extends Component {
     fadeOutSong() {
         console.log("fading out");
         this.fadingOut = true;
-        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 2), 0.1));
+        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 2), 0.1, this.props.deckName));
         if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() > 0.001) {
             setTimeout(() => {
                 this.fadeOutSong();
             }, 1000);
         } else {
+            console.log(">>>>>>>   >>> ",this.props.deckName, " FADED OUT_________");
             this.fadingOut = false;
             this.waveform.setVolume(0);
             this.waveform.pause();
@@ -739,24 +737,23 @@ export default class Deck extends Component {
     fadeInSong() {
         console.log("*****", this.props.deckName, "fading in", this.props.recommendedVolume);
         // todo something with this.props.recommendedVolume
-        // if (!this.state.audioSettings.gain) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
-        //     this.waveform.setVolume(1); //  todo was here before lunch tryung to lerp volume
+        // if (!this.props.recommendedVolume) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
+        //     this.waveform.setVolume(1); 
         // } else {
-        //     this.waveform.setVolume(this.state.audioSettings.gain);
+        //     this.waveform.setVolume(this.props.recommendedVolume);
         // }
         this.fadingIn = true;
         console.log(this.props.recommendedVolume);
-        this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 2), 0.1));
+        this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.max((this.waveform.getVolume()) / 2), 0.1, this.props.deckName));
         // if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() < this.props.recommendedVolume - 0.1) {
             setTimeout(() => {
                 this.fadeInSong();
             }, 1000);
         } else {
+            console.log(">>>>>>>  !!!  >>> ", this.props.deckName, " FADED IN_________!!!!");
             this.fadingIn = false;
-            this.waveform.setVolume(this.props.recommendedVolume);
-            // this.waveform.pause();
-            // this.props.finished();
+            this.waveform.setVolume(this.props.recommendedVolume);            
         }
     }
 
@@ -765,7 +762,7 @@ export default class Deck extends Component {
             <>
                 <div className={"deck"}>
                     {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
-                    <div className={"deckanalysis"}>
+                    {/* <div className={"deckanalysis"}>
                         <h2 style={{ color: `${this.state.currSectionAnalysis.sectionColor}`, fontWeight: 800 }}>{this.state.currSec}</h2>
                         <p>GFM:{this.state.currSectionAnalysis.goodForMix ? "YES" : "NO"}</p>
                         <p>BO:{this.state.currSectionAnalysis.isBest ? "YES" : "NO"}</p>
@@ -773,16 +770,12 @@ export default class Deck extends Component {
                         <p>DIFF:{this.state.currSectionAnalysis.differential}</p>
                         <p>CONFB:{this.state.currSectionAnalysis.conformedBegin ? "YES" : "NO"}</p>
                         <p>CONFE:{this.state.currSectionAnalysis.conformedEnd ? "YES" : "NO"}</p>
-                        {/* <label style={{ fontSize: "25px", fontWeight: 600}}>{this.state.currSectionAnalysis}</label>  */}
-                    </div>
-
-
+                    </div> */}
                     <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
                     <label>GAIN</label>
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
                     <label>FILTER</label>
                     <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button>
-                    {/*<Waveform url={this.state.audioElement} onPositionChange={this.handlePosChange} isPlaying={this.state.playing} audioCtx={this.state.audioCtx} lowpassNum={this.state.lowpassF}/>*/}
                     <div id="waveform" />
                     <div id="wave-timeline" />
                 </div>
@@ -805,8 +798,8 @@ function closest(needle, haystack) {
     return closeGrain;
 }
 
-function lerp(start, end, amt) {
-    console.log(this.props.deckName, "lerped this:", start,end,"to:", (1 - amt) * start + amt * end);
+function lerp(start, end, amt, deckname) {
+    console.log(deckname, "lerped this:", start,end,amt,"to:", (1 - amt) * start + amt * end);
     return (1 - amt) * start + amt * end
 }
 // changeLows(amount) { // TODO

@@ -66,9 +66,9 @@ export default function TrackPlayer() {
         if (!clock) {
             let newClock = new AudioContext();
             setClock(newClock);
-            console.log("current time is:", newClock.currentTime);
+            // console.log("current time is:", newClock.currentTime);
         } else {
-            console.log("current time is:", clock.currentTime);
+            // console.log("current time is:", clock.currentTime);
         }
     })
 
@@ -217,23 +217,22 @@ export default function TrackPlayer() {
     }
 
     function playTrackTwo() {
-        // if (!deck2Playing && deck2prepared) {
         if (deck2prepared) {
-            console.log("time to play track dos");
+            console.log("+++ deck TWO is prepared, gonna play it!");
             setDeck2Playing(true);
+            setDeck2prepared(false);
             if (lastTrackSet === 0) {
                 lastTrackSet = 2;
                 mainTrack = 1;
             }
         }
-        // setDeck2Playing(true);
-        // console.log("zoinks");
-        // console.log(deck2Playing);
     }
 
     function playTrackOne() {
-        if (!deck1Playing && deck1prepared) {
+        if (deck1prepared) {
+            console.log("+++ deck ONE is prepared, gonna play it!");
             setDeck1Playing(true);
+            setDeck1prepared(false);
             if (lastTrackSet === 0) {
                 lastTrackSet = 1;
                 mainTrack = 1;
@@ -259,10 +258,14 @@ export default function TrackPlayer() {
     }
 
     function changeTrackA() {
+        mainTrack = 2;
+        setDeck2playback(1);
         loadTrackA();
     }
     
     function changeTrackB() {
+        mainTrack = 1;
+        setDeck1playback(1);
         loadTrackB();
     }
 
@@ -287,6 +290,7 @@ export default function TrackPlayer() {
                     deckName={"Deck A"}
                     finished={changeTrackA}
                     recommendedVolume={1}
+                    shouldSync={mainTrack !== 1}
                 />}
             </div>
             <div className={"boardpanel"}>
@@ -307,6 +311,7 @@ export default function TrackPlayer() {
                     deckName={"Deck B"}
                     finished={changeTrackB}
                     recommendedVolume={1}
+                    shouldSync={mainTrack !== 2}
                 />}
             </div>
         </div>
