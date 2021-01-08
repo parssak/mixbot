@@ -3,5 +3,15 @@
 }
 
 .listbox-button {
-    background-color: #782dc8;
+    background-color: hsl(269, 63%, 48%);
+    /* display: block; */
+    font-size: 0.7rem;
+    text-align: left;
+    
+}
+
+.listbox-button button {
+    width: 100%;
+    text-align: left;
+    background-color: none;
 }

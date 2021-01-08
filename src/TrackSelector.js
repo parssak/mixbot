@@ -10,7 +10,6 @@ import TrackPlayer, { trackAlreadyIn, addToQueue } from "./TrackPlayer";
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
 function TrackSelector() {
-    let audio = new Audio("./click.mp3");
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
@@ -123,48 +122,24 @@ function TrackSelector() {
         });
     }
 
-    // const playSFX = () => {
-        
-    //     audio.src = "./click.mp3"
-    //     audio.crossOrigin = 'anonymous';
-    //     audio.play();
-    // }
-
-    function playAudio() {
-        const audioEl = document.getElementsByClassName("audio-element")[0]
-        audioEl.play()
-    }
-
     return (
-        <>
-            <div>
-                {/* <button onClick={() => {playSFX()}}>play sfx</button> */}
-                <audio className="audio-element">
-                    <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3"></source>
-                </audio>
-                <button onClick={() => { playAudio() }}>
-                    <span>Play Audio</span>
-                </button>
-                <form onSubmit={playlistSearchClicked}>
-                    <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} />
-                    <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} />
-                    {playlist.selectedPlaylist !== "" ? <button type='submit'>
-                        Search
-                </button> : null}
-                    <div>
-                        <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
-                        {trackDetail && <Detail {...trackDetail} />}
-                        {trackDetail && <TrackFinder name={trackDetail.name}
-                            artists={trackDetail.artists}
-                            duration_ms={trackDetail.duration_ms}
-                            trackID={trackDetail.id}
-                            foundSong={addSongToTracklist} />}
-                    </div>
-                </form>
-                <TrackPlayer />
-            </div>
-
-        </>
+        <div>
+            <TrackPlayer />
+            <form onSubmit={playlistSearchClicked}>
+                {/* <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} /> */}
+                {/* <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} /> */}
+                {playlist.selectedPlaylist !== "" ? <button type='submit'>Begin mix</button> : null}
+                <div>
+                    <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
+                    {trackDetail && <Detail {...trackDetail} />}
+                    {trackDetail && <TrackFinder name={trackDetail.name}
+                        artists={trackDetail.artists}
+                        duration_ms={trackDetail.duration_ms}
+                        trackID={trackDetail.id}
+                        foundSong={addSongToTracklist} />}
+                </div>
+            </form>
+        </div>
     );
 }
 
