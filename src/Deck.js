@@ -68,6 +68,9 @@ export default class Deck extends Component {
         this.fadingIn = false;
         this.totalOffset = 0;
         this.numSuccessful = 0;
+        this.numDropsPassed = 0;
+
+
         this.playPause = this.playPause.bind(this);
         this.fadeOutSong = this.fadeOutSong.bind(this);
         this.changeFilter = this.changeFilter.bind(this);
@@ -110,6 +113,7 @@ export default class Deck extends Component {
             this.totalOffset = 0;
             this.fadingOut = false;
             this.fadingIn = false;
+            this.numDropsPassed = 0;
 
             this.waveform.destroy();
             this.waveform = WaveSurfer.create({
@@ -578,8 +582,9 @@ export default class Deck extends Component {
             if (e.data.sectionType !== undefined) {
                 console.log("has data!");
                 if (e.data.sectionType === DROP) {
-                    console.log("drop da beat");
-                    this.props.playOtherTrack();
+                    // console.log("drop da beat");
+                    this.numDropsPassed++;
+                    // this.props.playOtherTrack();
                 }
             }
         })
@@ -612,7 +617,7 @@ export default class Deck extends Component {
                     }
                 })
 
-                if (thisSection.sectionType === DROP) {
+                if (thisSection.sectionType === DROP && this.numDropsPassed > 1) {
                     //! IF OTHER SONG IS READY.... this.props.otherReady
                     if (this.props.otherReady) {
                         console.log("drop da beat");
@@ -622,10 +627,6 @@ export default class Deck extends Component {
                         console.log("was gonna drop da beat but wasn't ready for da shmoke");
                     }
                 }
-                // } else if (thisSection.sectionType === BEGIN) {
-                //     console.log("shhhhshhhshh");
-                //     this.fadeOutSong();
-                // }
             } else {
                 this.props.hitBar();
             }
@@ -740,7 +741,7 @@ export default class Deck extends Component {
         // }
         this.fadingIn = true;
         console.log(this.props.recommendedVolume);
-        this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.max((this.waveform.getVolume()) / 2), 0.1, this.props.deckName));
+        this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.05, this.props.deckName));
         // if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() < this.props.recommendedVolume - 0.1) {
             setTimeout(() => {
