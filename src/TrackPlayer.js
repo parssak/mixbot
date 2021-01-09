@@ -285,7 +285,7 @@ export default function TrackPlayer() {
 
     return (
         <div className={"djboard"}>
-            <div className={"boardpanel"} style={deck1BPM !== 0 ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
+            <div className={"boardpanel"} style={deck1BPM === 0 ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
                 <h2>DECK A</h2>
                 {/* <img src="https://i.scdn.co/image/ab67616d00001e02f198c232cd71f317559dc081" alt="new"/> */}
                 {deck1BPM !== 0 && <h3>BPM: {deck1BPM} RATE:{deck1playback}</h3>}
@@ -311,8 +311,8 @@ export default function TrackPlayer() {
                 }
 
             </div>
-            <div className={"boardpanel"} style={deck2BPM !== 0 ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
-                <h2>DECK B</h2>
+            <div className={"boardpanel"} style={deck2BPM === 0 ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
+                <h2 style={{textAlign: 'right'}}>DECK B</h2>
                 {deck2BPM !== 0 && <h3>BPM: {deck2BPM} RATE:{deck2playback}</h3>}
                 {deck2Song !== '' && <Deck
                     thisSong={deck2Song.songURL}
