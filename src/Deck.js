@@ -691,12 +691,10 @@ export default class Deck extends Component {
         return (
             <>
                 <div className={"deck"}>
-                    <img src={this.props.songImage} alt="new"/>
-                    <div className="next-to-picture">   
+                    <img src={this.props.songImage.url}/>
                         {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
-                        <div id="waveform" />
-                        <div id="wave-timeline" />
-                    </div>
+                    <div id="waveform" />
+                    <div id="wave-timeline" />
                     {/* {this.props.trackImage && <image src={'https://i.scdn.co/image/ab67616d00001e02f198c232cd71f317559dc081'}></image>} */}
                     {/* {this.props.trackImage} */}
                     {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />

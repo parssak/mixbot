@@ -6,9 +6,9 @@ function App() {
     return(
         <div className={"body"}>
             <div className={"title"}>
-                MIXBOT
+                <h1>MIXBOT</h1>
                  <div className={"credits"}>
-                    An Open Source project by Parssa Kyanzadeh
+                    <h3>An Open Source project by Parssa Kyanzadeh</h3> 
                  </div>
             </div>
             <TrackSelector/>

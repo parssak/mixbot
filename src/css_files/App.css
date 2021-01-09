@@ -157,6 +157,10 @@ Usage:
     src: url("Inter-italic.var.woff2?v=3.15") format("woff2");
 } */
 
+:root {
+    --accent-color: tomato;
+}
+
 @import 'Listbox.css';
 @import 'Deck.css';
 @import 'Waveform.css';
@@ -169,14 +173,27 @@ Usage:
 
 .title {
     font-family: 'Monument Black';
-    font-size: 4rem;
+    display: flex;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.title h1 {
+    font-size: 1.4rem;
 }
 
 .credits {
-    display: inline-block;
+    display: flex;
+    flex-grow: 1;
+}
+
+.credits h3 {
     font-family: 'Monument Regular';
-    font-size: 0.6rem;
+    font-size: 0.4rem;
     color: #5c595d;
+    margin-left: auto;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .body {
@@ -200,7 +217,8 @@ select {
 }
 
 button {
-    background: #5437c0;
+    /* background: #5437c0; */
+    background: var(--accent-color);
     margin: 0.2rem;
     padding: 0.em 0.4em;
     border-radius: 0.2rem;
@@ -245,16 +263,16 @@ button:hover {
 }
 
 .begin-mix {
-    width: 50%;
+    /* width: 10%; */
     margin: auto;
     justify-content: center;
     display: flex;
-    padding: 0.5em 0.4em;
+    padding: 0.5em 1em;
     border-radius: 0.2rem;
     border-style: none;
     transition: all 0.1s ease;
     opacity: 0.8;
-    font-family: 'Inter';
-    font-weight: 600;
+    font-family: 'Monument Black';
+    font-weight: 800;
     font-size: 0.7rem;
 }
