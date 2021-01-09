@@ -15,7 +15,7 @@ import ytdl from "react-native-ytdl";
  * @param trackID:
  */
 let lastChosenID = "";
-export default function TrackFinder({name, artists, duration_ms, foundSong, trackID}) {
+export default function TrackFinder({name, artists, duration_ms, foundSong, trackID, trackImage}) {
 
     const [songName, setSongName] = useState(name);
     const [songArtists, setSongArtists] = useState(artists);
@@ -127,7 +127,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
         console.log("-- Entered videoIDtoMP3 --")
         await ytdl.getInfo(videoID, { quality: 'highestaudio'}).then(info => {
             let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-            foundSong(songName, songArtists, duration, audioFormats[0].url, trackID);
+            foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage);
             setChosenVideoID("");
         });
     }

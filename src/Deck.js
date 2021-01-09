@@ -101,7 +101,7 @@ export default class Deck extends Component {
 
     componentDidUpdate(prevProps) {
         console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
-
+        console.log("TRACK IMG:", this.props.songImage)
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
@@ -691,14 +691,20 @@ export default class Deck extends Component {
         return (
             <>
                 <div className={"deck"}>
-                    {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
+                    <img src={this.props.songImage} alt="new"/>
+                    <div className="next-to-picture">   
+                        {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
+                        <div id="waveform" />
+                        <div id="wave-timeline" />
+                    </div>
+                    {/* {this.props.trackImage && <image src={'https://i.scdn.co/image/ab67616d00001e02f198c232cd71f317559dc081'}></image>} */}
+                    {/* {this.props.trackImage} */}
                     {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
                     <label>GAIN</label>
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
                     <label>FILTER</label> */}
                     {/* <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button> */}
-                    <div id="waveform" />
-                    <div id="wave-timeline" />
+                    
                 </div>
             </>
         );

@@ -88,23 +88,24 @@ function TrackSelector() {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
+            console.log(">>>",trackInfo[0].track);
             setTrackDetail(trackInfo[0].track);
         } else {
             console.log("track is already in the queue");
         }
     }
 
-    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID) {
+    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage) {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName + "with id " + trackID);
-            getAudioAnalysis(trackID, songName, songArtists, duration, songURL);
+            getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage);
         } else {
             console.log("track is already in the queue");
             setTrackDetail(null);
         }
     }
 
-    const getAudioAnalysis = (id, songName, songArtists, duration, songURL) => {
+    const getAudioAnalysis = (id, songName, songArtists, duration, songURL, trackImage) => {
         console.log("song id is " + id);
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
             method: 'GET',
@@ -113,9 +114,9 @@ function TrackSelector() {
             }
         }).then(e => {
             console.log(e);
-            addToQueue(songName, songArtists, duration, songURL, e);
+            addToQueue(songName, songArtists, duration, songURL, e, trackImage);
         }).catch(e => {
-            addToQueue(songName, songArtists, duration, songURL, "NOTFOUND");
+            addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
             console.log(e);
         }).finally(() => {
             setTrackDetail(null);
@@ -124,9 +125,9 @@ function TrackSelector() {
 
     return (
         <div>
-            <hr/>
+            {/* <hr/> */}
             <TrackPlayer />
-            <hr />
+            {/* <hr /> */}
             <form onSubmit={playlistSearchClicked}>
                 {/* <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} /> */}
                 {/* <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} /> */}
@@ -138,6 +139,7 @@ function TrackSelector() {
                         artists={trackDetail.artists}
                         duration_ms={trackDetail.duration_ms}
                         trackID={trackDetail.id}
+                        trackImage={trackDetail.album.images[1]}
                         foundSong={addSongToTracklist} />}
                 </div>
             </form>

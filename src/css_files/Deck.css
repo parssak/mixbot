@@ -6,7 +6,7 @@
 
 .deck {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
     background-color: #000000;
     font-family: 'Monument Black';
@@ -117,15 +117,21 @@
     background-color: #000000;
     font-family: 'Monument Black';
     padding: 1em;
+    padding-top: 0;
 }
 
 .boardpanel * {
     background-color: #000000;
 }
 
-.boardpanel {
-    padding-top: 0;
+.boardpanel img {
+    width: 4em;
+    height: 4em;
 }
+.boardpanel h2 {
+    margin-bottom: 0.4em;
+}
+
 .loadbutton {
     background-color: #d88903;
     font-weight: bolder;
@@ -135,4 +141,9 @@
     font-size: 12px;
     font-weight: 700;
     margin: 0.1em;
+}
+
+.next-to-picture {
+    display: flex;
+    flex-direction: row;
 }

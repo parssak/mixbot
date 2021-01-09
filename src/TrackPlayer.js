@@ -4,18 +4,17 @@ let tracklist = [];
 let upcomingSongs = [];
 let alreadyPlayed = [];
 
-const silenceTrack = "https://raw.githubusercontent.com/anars/blank-audio/master/1-second-of-silence.mp3";
-
 // --- Global Functions ---
-export function addToQueue(songName, songArtists, duration_ms, songURL, analysis) {
+export function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage) {
     const newSong = {
         songName: songName,
         songArtists: songArtists,
         duration_ms: duration_ms,
         songURL: songURL,
-        songAnalysis: analysis
+        songAnalysis: analysis,
+        trackImage: trackImage
     }
-    console.log(songURL);
+    console.log(analysis);
     tracklist.push(newSong);
     upcomingSongs.push(newSong);
 }
@@ -89,6 +88,7 @@ export default function TrackPlayer() {
                     setDeck1playback(1);
                 }
             }
+            console.log("> , >> ",newSong);
             setDeck1Song(newSong)
         }
     }
@@ -287,17 +287,17 @@ export default function TrackPlayer() {
         <div className={"djboard"}>
             <div className={"boardpanel"}>
                 <h2>DECK A</h2>
+                {/* <img src="https://i.scdn.co/image/ab67616d00001e02f198c232cd71f317559dc081" alt="new"/> */}
                 {deck1BPM !== 0 && <h3>BPM: {deck1BPM} RATE:{deck1playback}</h3>}
-                {/* {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackA()}>Load Track A</button>} */}
                 {deck1Song !== '' && <Deck
                     thisSong={deck1Song.songURL}
                     songName={deck1Song.songName}
                     songArtist={deck1Song.songArtists[0].name}
+                    songImage={deck1Song.trackImage}
                     songAnalysis={deck1Song.songAnalysis}
                     playbackRate={deck1playback}
                     prepared={deckOneReady}
                     play={deck1Playing}
-                    // schedule={setDeckTwoPlaytime}
                     startTime={deck1startTime}
                     playOtherTrack={playTrackTwo}
                     hitBar={hitBarD1}
@@ -307,16 +307,18 @@ export default function TrackPlayer() {
                     recommendedVolume={1}
                     shouldSync={mainTrack !== 1}
                     otherReady={deckTwoReady}
-                />}
+                /> 
+                }
+
             </div>
             <div className={"boardpanel"}>
                 <h2>DECK B</h2>
                 {deck2BPM !== 0 && <h3>BPM: {deck2BPM} RATE:{deck2playback}</h3>}
-                {/* {tracklist.length !== 0 && <button className={"loadbutton"} onClick={() => loadTrackB()}>Load Track B</button>} */}
                 {deck2Song !== '' && <Deck
                     thisSong={deck2Song.songURL}
                     songName={deck2Song.songName}
                     songArtist={deck2Song.songArtists[0].name}
+                    songImage = {deck2Song.trackImage}
                     songAnalysis={deck2Song.songAnalysis}
                     playbackRate={deck2playback}
                     prepared={deckTwoReady}
@@ -330,6 +332,7 @@ export default function TrackPlayer() {
                     recommendedVolume={1}
                     shouldSync={mainTrack !== 2}
                     otherReady={deckOneReady}
+
                 />}
             </div>
         </div>
