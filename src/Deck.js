@@ -2,11 +2,7 @@ import React, { Component } from 'react';
 import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
-// import { end } from "iso8601-duration";
-
-const tempTrack = "https://r8---sn-cxaaj5o5q5-tt1y.googlevideo.com/videoplayback?expire=1608683629&ei=DTziX9T7BpmCir4PtcKm6AQ&ip=142.126.73.189&id=o-AMVicLbj0Gv2rQrVjovPek8wxxBV4FI5LMlCg6R1G6tz&itag=251&source=youtube&requiressl=yes&mh=rs&mm=31%2C26&mn=sn-cxaaj5o5q5-tt1y%2Csn-vgqs7nls&ms=au%2Conr&mv=m&mvi=8&pl=24&gcr=ca&initcwndbps=1700000&vprv=1&mime=audio%2Fwebm&ns=s_KJpKjwEsZZ8AheQ_gNizUF&gir=yes&clen=3788632&dur=222.601&lmt=1595575954110558&mt=1608661718&fvip=1&keepalive=yes&c=WEB&txp=2311222&n=P9s4oVIr7EC14Ztz&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgRMh65mjTW6PwQwyNug7n8o3U7_emmK9tyYapXeysfYACIHepjV45GMhesgNEo1wTHgBd5QnjG5icCMtM_PqjfFo_&ratebypass=yes&sig=AOq0QJ8wRgIhANl_rwVxcCYUdSw5WCiK5WWQwGPeV6RqvmXBcFXpCmlMAiEAxuwr91Yd_by6vYdEcszyTD--r58Ll8EWI6QUANVTrYk%3D";
-// const tempTrack = "https://www.mfiles.co.uk/mp3-downloads/franz-schubert-standchen-serenade.mp3";
-
+import './css_files/Deck.scss';
 
 const DROP = 'DROP';
 const BEGIN = 'BEGIN';
@@ -14,12 +10,22 @@ const COMEDOWN = 'COMEDOWN';
 const UNSURE = 'UNSURE';
 const REGULAR = 'REG';
 
-/**
- * TODO
- * - Set up queueing of tracks
- */
-
 let barSize = 0;
+
+let waveSurferOptions = {
+    container: `#${this.props.waveformID}`,
+    waveColor: "#ffffff",
+    cursorColor: "tomato",
+    hideScrollbar: true,
+    normalize: true,
+    height: 50,
+    barWidth: 2,
+    barHeight: 0.5, // the height of the wave
+    barRadius: 2,
+    plugins: [
+        RegionPlugin.create(),
+    ]
+}
 
 export default class Deck extends Component {
     constructor(props) {
@@ -81,17 +87,7 @@ export default class Deck extends Component {
     componentDidMount() {
         console.log("|| ---- COMPONENT DID MOUNT ---- ||", this.props.deckName);
         // wavesurfer begins here
-        this.waveform = WaveSurfer.create({
-            container: '#waveform',
-            waveColor: "#ffffff",
-            cursorColor: "#dac4f0",
-            hideScrollbar: true,
-            normalize: false,
-            height: 100,
-            plugins: [
-                RegionPlugin.create(),
-            ]
-        });
+        this.waveform = WaveSurfer.create(waveSurferOptions);
 
 
         this.waveform.load(this.state.audioElement.src);
@@ -114,21 +110,11 @@ export default class Deck extends Component {
             this.numDropsPassed = 0;
 
             this.waveform.destroy();
-            this.waveform = WaveSurfer.create({
-                container: '#waveform',
-                waveColor: "#ffffff",
-                cursorColor: "#dac4f0",
-                hideScrollbar: true,
-                normalize: false,
-                height: 100,
-                plugins: [
-                    RegionPlugin.create(),
-                ]
-            });
+
+            this.waveform = WaveSurfer.create(waveSurferOptions);
 
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);
-            // this.state.audioElement.src = this.props.thisSong;
 
             this.waveform.load(this.state.audioElement.src);
             this.waveform.setPlaybackRate(this.props.playbackRate);
@@ -140,31 +126,32 @@ export default class Deck extends Component {
             if (this.props.play !== this.waveform.isPlaying()) {
                 if (!this.props.play) {
                     console.log("~~~ SHOULD BE PAUSED NGL ~~~");
-                    // this.waveform.stop();
-                    this.waveform.pause(); // todo testing this swap
+                    this.waveform.pause();
                 } else {
                     this.playPause();
                 }
             }
         }
-        if (!this.props.shouldSync) this.synced = true;
+
+        if (!this.props.shouldSync) this.synced = true; // If this is the main track, don't sync it
+
+        // If the offset between tracks is under 0.1 seconds and this is playing, this track is succesful
+
+        // ! The margin of error of 0.1s is needed due to timing issues with WebAudio
 
         if (Math.abs(this.props.offset) < 0.1 && this.waveform.isPlaying()) {
             this.numSuccessful++;
             if (Math.abs(this.props.offset) < 0.05) this.numSuccessful++;
-            // if (Math.abs(this.props.offset) < 0.01) this.numSuccessful++;
             if (this.numSuccessful >= 3) {
                 this.synced = true;
             }
-
-            // if (this.numSuccessful < 5) {
-            //     console.log(this.props.deckName, "-------------------num succesfull:", this.numSuccessful, this.props.offset, Math.abs(this.props.offset), Math.abs(this.props.offset) < 0.1);
-            //     if (this.synced) {
-            //         console.log(this.props.deckName, "-------------------SYNCEDDDDD");
-            //     }
-            // }
         }
 
+        /**
+         * IF:
+         *  1) New offset passed in
+         *  2) It has been over 5 seconds since the last time it was adjusted
+         */
         if (this.props.offset !== prevProps.offset &&
             this.waveform.getCurrentTime() - this.lastAdjustTime > 5 &&
             Math.abs(this.props.offset) >= 0.05 &&
@@ -192,27 +179,23 @@ export default class Deck extends Component {
         let sectionArray = this.props.songAnalysis.data.sections;
         let baselineLoudness = this.props.songAnalysis.data.track.loudness;
         let allBars = this.props.songAnalysis.data.bars;
-        let bpm = this.props.songAnalysis.data.track.tempo;
-        let timeSig = Math.round(this.props.songAnalysis.data.track.time_signature);
+        // let bpm = this.props.songAnalysis.data.track.tempo;
+        // let timeSig = Math.round(this.props.songAnalysis.data.track.time_signature);
 
         let songSections = [];
-        let numSections = sectionArray.length;
+        // let numSections = sectionArray.length;
         let currSection = 0;
 
         // song analysis variables
-        let numDrops = 0;
-        let firstDropConfidence = 0;
-        let sumDropConfidence = 0;
-        let mostConfidentDrop = 0;
+        // let numDrops = 0;
+        // let mostConfidentDrop = 0;
 
-        let numComedowns = 0;
-        let firstComedownConfidence = 0;
-        let sumComedownConfidence = 0;
-        let mostConfidentComedown = 0;
+        // let numComedowns = 0;
+        // let mostConfidentComedown = 0;
 
         // get an array of when all bars start
         let barStartArray = []
-    
+
         let bar = this.props.songAnalysis.data.bars[0].duration;
         let barConfidence = 0;
         allBars.forEach(e => {
@@ -223,10 +206,7 @@ export default class Deck extends Component {
         })
         barSize = bar;
         let barlength32 = bar * 2;
-        let actuallength32 = bar * 4;
         let songDuration = this.props.songAnalysis.data.track.duration;
-        let startingPoint = 0;
-        let songBeginPoint = allBars[0].start;
 
         let num32Bar = ((songDuration) / barlength32);
 
@@ -244,11 +224,11 @@ export default class Deck extends Component {
 
 
         for (let b = 0; b < calibrationArray.length - 1; b++) {
-            let barColor = (b % 2 ? "rgba(255, 60, 54,0.05)" : "rgba(46, 255, 154,0.05)");
+            // let barColor = (b % 2 ? "rgba(255, 60, 54,0.05)" : "rgba(46, 255, 154,0.05)");
             let barRegion = {
                 start: calibrationArray[b],
                 end: calibrationArray[b + 1],
-                color: barColor,
+                // color: barColor,
                 drag: false,
                 resize: false,
                 computed: {}
@@ -262,7 +242,7 @@ export default class Deck extends Component {
             let is32length = false;
 
             let comparisonLoudness = (e.loudness - baselineLoudness) / baselineLoudness;
-           
+
             // IF BEGINNING OF SONG
             if (songSections.length === 0) {
                 sectionType = BEGIN;
@@ -284,30 +264,6 @@ export default class Deck extends Component {
                         sectionType = COMEDOWN
                     }
                 }
-            }
-            // For song analysis only
-            if (sectionType === DROP) {
-
-                if (numDrops === 0) {
-                    firstDropConfidence = e.confidence;
-                }
-                if (e.confidence > mostConfidentDrop) {
-                    mostConfidentDrop = e.confidence;
-                }
-                numDrops++
-                sumDropConfidence += e.confidence;
-            }
-            if (sectionType === COMEDOWN) {
-                // console.log("comedown")
-                if (numComedowns === 0) { // Sets this as the first comedown 
-                    firstComedownConfidence = e.confidence;
-                }
-                if (e.confidence > mostConfidentComedown && currSection !== numSections) {
-                    mostConfidentComedown = e.confidence; // Sets this as the most confident comedown
-                }
-
-                numComedowns++;
-                sumComedownConfidence += e.confidence;
             }
 
             let beginpoint = e.start;
@@ -371,6 +327,9 @@ export default class Deck extends Component {
                     goodForMix = true;
                 }
             }
+            // ! THIS IS FOR UI PURPOSES REMOVE THIS WHEN TESTING
+            randomColor = 'rgba(0, 0, 0, 0)';
+
             let analysisSection = {
                 sectionType: sectionType,
                 begin: beginpoint,
@@ -378,7 +337,7 @@ export default class Deck extends Component {
                 computed: {
                     comparisonLoudness: comparisonLoudness,
                     differential: diff,
-                    sectionConfidence: e.confidence, // todo left off here! i was completing up the separation from analysis to reconnect 
+                    sectionConfidence: e.confidence,
                     conformedBegin: acceptedConformBegin,
                     conformedEnd: acceptedConformEnd,
                     oBegin: offsetBegin,
@@ -666,12 +625,6 @@ export default class Deck extends Component {
 
     fadeInSong() {
         console.log("*****", this.props.deckName, "fading in", this.props.recommendedVolume);
-        // todo something with this.props.recommendedVolume
-        // if (!this.props.recommendedVolume) { // TODO PASS IN PROP TO NORMALIZE VOLUME AMONGST BOTH SONGS
-        //     this.waveform.setVolume(1); 
-        // } else {
-        //     this.waveform.setVolume(this.props.recommendedVolume);
-        // }
         this.fadingIn = true;
         console.log(this.props.recommendedVolume);
         this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.05, this.props.deckName));
@@ -691,18 +644,20 @@ export default class Deck extends Component {
         return (
             <>
                 <div className={"deck"}>
-                    <img src={this.props.songImage.url}/>
-                        {this.props.songName !== "" && <h3>{this.props.songName} by {this.props.songArtist}</h3>}
-                    <div id="waveform" />
-                    <div id="wave-timeline" />
-                    {/* {this.props.trackImage && <image src={'https://i.scdn.co/image/ab67616d00001e02f198c232cd71f317559dc081'}></image>} */}
-                    {/* {this.props.trackImage} */}
+                    <img src={this.props.songImage.url} alt="" />
+                    <div className={"deck-content"}>
+                        <div className={"deck-text"}>
+                            {this.props.songName !== "" && <h2>{this.props.songName}</h2>}
+                            {this.props.songName !== "" && <h3>{this.props.songArtist}</h3>}
+                        </div>
+                        <div id={`${this.props.waveformID}`} />
+                    </div>
                     {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
                     <label>GAIN</label>
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
                     <label>FILTER</label> */}
                     {/* <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button> */}
-                    
+
                 </div>
             </>
         );
