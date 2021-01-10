@@ -1,11 +1,10 @@
 @import "Fonts.css";
 
-$darkColor: #9000b5;
+$darkColor: #a7a7a7;
 
 .djboard {
     display: flex;
     margin-top: 1em;
-    // height: 50vh;
     margin-bottom: 2em;
     transition: all 0.5s ease;
 }

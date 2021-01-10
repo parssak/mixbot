@@ -104,7 +104,7 @@ function TrackSelector() {
             setTrackDetail(null);
         }
     }
-
+    
     const getAudioAnalysis = (id, songName, songArtists, duration, songURL, trackImage) => {
         console.log("song id is " + id);
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {

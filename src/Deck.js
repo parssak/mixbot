@@ -11,8 +11,7 @@ const UNSURE = 'UNSURE';
 const REGULAR = 'REG';
 
 let barSize = 0;
-let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: '*', redirect: 'follow', referrer: '*', headers: [{ 'Access-Control-Allow-Origin': '*' }] };
-// let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: 'same-origin', redirect: 'follow', referrer: 'client' };
+let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: 'same-origin', redirect: 'follow', referrer: 'client', headers: [{ 'Access-Control-Allow-Origin': '*' }] };
 
 export default class Deck extends Component {
     constructor(props) {
@@ -94,15 +93,39 @@ export default class Deck extends Component {
         console.log("|| ---- COMPONENT DID MOUNT ---- ||", this.props.deckName);
         // wavesurfer begins here
         this.waveform = WaveSurfer.create(this.waveSurferOptions);
+
+
+        this.waveform.on('loading', e => {
+            console.log("loading:", e);
+        })
+
+        this.waveform.on('error', e => {
+            console.log("hit error:", e);
+        })
         
         // this.state.audioElemen1t.crossOrigin = "anonymous";
         
-        let song = new Audio();
-        song.crossOrigin = "anonymous";
-        song.src = this.props.thisSong;
-        // this.waveform.load(song);
-        // this.waveform.load(this.state.audioElement.src);
+        // let song = new Audio();
+        // song.crossOrigin = "anonymous";
+        // song.src = this.props.thisSong;
         
+        // this.waveform.load(song);
+        console.log("MOUNT THISSONG>>>",this.props.thisSong);
+        let dummy = new Audio(this.props.thisSong);
+        // console.log(">>>!!!>>>", dummy.src);
+        // console.log(">>>>!!!!???", dummy.src === this.props.thisSong);
+        this.waveform.load(this.props.thisSong);
+
+        // console.log(this.props.thisSong);
+        // let ooga = this.props.thisSong;
+        // console.log("ooga is:", ooga);
+        // console.log("song src WAS:", song.src);
+        // // song.src = this.props.thisSong;
+        // song.crossOrigin = "anonymous";
+        // console.log("loading song in mount >>>!", this.props.thisSong);
+        
+        // this.waveform.load("http://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3");
+        console.log("loaded song", this.waveform.src);
         this.waveform.setPlaybackRate(this.props.playbackRate);
         this.reconnectAudio();
     }
@@ -110,7 +133,7 @@ export default class Deck extends Component {
     componentDidUpdate(prevProps) {
         console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
         console.log("TRACK IMG:", this.props.songImage)
-        if (this.props.songName !== prevProps.songName) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
+        if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
 
@@ -124,7 +147,18 @@ export default class Deck extends Component {
             this.waveform.destroy();
 
             this.waveform = WaveSurfer.create(this.waveSurferOptions);
+            this.waveform.on('loading', e => {
+                console.log("loading:", e);
+            })
 
+            this.waveform.on('error', e => {
+                console.log("hit error:", e);
+            })
+
+
+            console.log("loading song in update >>>!", this.props.thisSong);
+            let dummy = new Audio(this.props.thisSong);
+            this.waveform.load(dummy.src);
             // this.state.audioElement.load();
             // this.state.audioElement = new Audio(this.props.thisSong);
             // this.state.audioElement.crossOrigin = "anonymous";
@@ -138,6 +172,8 @@ export default class Deck extends Component {
             this.waveform.setPlaybackRate(this.props.playbackRate);
 
             this.reconnectAudio();
+        } else {
+            console.log("SONG DIDN'T CHANGE");
         }
 
         if (this.state.audioCtx.state !== 'suspended') {
@@ -393,7 +429,7 @@ export default class Deck extends Component {
 
     reconnectAudio() {
         // this.state.audi1oElement.crossOrigin = "anonymous";
-
+        console.log("reconnecting audio");
         // LOWPASS
         let lowpass = this.waveform.backend.ac.createBiquadFilter();
         lowpass.frequency.value = this.state.audioSettings.lowpassF || 11000;
@@ -574,6 +610,7 @@ export default class Deck extends Component {
             this.waveform.setVolume(0.1);
             this.fadeInSong();
         })
+
     }
 
     playPause() {

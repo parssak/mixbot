@@ -232,10 +232,11 @@ export default function TrackPlayer() {
         if ((upcomingSongs.length !== 0)) {
             console.log("theres a song in the queue!", upcomingSongs[0]);
             if ((deck1BPM == 0) && (deck1Song == '')) {
+                // TODO BRAIN
                 console.log("putting it in track a");
                 loadTrackA();
-            }
-            if ((deck2BPM == 0) && (deck2Song == '')) {
+            } else if ((deck2BPM == 0) && (deck2Song == '')) {
+                // TODO BRAIN
                 console.log("putting it in track b");
                 loadTrackB();
             }
