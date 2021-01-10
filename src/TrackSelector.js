@@ -125,9 +125,7 @@ function TrackSelector() {
 
     return (
         <div>
-            {/* <hr/> */}
             <TrackPlayer />
-            {/* <hr /> */}
             <form onSubmit={playlistSearchClicked}>
                 {/* <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} /> */}
                 {/* <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} /> */}

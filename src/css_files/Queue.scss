@@ -1,0 +1,29 @@
+@import "./Fonts.css";
+
+$darkColor: #5c595d;
+
+.song-queue {
+    margin-left: 1rem;
+    h2 {
+        font-family: "Monument Black";
+        font-weight: 800;
+        font-size: 0.8rem;
+         color: $darkColor;
+    }
+}
+
+.queue {
+    margin-right: 2em;
+    font-family: "Inter";
+    .entry {
+        width: 45%;
+        font-size: 0.7rem;
+        text-align: left;
+        font-family: "Inter";
+        background-color: $darkColor;
+        padding: 0.4rem;
+        font-weight: 600;
+        margin-top: 0.2rem;
+        border-radius: 0.1rem;
+    }
+}

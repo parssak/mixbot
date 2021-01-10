@@ -12,20 +12,6 @@ const REGULAR = 'REG';
 
 let barSize = 0;
 
-let waveSurferOptions = {
-    container: `#${this.props.waveformID}`,
-    waveColor: "#ffffff",
-    cursorColor: "tomato",
-    hideScrollbar: true,
-    normalize: true,
-    height: 50,
-    barWidth: 2,
-    barHeight: 0.5, // the height of the wave
-    barRadius: 2,
-    plugins: [
-        RegionPlugin.create(),
-    ]
-}
 
 export default class Deck extends Component {
     constructor(props) {
@@ -66,6 +52,24 @@ export default class Deck extends Component {
             },
             startingPos: 0
         };
+
+        this.waveSurferOptions = {
+            container: `#${this.props.waveformID}`,
+            waveColor: "#ffffff",
+            cursorColor: "tomato",
+            hideScrollbar: true,
+            normalize: true,
+            height: 70,
+            barWidth: 1,
+            barHeight: 0.5, // the height of the wave
+            barRadius: 2,
+            plugins: [
+                RegionPlugin.create(),
+            ]
+        }
+
+
+
         this.lastAdjustTime = 0;
         this.synced = false;
         this.fadingOut = false;
@@ -87,7 +91,7 @@ export default class Deck extends Component {
     componentDidMount() {
         console.log("|| ---- COMPONENT DID MOUNT ---- ||", this.props.deckName);
         // wavesurfer begins here
-        this.waveform = WaveSurfer.create(waveSurferOptions);
+        this.waveform = WaveSurfer.create(this.waveSurferOptions);
 
 
         this.waveform.load(this.state.audioElement.src);
@@ -111,7 +115,7 @@ export default class Deck extends Component {
 
             this.waveform.destroy();
 
-            this.waveform = WaveSurfer.create(waveSurferOptions);
+            this.waveform = WaveSurfer.create(this.waveSurferOptions);
 
             this.state.audioElement.load();
             this.state.audioElement = new Audio(this.props.thisSong);

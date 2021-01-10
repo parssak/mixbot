@@ -1,11 +1,11 @@
 @import 'Fonts.css';
-
 :root {
     --accent-color: tomato;
 }
 
 @import 'Listbox.css';
 /* @import 'Deck.css'; */
+
 @import 'Waveform.css';
 * {
     background: #171418;
@@ -66,17 +66,19 @@ button {
     padding: 0.em 0.4em;
     border-radius: 0.2rem;
     border-style: none;
-    transition: all 0.1s ease;
+    transition: all 0.5s ease;
     opacity: 0.8;
     font-family: 'Inter';
     font-weight: bolder;
     font-size: 0.7rem;
+    box-shadow: 0 3px 100px rgba(255, 99, 71, 0);
 }
 
 button:hover {
     cursor: pointer;
     transform: scale(1.01);
     opacity: 1;
+    box-shadow: 0 3px 100px rgba(255, 99, 71, 0.3);
 }
 
 .slider {

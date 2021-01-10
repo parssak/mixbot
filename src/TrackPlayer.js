@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Deck from "./Deck";
+import './css_files/Queue.scss';
+import QueueBox from "./frontend_components/Queue";
 let tracklist = [];
 let upcomingSongs = [];
 let alreadyPlayed = [];
@@ -88,7 +90,7 @@ export default function TrackPlayer() {
                     setDeck1playback(1);
                 }
             }
-            console.log("> , >> ",newSong);
+            console.log("> , >> ", newSong);
             setDeck1Song(newSong)
         }
     }
@@ -148,8 +150,8 @@ export default function TrackPlayer() {
     function playDeck2SongScheduled(timeoutValue) {
         console.log("setting timeout for:", timeoutValue);
         setTimeout(function () {
-            console.log(clock.currentTime,deck2playtime);
-            console.log("checkin time bois", deck2playtime- clock.currentTime);
+            console.log(clock.currentTime, deck2playtime);
+            console.log("checkin time bois", deck2playtime - clock.currentTime);
             if (deck2playtime - clock.currentTime <= 0) {
                 deck2startTime = deck2playtime - clock.currentTime;
                 setDeck2Playing(true);
@@ -160,7 +162,7 @@ export default function TrackPlayer() {
                     playDeck2SongScheduled(500);
                 } else {
                     console.log("case b ");
-                    playDeck2SongScheduled((deck2playtime - clock.currentTime)/2);
+                    playDeck2SongScheduled((deck2playtime - clock.currentTime) / 2);
                 }
             }
         }, timeoutValue)
@@ -191,10 +193,10 @@ export default function TrackPlayer() {
         }
     }
 
-    function hitBarD1() {                                
+    function hitBarD1() {
         deck1lastBar = clock.currentTime;
-        if (deck2Playing) { 
-            console.log("DECK1", deck1offset);    
+        if (deck2Playing) {
+            console.log("DECK1", deck1offset);
             setDeck1offset(deck2lastBar - deck1lastBar);
         }
     }
@@ -202,8 +204,8 @@ export default function TrackPlayer() {
     function hitBarD2() {
         deck2lastBar = clock.currentTime;
         if (deck1Playing) {
-            console.log("DECK2", deck2offset);    
-            setDeck2offset(deck1lastBar-deck2lastBar);
+            console.log("DECK2", deck2offset);
+            setDeck2offset(deck1lastBar - deck2lastBar);
         }
     }
 
@@ -212,7 +214,7 @@ export default function TrackPlayer() {
         setDeck2playback(1);
         loadTrackA();
     }
-    
+
     function changeTrackB() {
         mainTrack = 1;
         setDeck1playback(1);
@@ -230,63 +232,66 @@ export default function TrackPlayer() {
                 console.log("putting it in track b");
                 loadTrackB();
             }
-        } 
+        }
     })
 
     return (
-        <div className={"djboard"}>
-            <div className={"boardpanel"} style={deck1Playing? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
-                <h3>DECK A</h3>
-                {/* <img src="https://i.scdn.co/image/ab67616d00001e02f198c232cd71f317559dc081" alt="new"/> */}
-                {/* {deck1BPM !== 0 && <h3>BPM: {deck1BPM} RATE:{deck1playback}</h3>} */}
-                {deck1Song !== '' && <Deck
-                    thisSong={deck1Song.songURL}
-                    songName={deck1Song.songName}
-                    songArtist={deck1Song.songArtists[0].name}
-                    songImage={deck1Song.trackImage}
-                    songAnalysis={deck1Song.songAnalysis}
-                    playbackRate={deck1playback}
-                    prepared={deckOneReady}
-                    play={deck1Playing}
-                    startTime={deck1startTime}
-                    playOtherTrack={playTrackTwo}
-                    hitBar={hitBarD1}
-                    offset={deck1offset}
-                    deckName={"Deck A"}
-                    finished={changeTrackA}
-                    recommendedVolume={1}
-                    shouldSync={mainTrack !== 1}
-                    otherReady={deckTwoReady}
-                    waveformID={"waveformA"}
-                /> 
-                }
+        <>
+            <div className={"djboard"}>
+                <div className={"boardpanel"} style={deck1Playing ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
+                    <h3>DECK A</h3>
+                    {deck1Song !== '' && <Deck
+                        thisSong={deck1Song.songURL}
+                        songName={deck1Song.songName}
+                        songArtist={deck1Song.songArtists[0].name}
+                        songImage={deck1Song.trackImage}
+                        songAnalysis={deck1Song.songAnalysis}
+                        playbackRate={deck1playback}
+                        prepared={deckOneReady}
+                        play={deck1Playing}
+                        startTime={deck1startTime}
+                        playOtherTrack={playTrackTwo}
+                        hitBar={hitBarD1}
+                        offset={deck1offset}
+                        deckName={"Deck A"}
+                        finished={changeTrackA}
+                        recommendedVolume={1}
+                        shouldSync={mainTrack !== 1}
+                        otherReady={deckTwoReady}
+                        waveformID={"waveformA"}
+                    />
+                    }
 
+                </div>
+                <div className={"boardpanel"} style={deck2Playing ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
+                    <h3 style={{ textAlign: 'right' }}>DECK B</h3>
+                    {/* {deck2BPM !== 0 && <h3>BPM: {deck2BPM} RATE:{deck2playback}</h3>} */}
+                    {deck2Song !== '' && <Deck
+                        thisSong={deck2Song.songURL}
+                        songName={deck2Song.songName}
+                        songArtist={deck2Song.songArtists[0].name}
+                        songImage={deck2Song.trackImage}
+                        songAnalysis={deck2Song.songAnalysis}
+                        playbackRate={deck2playback}
+                        prepared={deckTwoReady}
+                        play={deck2Playing}
+                        startTime={deck2startTime}
+                        playOtherTrack={playTrackOne}
+                        hitBar={hitBarD2}
+                        offset={deck2offset}
+                        deckName={"Deck B"}
+                        finished={changeTrackB}
+                        recommendedVolume={1}
+                        shouldSync={mainTrack !== 2}
+                        otherReady={deckOneReady}
+                        waveformID={"waveformB"}
+                    />}
+                </div>
             </div>
-            <div className={"boardpanel"} style={deck2Playing ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
-                <h3 style={{textAlign: 'right'}}>DECK B</h3>
-                {/* {deck2BPM !== 0 && <h3>BPM: {deck2BPM} RATE:{deck2playback}</h3>} */}
-                {deck2Song !== '' && <Deck
-                    thisSong={deck2Song.songURL}
-                    songName={deck2Song.songName}
-                    songArtist={deck2Song.songArtists[0].name}
-                    songImage = {deck2Song.trackImage}
-                    songAnalysis={deck2Song.songAnalysis}
-                    playbackRate={deck2playback}
-                    prepared={deckTwoReady}
-                    play={deck2Playing}
-                    startTime={deck2startTime}
-                    playOtherTrack={playTrackOne}
-                    hitBar={hitBarD2}
-                    offset={deck2offset}
-                    deckName={"Deck B"}
-                    finished={changeTrackB}
-                    recommendedVolume={1}
-                    shouldSync={mainTrack !== 2}
-                    otherReady={deckOneReady}
-                    waveformID={"waveformB"}
-
-                />}
+            <div className="song-queue">
+                <h2>UPCOMING TRACKS</h2>
+                <QueueBox items={tracklist}/>
             </div>
-        </div>
+        </>
     );
 }
