@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import './css_files/App.css';
-import TrackSelector from "./TrackSelector";
+import Mixbot from './Mixbot';
+
 
 function App() {
     return(
@@ -11,7 +12,7 @@ function App() {
                     <h3>An Open Source project by Parssa Kyanzadeh</h3> 
                  </div>
             </div>
-            <TrackSelector/>
+            <Mixbot/>
         </div>
     );
 }

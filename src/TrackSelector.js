@@ -5,11 +5,11 @@ import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
-import TrackPlayer, { trackAlreadyIn, addToQueue } from "./TrackPlayer";
+import { thoughtType, trackAlreadyIn} from "./Mixbot";
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
-function TrackSelector() {
+function TrackSelector({newThought, addToQueue}) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
@@ -98,13 +98,15 @@ function TrackSelector() {
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage) {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName + "with id " + trackID);
+            let think = "Adding: "+songName+" to tracklist";
+            newThought(think, thoughtType.NEUTRAL);
             getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage);
         } else {
             console.log("track is already in the queue");
             setTrackDetail(null);
         }
     }
-    
+
     const getAudioAnalysis = (id, songName, songArtists, duration, songURL, trackImage) => {
         console.log("song id is " + id);
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
@@ -125,7 +127,6 @@ function TrackSelector() {
 
     return (
         <div>
-            <TrackPlayer />
             <form onSubmit={playlistSearchClicked}>
                 {/* <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} /> */}
                 {/* <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} /> */}

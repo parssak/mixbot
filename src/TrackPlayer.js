@@ -1,35 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Deck from "./Deck";
 import './css_files/Queue.scss';
-import QueueBox from "./frontend_components/Queue";
-let tracklist = [];
-let upcomingSongs = [];
-let alreadyPlayed = [];
+import { loadTrack, nextSongInQueue } from "./Mixbot";
 
-// --- Global Functions ---
-export function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage) {
-    const newSong = {
-        songName: songName,
-        songArtists: songArtists,
-        duration_ms: duration_ms,
-        songURL: songURL,
-        songAnalysis: analysis,
-        trackImage: trackImage
-    }
-    console.log(analysis);
-    tracklist.push(newSong);
-    upcomingSongs.push(newSong);
-}
-
-export function trackAlreadyIn(trackName) {
-    console.log("checking if track is already in....", trackName);
-    for (const trackObj of tracklist) {
-        console.log(trackObj.songName)
-        if (trackObj.songName === trackName)
-            return true;
-    }
-    return false;
-}
 let deck1playtime = NaN;
 let deck2playtime = NaN;
 
@@ -64,12 +37,29 @@ export default function TrackPlayer() {
     const [deck2offset, setDeck2offset] = useState(0);
 
     useEffect(() => {
+        console.log("-----------------player did update!-----------------");
         if (!clock) {
             let newClock = new AudioContext();
             setClock(newClock);
             // console.log("current time is:", newClock.currentTime);
         } else {
             // console.log("current time is:", clock.currentTime);
+        }
+    })
+
+    useEffect(() => {
+        
+        if (nextSongInQueue() !== undefined) {
+            console.log("theres a song in the queue!", nextSongInQueue);
+            if ((deck1BPM == 0) && (deck1Song == '')) {
+                // TODO BRAIN
+                console.log(">> putting it in track a");
+                loadTrackA();
+            } else if ((deck2BPM == 0) && (deck2Song == '')) {
+                // TODO BRAIN
+                console.log(">> putting it in track b");
+                loadTrackB();
+            }
         }
     })
 
@@ -120,16 +110,6 @@ export default function TrackPlayer() {
         } else {
             console.log("new song was null");
         }
-    }
-
-    function loadTrack() {
-        let nextSong = null;
-        if (upcomingSongs.length !== 0) {
-            nextSong = upcomingSongs[0];
-            alreadyPlayed.push(nextSong);
-            upcomingSongs.shift();
-        }
-        return nextSong;
     }
 
     function deckOneReady() {
@@ -228,21 +208,6 @@ export default function TrackPlayer() {
         loadTrackB();
     }
 
-    useEffect(() => {
-        if ((upcomingSongs.length !== 0)) {
-            console.log("theres a song in the queue!", upcomingSongs[0]);
-            if ((deck1BPM == 0) && (deck1Song == '')) {
-                // TODO BRAIN
-                console.log("putting it in track a");
-                loadTrackA();
-            } else if ((deck2BPM == 0) && (deck2Song == '')) {
-                // TODO BRAIN
-                console.log("putting it in track b");
-                loadTrackB();
-            }
-        }
-    })
-
     return (
         <>
             <div className={"djboard"}>
@@ -274,7 +239,6 @@ export default function TrackPlayer() {
                 </div>
                 <div className={"boardpanel"} style={deck2Playing ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
                     <h3 style={{ textAlign: 'right' }}>DECK B</h3>
-                    {/* {deck2BPM !== 0 && <h3>BPM: {deck2BPM} RATE:{deck2playback}</h3>} */}
                     {deck2Song !== '' && <Deck
                         thisSong={deck2Song.songURL}
                         songName={deck2Song.songName}
@@ -298,12 +262,6 @@ export default function TrackPlayer() {
                     />}
                 </div>
             </div>
-            {upcomingSongs.length == 0 ? null :
-                <div className="song-queue">
-                    <h2>UPCOMING TRACKS</h2>
-                    <QueueBox items={upcomingSongs} />
-                </div>
-            }
         </>
     );
 }
