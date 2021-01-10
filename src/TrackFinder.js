@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import youtubeApi from './api/youtube'
 import videoDetailFinder from './api/youtubeVideoContent'
 import {parse, end, toSeconds, pattern} from 'iso8601-duration';
-import ytdl from "react-native-ytdl";
+// import ytdl from "react-native-ytdl";
 
 /**
  * This class handles finding a track based on song name, artists, and duration
@@ -124,12 +124,23 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
     }, [name, artists, duration_ms]);
 
     async function videoIDtoMP3(videoID) {
-        console.log("-- Entered videoIDtoMP3 --")
-        await ytdl.getInfo(videoID, { quality: 'highestaudio'}).then(info => {
-            let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
+        console.log("-- Entered videoIDtoMP3 -- with videoID:", videoID);
+        videoDetailFinder.get('/youtubeMp3', {
+            params: {
+                id: videoID
+            }
+        }).then(response => {
+            console.log("got audioFormats!");
+            let audioFormats = response.data;
+            console.log(audioFormats);
             foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage);
             setChosenVideoID("");
         });
+        // await ytdl.getInfo(videoID, { quality: 'highestaudio'}).then(info => {
+        //     let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
+            // foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage);
+            // setChosenVideoID("");
+        // });
     }
 
     return null;

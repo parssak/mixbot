@@ -79,6 +79,7 @@ export default function TrackPlayer() {
         setDeck1Playing(false);
         if (newSong !== null) {
             setDeck1BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
+            console.log(">>>>>            here comes the next song", newSong);
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
@@ -90,8 +91,11 @@ export default function TrackPlayer() {
                     setDeck1playback(1);
                 }
             }
-            console.log("> , >> ", newSong);
+            console.log("> , --------------------------->> ", newSong);
             setDeck1Song(newSong)
+        }
+        else {
+            console.log("new song was null");
         }
     }
 
@@ -101,6 +105,7 @@ export default function TrackPlayer() {
         setDeck2Playing(false);
         if (newSong !== null) {
             setDeck2BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
+            console.log(">>>>>            here comes the next song", newSong);
             if (deck1Song === '') {
                 setDeck2playback(1);
             } else {
@@ -112,6 +117,8 @@ export default function TrackPlayer() {
                 }
             }
             setDeck2Song(newSong)
+        } else {
+            console.log("new song was null");
         }
     }
 
@@ -222,8 +229,8 @@ export default function TrackPlayer() {
     }
 
     useEffect(() => {
-        if ((upcomingSongs !== 0)) {
-            console.log("theres a song in the queue!");
+        if ((upcomingSongs.length !== 0)) {
+            console.log("theres a song in the queue!", upcomingSongs[0]);
             if ((deck1BPM == 0) && (deck1Song == '')) {
                 console.log("putting it in track a");
                 loadTrackA();
