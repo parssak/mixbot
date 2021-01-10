@@ -259,6 +259,7 @@ export default function TrackPlayer() {
                         shouldSync={mainTrack !== 1}
                         otherReady={deckTwoReady}
                         waveformID={"waveformA"}
+                        bpm={deck1BPM}
                     />
                     }
 
@@ -285,13 +286,16 @@ export default function TrackPlayer() {
                         shouldSync={mainTrack !== 2}
                         otherReady={deckOneReady}
                         waveformID={"waveformB"}
+                        bpm={deck2BPM}
                     />}
                 </div>
             </div>
-            <div className="song-queue">
-                <h2>UPCOMING TRACKS</h2>
-                <QueueBox items={tracklist}/>
-            </div>
+            {upcomingSongs.length == 0 ? null :
+                <div className="song-queue">
+                    <h2>UPCOMING TRACKS</h2>
+                    <QueueBox items={upcomingSongs} />
+                </div>
+            }
         </>
     );
 }

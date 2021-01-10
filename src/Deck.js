@@ -654,6 +654,10 @@ export default class Deck extends Component {
                             {this.props.songName !== "" && <h2>{this.props.songName}</h2>}
                             {this.props.songName !== "" && <h3>{this.props.songArtist}</h3>}
                         </div>
+                        <div className={"deck-text"}>
+                            <h4>{this.props.bpm} BPM</h4>
+                            {/* <h4>{this.props.bpm} BPM</h4> */}
+                        </div>
                         <div id={`${this.props.waveformID}`} />
                     </div>
                     {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />

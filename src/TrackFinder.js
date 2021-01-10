@@ -39,7 +39,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
 
     async function videosSearch(search) {
         console.log("--- Entered videosSearch ---")
-        const response = await youtubeApi.get("/search", {
+        const response = await youtubeApi.get("/youtubeSearch", { // TODO CHANGE THIS TO SERVER
             params:{
                 q:search
             }
@@ -48,7 +48,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
     }
 
     async function videoDetail(videoID) {
-        const response = await videoDetailFinder.get("/videos", {
+        const response = await videoDetailFinder.get("/youtubeDetail", { // TODO CHANGE THIS TO SERVER
             params:{
                 id:videoID
             }

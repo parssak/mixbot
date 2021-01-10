@@ -1,6 +1,6 @@
 @import "./Fonts.css";
 
-$darkColor: #5c595d;
+$darkColor: #7f7b80;
 
 .song-queue {
     margin-left: 1rem;
@@ -14,13 +14,14 @@ $darkColor: #5c595d;
 
 .queue {
     margin-right: 2em;
-    font-family: "Inter";
+    font-family:"Inter";
     .entry {
-        width: 45%;
-        font-size: 0.7rem;
+        width: 10.5rem;
+        font-size: 0.6rem;
         text-align: left;
         font-family: "Inter";
-        background-color: $darkColor;
+        background-color: #252426;
+        color: $darkColor;
         padding: 0.4rem;
         font-weight: 600;
         margin-top: 0.2rem;
