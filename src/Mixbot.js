@@ -31,7 +31,6 @@ export function loadTrack() {
 }
 
 export function nextSongInQueue() {
-    // console.log("next song in queue is:", upcomingSongs[0]);
     return upcomingSongs[0] || null;
 }
 
@@ -50,29 +49,34 @@ export default function Mixbot() {
     const [thoughts, setThoughts] = useState([]);
 
     function newThought(input, type=thoughtType.NEUTRAL) {
-        console.log("1. new thought added", input);
+        // console.log("1. new thought added", input);
         let shouldShow = true;
         if (thoughts[thoughts.length - 1].body === input) {
             shouldShow = false;
         }
         setThoughts([...thoughts, { id: "THOUGHT-" + thoughts.length, body: input, type: type, display: shouldShow}]);
-        console.log("2. new thought added", thoughts);
+        // console.log("2. new thought added", thoughts);
     }
 
-    function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage) {
+    function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage, songID) {
 
+        // TODO MAKE THIS ONLY HAPPEN IF NOT FOUND IN DATABASE
         if (analysis !== "NOTFOUND") {
-            console.log(">> analysis was",analysis);
             let songData = analysis.data;
-            console.log(">>> song data>>", songData);
 
             let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
+
             analysis = {
                 data: songData,
                 analyzed: analyzedData
             };
-            console.log(">> analysis now is", analysis);
+
+            // Add it to the DB
+            let databaseEntry = {
+                
+            }
+
         } 
 
         const newSong = {

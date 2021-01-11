@@ -114,7 +114,7 @@ function TrackSelector({addToQueue}) {
                 'Authorization': 'Bearer ' + token
             }
         }).then(e => {
-            addToQueue(songName, songArtists, duration, songURL, e, trackImage);
+            addToQueue(songName, songArtists, duration, songURL, e, trackImage, id);
         }).catch(e => {
             // addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
             //! TODO DEAL WITH THIS PROPERLY
