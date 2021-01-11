@@ -5,7 +5,7 @@ import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
-import { nextSongInQueue, thoughtType, trackAlreadyIn} from "./Mixbot";
+import { nextSongInQueue, thoughtType, trackAlreadyIn, tracklistSize} from "./Mixbot";
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
@@ -125,7 +125,7 @@ function TrackSelector({newThought, addToQueue}) {
     return (
         <div>
             <form onSubmit={playlistSearchClicked}>
-                {nextSongInQueue() === null && <button type='submit' className="begin-mix">BEGIN MIX</button>}
+                {tracklistSize() === 0 && <button type='submit' className="begin-mix">BEGIN MIX</button>}
                 <div>
                     <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
                     {trackDetail && <TrackFinder name={trackDetail.name}

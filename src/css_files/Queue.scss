@@ -8,23 +8,24 @@ $darkColor: #7f7b80;
         font-family: "Monument Black";
         font-weight: 800;
         font-size: 0.8rem;
-         color: $darkColor;
+        color: $darkColor;
     }
 }
 
 .queue {
     margin-right: 2em;
-    font-family:"Inter";
+    font-family: "Inter";
     .entry {
-        width: 10.5rem;
-        font-size: 0.6rem;
-        text-align: left;
-        font-family: "Inter";
-        background-color: #252426;
-        color: $darkColor;
-        padding: 0.4rem;
-        font-weight: 600;
-        margin-top: 0.2rem;
-        border-radius: 0.1rem;
+        p {
+            font-size: 0.6rem;
+            text-align: left;
+            font-family: "Inter";
+            background-color: #252426;
+            color: $darkColor;
+            padding: 0.4rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+            border-radius: 0.1rem;
+        }
     }
 }

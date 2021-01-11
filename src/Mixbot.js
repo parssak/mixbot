@@ -23,7 +23,7 @@ export function trackAlreadyIn(trackName) {
 export function loadTrack() {
     let nextSong = null;
     if (upcomingSongs.length !== 0) {
-        nextSong = upcomingSongs[0];
+        nextSong = upcomingSongs[0].body;
         alreadyPlayed.push(nextSong);
         upcomingSongs.shift();
     }
@@ -33,6 +33,10 @@ export function loadTrack() {
 export function nextSongInQueue() {
     // console.log("next song in queue is:", upcomingSongs[0]);
     return upcomingSongs[0] || null;
+}
+
+export function tracklistSize() {
+    return tracklist.length;
 }
 
 export const thoughtType = {
@@ -76,8 +80,9 @@ export default function Mixbot() {
         }
         
         console.log(analysis);
-        tracklist.push(newSong);
-        upcomingSongs.push({ id: "upcoming" + upcomingSongs.length, body: newSong });
+        let packageSong = { id: "tracklist" + tracklist.length, body: newSong }
+        tracklist.push(packageSong);
+        upcomingSongs.push(packageSong);
         
         const think = `Added ${songName} to the tracklist`;
         newThought(think, thoughtType.SUCCESS);
@@ -85,14 +90,11 @@ export default function Mixbot() {
 
     return (
         <>
-            <TrackPlayer newThought={ newThought}/>
-            <Brain decisions={thoughts} />
-            {upcomingSongs.length == 0 ? null :
-                <div className="queue-header">
-                    <h2>UPCOMING TRACKS</h2>
-                    <QueueBox items={upcomingSongs} />
-                </div>
-            }
+            <TrackPlayer newThought={newThought} />
+            <div className="mixbot-dropdowns">
+                <Brain decisions={thoughts} />
+                {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
+            </div>
             <TrackSelector newThought={newThought} addToQueue={addToQueue}/>
         </>
     )

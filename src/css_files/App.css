@@ -121,3 +121,11 @@ button:hover {
     font-weight: 800;
     font-size: 0.7rem;
 }
+
+.mixbot-dropdowns {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    width: 100%;   
+    background-color: none;
+}

@@ -1,5 +1,5 @@
 import React from 'react'
-import '../css_files/Queue.scss';
+import './css_files/Queue.scss';
 
 export default function Brain({ decisions }) {
     return (
@@ -7,8 +7,8 @@ export default function Brain({ decisions }) {
             <h2>MIXBOT BRAIN</h2>
             <div className="queue">
                 {decisions.map(thought => (
-                    <div className={"entry"} id={thought.id}>
-                        <p id={thought.id + "thought"}>{thought.body}</p>
+                    <div className={"entry"} key={thought.id}>
+                        <p key={thought.id + "thought"}>{thought.body}</p>
                     </div>
                 ))}
             </div>

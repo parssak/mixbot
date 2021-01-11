@@ -8,8 +8,8 @@ const QueueBox = props => {
             <div className="queue">
                 {
                     props.items.map((item, idx) =>
-                        <div className={"entry"} id={item.id}>
-                            <p id={item.id + "text"}>{item.songName} by {item.songArtists[0].name}</p>
+                        <div className={"entry"} key={item.id}>
+                            <p key={item.id + "text"}>{item.body.songName}</p>
                         </div>)
                 }
             </div>
