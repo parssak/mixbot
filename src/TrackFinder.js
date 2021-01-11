@@ -70,7 +70,6 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                     break;
                 }
             }
-
         })
     }
 

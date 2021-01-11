@@ -3,14 +3,8 @@ import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
 import './css_files/Deck.scss';
+import { SectionType } from './helper_classes/Analyzer';
 
-const DROP = 'DROP';
-const BEGIN = 'BEGIN';
-const COMEDOWN = 'COMEDOWN';
-const UNSURE = 'UNSURE';
-const REGULAR = 'REG';
-
-let barSize = 0;
 let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: 'same-origin', redirect: 'follow', referrer: 'client', headers: [{ 'Access-Control-Allow-Origin': '*' }] };
 
 export default class Deck extends Component {
@@ -216,7 +210,7 @@ export default class Deck extends Component {
                 this.lastAdjustTime = this.waveform.getCurrentTime();
                 let adjustedOffset = this.props.offset;
                 this.totalOffset = this.props.offset;
-                console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset, "which is", this.totalOffset / barSize, "bars");
+                console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset);
                 let desiredTime = this.waveform.getCurrentTime() + this.props.offset;
                 console.log("%%%   ", this.props.deckName, " song pos was at:", this.waveform.getCurrentTime(), "we need:", desiredTime);
                 this.waveform.pause();
@@ -229,202 +223,201 @@ export default class Deck extends Component {
         }
     }
 
-    analyzeData() {
-        let sectionArray = this.props.songAnalysis.data.sections;
-        let baselineLoudness = this.props.songAnalysis.data.track.loudness;
-        let allBars = this.props.songAnalysis.data.bars;
-        // let bpm = this.props.songAnalysis.data.track.tempo;
-        // let timeSig = Math.round(this.props.songAnalysis.data.track.time_signature);
+    analyzeData(spotifyData) {
+        // // ! >>>
+        // let sectionArray = this.props.songAnalysis.data.sections;
+        // let baselineLoudness = this.props.songAnalysis.data.track.loudness;
+        // let allBars = this.props.songAnalysis.data.bars;
+        // // ! <<<
 
-        let songSections = [];
-        // let numSections = sectionArray.length;
-        let currSection = 0;
+        // let songSections = [];
+        // let currSection = 0;
 
-        // song analysis variables
-        // let numDrops = 0;
-        // let mostConfidentDrop = 0;
+        // // song analysis variables
+        // // let numDrops = 0;
+        // // let mostConfidentDrop = 0;
 
-        // let numComedowns = 0;
-        // let mostConfidentComedown = 0;
+        // // let numComedowns = 0;
+        // // let mostConfidentComedown = 0;
 
-        // get an array of when all bars start
-        let barStartArray = []
+        // // get an array of when all bars start
+        // let barStartArray = []
 
-        let bar = this.props.songAnalysis.data.bars[0].duration;
-        let barConfidence = 0;
-        allBars.forEach(e => {
-            if (e.confidence > barConfidence) {
-                bar = e.duration;
-                barConfidence = e.confidence;
-            }
-        })
-        barSize = bar;
-        let barlength32 = bar * 2;
-        let songDuration = this.props.songAnalysis.data.track.duration;
+        // let bar = this.props.songAnalysis.data.bars[0].duration;
+        // let barConfidence = 0;
+        // allBars.forEach(e => {
+        //     if (e.confidence > barConfidence) {
+        //         bar = e.duration;
+        //         barConfidence = e.confidence;
+        //     }
+        // })
+        // barSize = bar;
+        // let barlength32 = bar * 2;
+        // let songDuration = this.props.songAnalysis.data.track.duration;
 
-        let num32Bar = ((songDuration) / barlength32);
+        // let num32Bar = ((songDuration) / barlength32);
 
-        for (let a = 0; a <= num32Bar; a++) {
-            barStartArray.push(((a) * barlength32));
-        }
+        // for (let a = 0; a <= num32Bar; a++) {
+        //     barStartArray.push(((a) * barlength32));
+        // }
 
-        let calibrationArray = [];
+        // let calibrationArray = [];
 
-        let numCalibrationChunks = (songDuration) / bar;
+        // let numCalibrationChunks = (songDuration) / bar;
 
-        for (let c = 0; c <= numCalibrationChunks; c++) {
-            calibrationArray.push(((c) * bar));
-        }
-
-
-        for (let b = 0; b < calibrationArray.length - 1; b++) {
-            // let barColor = (b % 2 ? "rgba(255, 60, 54,0.05)" : "rgba(46, 255, 154,0.05)");
-            let barRegion = {
-                start: calibrationArray[b],
-                end: calibrationArray[b + 1],
-                // color: barColor,
-                drag: false,
-                resize: false,
-                computed: {}
-            };
-            this.waveform.addRegion(barRegion);
-        }
-
-        sectionArray.forEach(e => {
-            currSection++;
-            let sectionType = REGULAR;
-            let is32length = false;
-
-            let comparisonLoudness = (e.loudness - baselineLoudness) / baselineLoudness;
-
-            // IF BEGINNING OF SONG
-            if (songSections.length === 0) {
-                sectionType = BEGIN;
-            }
-
-            // IF LOUD === DROP
-            if (comparisonLoudness < 0) {
-                sectionType = DROP;
-            }
-
-            // IF LAST SONG WAS DROP AND DIFFERENTIAL OF THIS IS NEGATIVE === COMEDOWN
-            let diff = 0;
-            if (songSections.length > 0) {
-                diff = songSections[songSections.length - 1].computed.comparisonLoudness - comparisonLoudness;
-                if (songSections[songSections.length - 1].sectionType === DROP) {
-                    if (sectionType === DROP) {
-                        sectionType = UNSURE;
-                    } else {
-                        sectionType = COMEDOWN
-                    }
-                }
-            }
-
-            let beginpoint = e.start;
-            let endpoint = e.start + e.duration;
-            let closestEnd = closest(endpoint, barStartArray);
-            let closestBegin = closest(beginpoint, barStartArray);
-            let offsetBegin = closestBegin - beginpoint;
-            let offsetEnd = closestEnd - endpoint;
-            let acceptedConformEnd = false;
-            let acceptedConformBegin = false;
-
-            beginpoint = closestBegin;
-            endpoint = closestEnd;
+        // for (let c = 0; c <= numCalibrationChunks; c++) {
+        //     calibrationArray.push(((c) * bar));
+        // }
 
 
-            let sizeComparison = ((endpoint - beginpoint) / barlength32).toPrecision(2); // checks if section is of calculated 32bar length
-            if (sizeComparison % 1) {
-                is32length = true;
-            }
+        // for (let b = 0; b < calibrationArray.length - 1; b++) {
+        //     // let barColor = (b % 2 ? "rgba(255, 60, 54,0.05)" : "rgba(46, 255, 154,0.05)");
+        //     let barRegion = {
+        //         start: calibrationArray[b],
+        //         end: calibrationArray[b + 1],
+        //         // color: barColor,
+        //         drag: false,
+        //         resize: false,
+        //         computed: {}
+        //     };
+        //     this.waveform.addRegion(barRegion);
+        // }
 
-            let randomColor = 'rgba(162,254,231,0.3)';
-            switch (sectionType) {
-                case "":
-                    break;
-                case BEGIN:
-                    // toLoop = true;
-                    randomColor = 'rgba(50,255,155,0.3)';
-                    if (is32length) {
-                        randomColor = 'rgba(100,255,55,0.3)';
-                    }
-                    break;
-                case DROP:
-                    randomColor = 'rgba(237,61,155,0.3)';
-                    if (is32length) {
-                        randomColor = 'rgba(255,31,105,0.3)';
-                    }
-                    break;
-                case COMEDOWN:
-                    randomColor = 'rgba(123,215,255,0.3)'
-                    if (is32length) {
-                        randomColor = 'rgba(50,150,255,0.3)'
-                    }
-                    break;
-                case UNSURE:
-                    randomColor = 'rgba(34,1,255,0.2)'
-                    if (is32length) {
-                        randomColor = 'rgba(0,255,150,0.2)'
-                    }
-                    break;
-                default:
-                    break;
-            }
+        // sectionArray.forEach(e => {
+        //     currSection++;
+        //     let sectionType = REGULAR;
+        //     let is32length = false;
 
-            let goodForMix = false;
-            if (sectionType !== DROP) {
-                if (comparisonLoudness > 0 && comparisonLoudness < 0.1) {
-                    randomColor = 'rgba(218, 165, 32,0.3)';
-                    goodForMix = true;
-                } else if (sectionType === BEGIN) {
-                    randomColor = 'rgba(218, 165, 32,0.3)';
-                    goodForMix = true;
-                }
-            }
-            // ! THIS IS FOR UI PURPOSES REMOVE THIS WHEN TESTING
-            randomColor = 'rgba(0, 0, 0, 0)';
+        //     let comparisonLoudness = (e.loudness - baselineLoudness) / baselineLoudness;
 
-            let analysisSection = {
-                sectionType: sectionType,
-                begin: beginpoint,
-                endpoint: endpoint,
-                computed: {
-                    comparisonLoudness: comparisonLoudness,
-                    differential: diff,
-                    sectionConfidence: e.confidence,
-                    conformedBegin: acceptedConformBegin,
-                    conformedEnd: acceptedConformEnd,
-                    oBegin: offsetBegin,
-                    oEnd: offsetEnd
-                },
-                sizeComparison: sizeComparison,
-                is32: is32length,
-                sectionColor: randomColor,
-                goodForMix: goodForMix
-            }
-            songSections.push(analysisSection);
-        })
+        //     // IF BEGINNING OF SONG
+        //     if (songSections.length === 0) {
+        //         sectionType = BEGIN;
+        //     }
 
-        if (songSections.length > 2) {
-            console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
-            console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
-            if ((songSections[0].sizeComparison == 4) || (songSections[0].sizeComparison == 2 && songSections[1].sizeComparison == 2)) {
-                console.log("CASE A START POS");
-                this.setState({
-                    startingPos: 0
-                })
-            } else if (songSections[0].sizeComparison == 2.0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
-                console.log("CASE B START POS");
-                console.log("mult of 4?", songSections[1].sizeComparison % 4);
-                this.setState({
-                    startingPos: songSections[0].endpoint
-                })
-            } else {
-                console.log("CASE C START POS");
-            }
-        }
+        //     // IF LOUD === DROP
+        //     if (comparisonLoudness < 0) {
+        //         sectionType = DROP;
+        //     }
 
-        return songSections;
+        //     // IF LAST SONG WAS DROP AND DIFFERENTIAL OF THIS IS NEGATIVE === COMEDOWN
+        //     let diff = 0;
+        //     if (songSections.length > 0) {
+        //         diff = songSections[songSections.length - 1].computed.comparisonLoudness - comparisonLoudness;
+        //         if (songSections[songSections.length - 1].sectionType === DROP) {
+        //             if (sectionType === DROP) {
+        //                 sectionType = UNSURE;
+        //             } else {
+        //                 sectionType = COMEDOWN
+        //             }
+        //         }
+        //     }
+
+        //     let beginpoint = e.start;
+        //     let endpoint = e.start + e.duration;
+        //     let closestEnd = closest(endpoint, barStartArray);
+        //     let closestBegin = closest(beginpoint, barStartArray);
+        //     let offsetBegin = closestBegin - beginpoint;
+        //     let offsetEnd = closestEnd - endpoint;
+        //     let acceptedConformEnd = false;
+        //     let acceptedConformBegin = false;
+
+        //     beginpoint = closestBegin;
+        //     endpoint = closestEnd;
+
+
+        //     let sizeComparison = ((endpoint - beginpoint) / barlength32).toPrecision(2); // checks if section is of calculated 32bar length
+        //     if (sizeComparison % 1) {
+        //         is32length = true;
+        //     }
+
+        //     let randomColor = 'rgba(162,254,231,0.3)';
+        //     switch (sectionType) {
+        //         case "":
+        //             break;
+        //         case BEGIN:
+        //             // toLoop = true;
+        //             randomColor = 'rgba(50,255,155,0.3)';
+        //             if (is32length) {
+        //                 randomColor = 'rgba(100,255,55,0.3)';
+        //             }
+        //             break;
+        //         case DROP:
+        //             randomColor = 'rgba(237,61,155,0.3)';
+        //             if (is32length) {
+        //                 randomColor = 'rgba(255,31,105,0.3)';
+        //             }
+        //             break;
+        //         case COMEDOWN:
+        //             randomColor = 'rgba(123,215,255,0.3)'
+        //             if (is32length) {
+        //                 randomColor = 'rgba(50,150,255,0.3)'
+        //             }
+        //             break;
+        //         case UNSURE:
+        //             randomColor = 'rgba(34,1,255,0.2)'
+        //             if (is32length) {
+        //                 randomColor = 'rgba(0,255,150,0.2)'
+        //             }
+        //             break;
+        //         default:
+        //             break;
+        //     }
+
+        //     let goodForMix = false;
+        //     if (sectionType !== DROP) {
+        //         if (comparisonLoudness > 0 && comparisonLoudness < 0.1) {
+        //             randomColor = 'rgba(218, 165, 32,0.3)';
+        //             goodForMix = true;
+        //         } else if (sectionType === BEGIN) {
+        //             randomColor = 'rgba(218, 165, 32,0.3)';
+        //             goodForMix = true;
+        //         }
+        //     }
+        //     // ! THIS IS FOR UI PURPOSES REMOVE THIS WHEN TESTING
+        //     randomColor = 'rgba(0, 0, 0, 0)';
+
+        //     let analysisSection = {
+        //         sectionType: sectionType,
+        //         begin: beginpoint,
+        //         endpoint: endpoint,
+        //         computed: {
+        //             comparisonLoudness: comparisonLoudness,
+        //             differential: diff,
+        //             sectionConfidence: e.confidence,
+        //             conformedBegin: acceptedConformBegin,
+        //             conformedEnd: acceptedConformEnd,
+        //             oBegin: offsetBegin,
+        //             oEnd: offsetEnd
+        //         },
+        //         sizeComparison: sizeComparison,
+        //         is32: is32length,
+        //         sectionColor: randomColor,
+        //         goodForMix: goodForMix
+        //     }
+        //     songSections.push(analysisSection);
+        // })
+
+        // if (songSections.length > 2) {
+        //     console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
+        //     console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
+        //     if ((songSections[0].sizeComparison == 4) || (songSections[0].sizeComparison == 2 && songSections[1].sizeComparison == 2)) {
+        //         console.log("CASE A START POS");
+        //         this.setState({
+        //             startingPos: 0
+        //         })
+        //     } else if (songSections[0].sizeComparison == 2.0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
+        //         console.log("CASE B START POS");
+        //         console.log("mult of 4?", songSections[1].sizeComparison % 4);
+        //         this.setState({
+        //             startingPos: songSections[0].endpoint
+        //         })
+        //     } else {
+        //         console.log("CASE C START POS");
+        //     }
+        // }
+
+        // return songSections;
     }
 
     reconnectAudio() {
@@ -457,106 +450,24 @@ export default class Deck extends Component {
         this.waveform.backend.setFilter(lowpass, highpass);
 
         if (this.props.songAnalysis !== 'NOTFOUND') {
-
-            let analyzed = this.analyzeData();
-
-            //* Getting the best of each region
-            let bestReg;
-            let bestDrop;
-            let bestComedown;
-            let bestOverall;
-
-            let bestRegNum = 0;
-            let bestDropNum = 0;
-            let bestComedownNum = 0;
-            let bestOverallNum = 0;
-
-            let bestRegColor = "rgb(158, 31, 255)" // royal purple
-            let bestDropColor = "rgb(242, 123, 31)"; // orange
-            let bestComedownColor = "rgb(185, 245, 66)"; // lime
-            let bestOverallColor = "rgb(66, 245, 191)"; // teal
-            let cs = 0; // currsection
-            analyzed.forEach(e => {
-                // console.log(e);
-                if (e.sectionConfidence > bestOverallNum) {
-                    bestOverallNum = e.sectionConfidence;
-                    bestOverall = cs;
-                }
-
-                switch (e.sectionType) {
-                    case DROP:
-                        if (e.sectionConfidence > bestDropNum) {
-                            bestDropNum = e.sectionConfidence;
-                            bestDrop = cs;
-                        }
-                        break;
-                    case REGULAR:
-                        if (e.sectionConfidence > bestRegNum) {
-                            bestRegNum = e.sectionConfidence;
-                            bestReg = cs;
-                        }
-                        break;
-                    case COMEDOWN:
-                        if (e.sectionConfidence > bestComedownNum) {
-                            bestComedownNum = e.sectionConfidence;
-                            bestComedown = cs;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                cs++;
-            })
-            let cs1 = 0;
+            let analyzed = this.props.songAnalysis;
             analyzed.forEach(section => {
-                let thisSectionColor = section.sectionColor;
-                let isBest = false;
-                switch (section.sectionType) {
-                    case DROP:
-                        section.endpoint -= 0.1;
-                        if (cs1 === bestDrop) {
-                            thisSectionColor = bestDropColor;
-                            isBest = true;
-                        }
-                        break;
-                    case REGULAR:
-                        if (cs1 === bestReg) {
-                            thisSectionColor = bestRegColor;
-                            isBest = true;
-                        }
-                        break;
-                    case COMEDOWN:
-                        if (cs1 === bestComedown) {
-                            thisSectionColor = bestComedownColor;
-                            isBest = true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                if (cs1 === bestOverall) {
-                    thisSectionColor = bestOverallColor;
-                }
-
                 let region = {
                     start: section.begin,
                     end: section.endpoint,
                     attributes: section.computed,
                     data: section,
-                    color: thisSectionColor,
+                    color: section.sectionColor,
                     drag: false,
                     resize: false,
-                    isBest: isBest
                 }
                 this.waveform.addRegion(region);
-                cs1++;
             })
         }
         this.waveform.on('region-in', e => {
             this.props.hitBar();
             if (e.data.sectionType !== undefined) { // has data!
-                if (e.data.sectionType === DROP) {
+                if (e.data.sectionType === SectionType.DROP) {
                     this.numDropsPassed++;
                 }
             }
@@ -586,7 +497,7 @@ export default class Deck extends Component {
                     }
                 })
 
-                if (thisSection.sectionType === DROP && this.numDropsPassed > 1 && this.props.otherReady) {
+                if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 1 && this.props.otherReady) {
                     this.props.playOtherTrack();
                     this.fadeOutSong();
                 }

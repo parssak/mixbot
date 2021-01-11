@@ -3,6 +3,7 @@ import TrackSelector from "./TrackSelector";
 import TrackPlayer from "./TrackPlayer";
 import QueueBox from "./frontend_components/Queue";
 import Brain from "./Brain";
+import { Analyzer } from './helper_classes/Analyzer';
 
 let tracklist = [];
 let upcomingSongs = [];
@@ -42,6 +43,7 @@ export const thoughtType = {
 
 export default function Mixbot() {
     
+    let analyzer = new Analyzer();
     const [thoughts, setThoughts] = useState([]);
 
     function newThought(input, type=thoughtType.NEUTRAL) {
@@ -51,6 +53,13 @@ export default function Mixbot() {
     }
 
     function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage) {
+
+        if (analysis !== "NOTFOUND") {
+            let songData = analysis.data;
+            let analyzedData = analyzer.analyzeSong(songData);
+            analysis = analyzedData;
+        }
+
         const newSong = {
             songName: songName,
             songArtists: songArtists,
@@ -59,6 +68,7 @@ export default function Mixbot() {
             songAnalysis: analysis,
             trackImage: trackImage
         }
+        
         console.log(analysis);
         tracklist.push(newSong);
         upcomingSongs.push(newSong);
