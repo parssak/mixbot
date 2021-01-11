@@ -63,8 +63,6 @@ export default class Deck extends Component {
             xhr: xhr
         }
 
-
-
         this.lastAdjustTime = 0;
         this.synced = false;
         this.fadingOut = false;
@@ -73,13 +71,11 @@ export default class Deck extends Component {
         this.numSuccessful = 0;
         this.numDropsPassed = 0;
 
-
         this.playPause = this.playPause.bind(this);
         this.fadeOutSong = this.fadeOutSong.bind(this);
         this.changeFilter = this.changeFilter.bind(this);
         this.changeGain = this.changeGain.bind(this);
         this.reconnectAudio = this.reconnectAudio.bind(this);
-        this.analyzeData = this.analyzeData.bind(this);
         this.handlePosChange = this.handlePosChange.bind(this);
     }
 
@@ -96,14 +92,7 @@ export default class Deck extends Component {
         this.waveform.on('error', e => {
             console.log("hit error:", e);
         })
-        
-        // this.state.audioElemen1t.crossOrigin = "anonymous";
-        
-        // let song = new Audio();
-        // song.crossOrigin = "anonymous";
-        // song.src = this.props.thisSong;
-        
-        // this.waveform.load(song);
+      
         console.log("MOUNT THISSONG>>>",this.props.thisSong);
         let dummy = new Audio(this.props.thisSong);
         // console.log(">>>!!!>>>", dummy.src);
@@ -149,20 +138,9 @@ export default class Deck extends Component {
                 console.log("hit error:", e);
             })
 
-
             console.log("loading song in update >>>!", this.props.thisSong);
             let dummy = new Audio(this.props.thisSong);
             this.waveform.load(dummy.src);
-            // this.state.audioElement.load();
-            // this.state.audioElement = new Audio(this.props.thisSong);
-            // this.state.audioElement.crossOrigin = "anonymous";
-
-            // this.waveform.load(this.state.audioElement.src);
-
-            // let song = new Audio(this.props.thisSong);
-            // song.crossOrigin = "anonymous";
-            // this.waveform.load(song);
-
             this.waveform.setPlaybackRate(this.props.playbackRate);
 
             this.reconnectAudio();
@@ -184,9 +162,7 @@ export default class Deck extends Component {
         if (!this.props.shouldSync) this.synced = true; // If this is the main track, don't sync it
 
         // If the offset between tracks is under 0.1 seconds and this is playing, this track is succesful
-
         // ! The margin of error of 0.1s is needed due to timing issues with WebAudio
-
         if (Math.abs(this.props.offset) < 0.1 && this.waveform.isPlaying()) {
             this.numSuccessful++;
             if (Math.abs(this.props.offset) < 0.05) this.numSuccessful++;
@@ -223,203 +199,6 @@ export default class Deck extends Component {
         }
     }
 
-    analyzeData(spotifyData) {
-        // // ! >>>
-        // let sectionArray = this.props.songAnalysis.data.sections;
-        // let baselineLoudness = this.props.songAnalysis.data.track.loudness;
-        // let allBars = this.props.songAnalysis.data.bars;
-        // // ! <<<
-
-        // let songSections = [];
-        // let currSection = 0;
-
-        // // song analysis variables
-        // // let numDrops = 0;
-        // // let mostConfidentDrop = 0;
-
-        // // let numComedowns = 0;
-        // // let mostConfidentComedown = 0;
-
-        // // get an array of when all bars start
-        // let barStartArray = []
-
-        // let bar = this.props.songAnalysis.data.bars[0].duration;
-        // let barConfidence = 0;
-        // allBars.forEach(e => {
-        //     if (e.confidence > barConfidence) {
-        //         bar = e.duration;
-        //         barConfidence = e.confidence;
-        //     }
-        // })
-        // barSize = bar;
-        // let barlength32 = bar * 2;
-        // let songDuration = this.props.songAnalysis.data.track.duration;
-
-        // let num32Bar = ((songDuration) / barlength32);
-
-        // for (let a = 0; a <= num32Bar; a++) {
-        //     barStartArray.push(((a) * barlength32));
-        // }
-
-        // let calibrationArray = [];
-
-        // let numCalibrationChunks = (songDuration) / bar;
-
-        // for (let c = 0; c <= numCalibrationChunks; c++) {
-        //     calibrationArray.push(((c) * bar));
-        // }
-
-
-        // for (let b = 0; b < calibrationArray.length - 1; b++) {
-        //     // let barColor = (b % 2 ? "rgba(255, 60, 54,0.05)" : "rgba(46, 255, 154,0.05)");
-        //     let barRegion = {
-        //         start: calibrationArray[b],
-        //         end: calibrationArray[b + 1],
-        //         // color: barColor,
-        //         drag: false,
-        //         resize: false,
-        //         computed: {}
-        //     };
-        //     this.waveform.addRegion(barRegion);
-        // }
-
-        // sectionArray.forEach(e => {
-        //     currSection++;
-        //     let sectionType = REGULAR;
-        //     let is32length = false;
-
-        //     let comparisonLoudness = (e.loudness - baselineLoudness) / baselineLoudness;
-
-        //     // IF BEGINNING OF SONG
-        //     if (songSections.length === 0) {
-        //         sectionType = BEGIN;
-        //     }
-
-        //     // IF LOUD === DROP
-        //     if (comparisonLoudness < 0) {
-        //         sectionType = DROP;
-        //     }
-
-        //     // IF LAST SONG WAS DROP AND DIFFERENTIAL OF THIS IS NEGATIVE === COMEDOWN
-        //     let diff = 0;
-        //     if (songSections.length > 0) {
-        //         diff = songSections[songSections.length - 1].computed.comparisonLoudness - comparisonLoudness;
-        //         if (songSections[songSections.length - 1].sectionType === DROP) {
-        //             if (sectionType === DROP) {
-        //                 sectionType = UNSURE;
-        //             } else {
-        //                 sectionType = COMEDOWN
-        //             }
-        //         }
-        //     }
-
-        //     let beginpoint = e.start;
-        //     let endpoint = e.start + e.duration;
-        //     let closestEnd = closest(endpoint, barStartArray);
-        //     let closestBegin = closest(beginpoint, barStartArray);
-        //     let offsetBegin = closestBegin - beginpoint;
-        //     let offsetEnd = closestEnd - endpoint;
-        //     let acceptedConformEnd = false;
-        //     let acceptedConformBegin = false;
-
-        //     beginpoint = closestBegin;
-        //     endpoint = closestEnd;
-
-
-        //     let sizeComparison = ((endpoint - beginpoint) / barlength32).toPrecision(2); // checks if section is of calculated 32bar length
-        //     if (sizeComparison % 1) {
-        //         is32length = true;
-        //     }
-
-        //     let randomColor = 'rgba(162,254,231,0.3)';
-        //     switch (sectionType) {
-        //         case "":
-        //             break;
-        //         case BEGIN:
-        //             // toLoop = true;
-        //             randomColor = 'rgba(50,255,155,0.3)';
-        //             if (is32length) {
-        //                 randomColor = 'rgba(100,255,55,0.3)';
-        //             }
-        //             break;
-        //         case DROP:
-        //             randomColor = 'rgba(237,61,155,0.3)';
-        //             if (is32length) {
-        //                 randomColor = 'rgba(255,31,105,0.3)';
-        //             }
-        //             break;
-        //         case COMEDOWN:
-        //             randomColor = 'rgba(123,215,255,0.3)'
-        //             if (is32length) {
-        //                 randomColor = 'rgba(50,150,255,0.3)'
-        //             }
-        //             break;
-        //         case UNSURE:
-        //             randomColor = 'rgba(34,1,255,0.2)'
-        //             if (is32length) {
-        //                 randomColor = 'rgba(0,255,150,0.2)'
-        //             }
-        //             break;
-        //         default:
-        //             break;
-        //     }
-
-        //     let goodForMix = false;
-        //     if (sectionType !== DROP) {
-        //         if (comparisonLoudness > 0 && comparisonLoudness < 0.1) {
-        //             randomColor = 'rgba(218, 165, 32,0.3)';
-        //             goodForMix = true;
-        //         } else if (sectionType === BEGIN) {
-        //             randomColor = 'rgba(218, 165, 32,0.3)';
-        //             goodForMix = true;
-        //         }
-        //     }
-        //     // ! THIS IS FOR UI PURPOSES REMOVE THIS WHEN TESTING
-        //     randomColor = 'rgba(0, 0, 0, 0)';
-
-        //     let analysisSection = {
-        //         sectionType: sectionType,
-        //         begin: beginpoint,
-        //         endpoint: endpoint,
-        //         computed: {
-        //             comparisonLoudness: comparisonLoudness,
-        //             differential: diff,
-        //             sectionConfidence: e.confidence,
-        //             conformedBegin: acceptedConformBegin,
-        //             conformedEnd: acceptedConformEnd,
-        //             oBegin: offsetBegin,
-        //             oEnd: offsetEnd
-        //         },
-        //         sizeComparison: sizeComparison,
-        //         is32: is32length,
-        //         sectionColor: randomColor,
-        //         goodForMix: goodForMix
-        //     }
-        //     songSections.push(analysisSection);
-        // })
-
-        // if (songSections.length > 2) {
-        //     console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
-        //     console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
-        //     if ((songSections[0].sizeComparison == 4) || (songSections[0].sizeComparison == 2 && songSections[1].sizeComparison == 2)) {
-        //         console.log("CASE A START POS");
-        //         this.setState({
-        //             startingPos: 0
-        //         })
-        //     } else if (songSections[0].sizeComparison == 2.0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
-        //         console.log("CASE B START POS");
-        //         console.log("mult of 4?", songSections[1].sizeComparison % 4);
-        //         this.setState({
-        //             startingPos: songSections[0].endpoint
-        //         })
-        //     } else {
-        //         console.log("CASE C START POS");
-        //     }
-        // }
-
-        // return songSections;
-    }
-
     reconnectAudio() {
         // this.state.audi1oElement.crossOrigin = "anonymous";
         console.log("reconnecting audio");
@@ -450,7 +229,8 @@ export default class Deck extends Component {
         this.waveform.backend.setFilter(lowpass, highpass);
 
         if (this.props.songAnalysis !== 'NOTFOUND') {
-            let analyzed = this.props.songAnalysis;
+            let analyzed = this.props.songAnalysis.analyzed.songSections;
+            
             analyzed.forEach(section => {
                 let region = {
                     start: section.begin,
@@ -462,6 +242,15 @@ export default class Deck extends Component {
                     resize: false,
                 }
                 this.waveform.addRegion(region);
+            })
+
+            let bars = this.props.songAnalysis.analyzed.bars;
+
+            bars.forEach(b => {
+                this.waveform.addRegion(b);
+            })
+            this.setState({
+                startingPos: this.props.songAnalysis.analyzed.startPos
             })
         }
         this.waveform.on('region-in', e => {
@@ -499,6 +288,7 @@ export default class Deck extends Component {
 
                 if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 1 && this.props.otherReady) {
                     this.props.playOtherTrack();
+                    // TODO ADD BRAIN
                     this.fadeOutSong();
                 }
             } else {
@@ -555,7 +345,6 @@ export default class Deck extends Component {
     }
 
     changeGain(amount) {
-        // console.log("this ran")
         this.setState({
             audioSettings: {
                 gain: (amount / 100).toPrecision(2)
@@ -627,25 +416,10 @@ export default class Deck extends Component {
                     <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
                     <label>FILTER</label> */}
                     {/* <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button> */}
-
                 </div>
             </>
         );
     }
-}
-
-
-function closest(needle, haystack) {
-    let closeGrain = 100000000000000;
-    let grainCloseness = 100000000000000;
-    haystack.forEach(grain => {
-        let thisCloseness = Math.abs(needle - grain)
-        if (Math.abs(needle - grain) < grainCloseness) {
-            grainCloseness = thisCloseness;
-            closeGrain = grain;
-        }
-    })
-    return closeGrain;
 }
 
 function lerp(start, end, amt, deckname) {

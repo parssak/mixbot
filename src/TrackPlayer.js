@@ -62,6 +62,8 @@ export default function TrackPlayer({newThought}) {
         setDeck1prepared(false);
         setDeck1Playing(false);
         if (newSong !== null) {
+            console.log("new song is>>>>>>>>>>>>.||||||||||");
+            console.log(newSong);
             setDeck1BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
             if (deck2Song === '') {
                 setDeck1playback(1);

@@ -7,18 +7,25 @@ export const SectionType = {
 }
 
 export class Analyzer {
+    constructor() {
+        console.log("new analyzer created");
+    }
+
     /**
      * Returns:
      * {
-     *     
+     *     songSections: All sections of the song, tagged with what they are
+            bars: Bars estimated through the data, used for syncing
+            startPos: Section the song should start
      * }
      */
     analyzeSong(songData) {
-        // ! >>>
+        console.log("analyzing data.");
+        let analyzedBars = [];
         let sectionArray = songData.sections;
-        let baselineLoudness = this.props.songAnalysis.data.track.loudness;
-        let allBars = this.props.songAnalysis.data.bars;
-        // ! <<<
+        let baselineLoudness = songData.track.loudness;
+        let allBars = songData.bars;
+        
 
         let songSections = [];
         let currSection = 0;
@@ -33,7 +40,7 @@ export class Analyzer {
         // get an array of when all bars start
         let barStartArray = []
 
-        let bar = this.props.songAnalysis.data.bars[0].duration;
+        let bar = allBars[0].duration;
         let barConfidence = 0;
         allBars.forEach(e => {
             if (e.confidence > barConfidence) {
@@ -42,7 +49,7 @@ export class Analyzer {
             }
         })
         let barlength32 = bar * 2;
-        let songDuration = this.props.songAnalysis.data.track.duration;
+        let songDuration = songData.track.duration;
 
         let num32Bar = ((songDuration) / barlength32);
 
@@ -69,7 +76,8 @@ export class Analyzer {
                 resize: false,
                 computed: {}
             };
-            this.waveform.addRegion(barRegion);
+            analyzedBars.push(barRegion); 
+            // this.waveform.addRegion(barRegion);
         }
 
         sectionArray.forEach(e => {
@@ -187,26 +195,26 @@ export class Analyzer {
             songSections.push(analysisSection);
         })
 
+        let startingPos = 0; // TODO PASS THIS OUT
+
         if (songSections.length > 2) {
-            console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
-            console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
+            // console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
+            // console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
             if ((songSections[0].sizeComparison == 4) || (songSections[0].sizeComparison == 2 && songSections[1].sizeComparison == 2)) {
-                console.log("CASE A START POS");
-                this.setState({
-                    startingPos: 0
-                })
-            } else if (songSections[0].sizeComparison == 2.0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
-                console.log("CASE B START POS");
-                console.log("mult of 4?", songSections[1].sizeComparison % 4);
-                this.setState({
-                    startingPos: songSections[0].endpoint
-                })
-            } else {
-                console.log("CASE C START POS");
-            }
+                    startingPos= 0
+            } else if (songSections[0].sizeComparison == 2.0 && songSections[1].sizeComparison % 4 == 0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
+                // console.log("mult of 4?", songSections[1].sizeComparison % 4);
+                startingPos = songSections[0].endpoint;  
+            } 
         }
 
-        return songSections;
+        let finalAnalysis = {
+            songSections: songSections,
+            bars: calibrationArray,
+            startPos: startingPos
+        }
+
+        return finalAnalysis;
     }
 
 

@@ -42,8 +42,6 @@ export const thoughtType = {
 }
 
 export default function Mixbot() {
-    
-    let analyzer = new Analyzer();
     const [thoughts, setThoughts] = useState([]);
 
     function newThought(input, type=thoughtType.NEUTRAL) {
@@ -55,10 +53,18 @@ export default function Mixbot() {
     function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage) {
 
         if (analysis !== "NOTFOUND") {
+            console.log(">> analysis was",analysis);
             let songData = analysis.data;
+            console.log(">>> song data>>", songData);
+
+            let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
-            analysis = analyzedData;
-        }
+            analysis = {
+                data: songData,
+                analyzed: analyzedData
+            };
+            console.log(">> analysis now is", analysis);
+        } 
 
         const newSong = {
             songName: songName,
@@ -79,7 +85,7 @@ export default function Mixbot() {
 
     return (
         <>
-            <TrackPlayer />
+            <TrackPlayer newThought={ newThought}/>
             <Brain decisions={thoughts} />
             {upcomingSongs.length == 0 ? null :
                 <div className="song-queue">

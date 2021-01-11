@@ -115,7 +115,7 @@ function TrackSelector({newThought, addToQueue}) {
         }).then(e => {
             addToQueue(songName, songArtists, duration, songURL, e, trackImage);
         }).catch(e => {
-            addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
+            // addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
             //! TODO DEAL WITH THIS PROPERLY
         }).finally(() => {
             setTrackDetail(null);
