@@ -286,7 +286,7 @@ export default class Deck extends Component {
                     }
                 })
 
-                if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 1 && this.props.otherReady) {
+                if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0 && this.props.otherReady) {
                     this.props.playOtherTrack();
                     // TODO ADD BRAIN
                     this.fadeOutSong();
@@ -383,7 +383,6 @@ export default class Deck extends Component {
         this.fadingIn = true;
         console.log(this.props.recommendedVolume);
         this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.05, this.props.deckName));
-        // if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() < this.props.recommendedVolume - 0.1) {
             setTimeout(() => {
                 this.fadeInSong();

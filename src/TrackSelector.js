@@ -123,10 +123,10 @@ function TrackSelector({newThought, addToQueue}) {
     }
 
     return (
-        <div>
+        <div style={{marginTop: "15em"}}>
             <form onSubmit={playlistSearchClicked}>
                 {tracklistSize() === 0 && <button type='submit' className="begin-mix">BEGIN MIX</button>}
-                <div>
+                <div style={{ marginTop: "4em" }}>
                     <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
                     {trackDetail && <TrackFinder name={trackDetail.name}
                         artists={trackDetail.artists}
