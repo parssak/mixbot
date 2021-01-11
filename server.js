@@ -92,14 +92,22 @@ app.get('/youtubeMp3', function (req, res) {
     });
 })
 
-app.get('/addEntry', function (req, res) {
+//** Add song reference to the database */
+app.get('/addSongRef', function (req, res) { // todo
     console.log("adding entry", req.query);
     let songEntry = req.query;
-    mixbotDB.addTrackDB(songEntry);
+    mixbotDB.addTrackRefDB(songEntry);
 });
 
+//** Add song entry to the database */
+app.get('/addAnalysis', function (req, res) { // todo
+    console.log("adding entry", req.query);
+    let songEntry = req.query;
+    mixbotDB.addTrackAnalysisDB(songEntry);
+});
 
-app.get('/checkForEntry', async function (req, res) {
+//** Check's if song is already in database with Spotify ID */
+app.get('/checkForEntry', async function (req, res) { // todo
     console.log("checking for entry...", req.query);
     let result = await mixbotDB.checkTrackDB(req.query);
     res.send(result);

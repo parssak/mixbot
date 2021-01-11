@@ -67,7 +67,8 @@ export default function Mixbot() {
      * @param {*} songURL: url to the temp reference link 
      * @param {*} analysis: raw spotify analysis 
      * @param {*} trackImage: img of album art 
-     * @param {*} songID:  // TODO LEFT OFF HERE
+     * @param {*} songID:  ID OF THE SPOTIFY SONG
+     * @param {*} videoID:  ID OF THE CORRESPONDING YT LINK
      */
     function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage, songID) {
 
@@ -84,14 +85,14 @@ export default function Mixbot() {
             };
 
             // Add it to the DB
-            let databaseEntry = {
-                songID: songID,
-                songName: songName,
-                songURL: songURL,
-                analyzed: analyzedData,
-            }
+            // let databaseEntry = {
+            //     songID: songID,
+            //     songName: songName,
+            //     songURL: songURL,
+            //     analyzed: analyzedData,
+            // }
 
-            addSongToDB(databaseEntry);
+            // addTrackAnalysisDB(databaseEntry);
 
         } 
 
@@ -103,8 +104,7 @@ export default function Mixbot() {
             songAnalysis: analysis,
             trackImage: trackImage
         }
-        
-        console.log(analysis);
+        // console.log(analysis);
         let packageSong = { id: "tracklist" + tracklist.length, body: newSong }
         tracklist.push(packageSong);
         upcomingSongs.push(packageSong);
@@ -113,8 +113,7 @@ export default function Mixbot() {
         newThought(think, thoughtType.NEUTRAL);
     }
 
-    async function addSongToDB(entry) {
-        console.log("adding song to database!");
+    async function addTrackAnalysisDB(entry) {
         axios.create({
             baseURL: 'http://localhost:8080',
             headers: {}

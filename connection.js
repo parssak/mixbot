@@ -39,19 +39,38 @@ const addTrackToDatabase = async function (entry) {
     }
 }
 
+const addTrackRefToDatabase = async function (entry) {
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        createTrackEntry(client, entry);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
 module.exports = {
-    addTrackDB: addTrackToDatabase,
+    addTrackRefDB: addTrackRefToDatabase,
+    addTrackAnalysisDB: addTrackToDatabase,
     checkTrackDB: checkForTrackInDatabase
 }
 
+async function createTrackRefEntry(client, newEntry) {
+    console.log(">>> (DB): creating new track reference entry", newEntry.data);
+    // const result = await client.db()
+    // await client.db()
+}
+
 async function createTrackEntry(client, newEntry) {
-    console.log("creating new entry", newEntry.track);
+    console.log(">>> (DB): creating new analysis entry", newEntry.track);
     // const result = await client.db()
     // await client.db()
 }
 
 async function checkEntry(client, trackID) {
-    console.log("checking for entry", trackID);
+    console.log(">>> (DB): checking for entry", trackID);
     return true;
 }
 
