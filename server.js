@@ -4,6 +4,8 @@ const path = require('path');
 const app = express();
 const axios = require('axios');
 const ytdl = require('ytdl-core');
+const mixbotDB = require('./connection');
+
 
 app.use(express.static(path.join(__dirname, 'build')));
 
@@ -75,13 +77,13 @@ app.use(function (req, res, next) {
 app.get('/youtubeMp3', function (req, res) {
     console.log("REQUEST QUERY:", req.query);
     ytdl.getInfo(req.query.id, { quality: 'highestaudio' }).then(info => {
-        console.log(">>>>>>>>>>>>>>>>>>>> GOT INFO --");
-        console.log(info);
-        console.log("<<<<<<<<<<<<<<<<<<<< END OF INFO --");
+        // console.log(">>>>>>>>>>>>>>>>>>>> GOT INFO --");
+        // console.log(info);
+        // console.log("<<<<<<<<<<<<<<<<<<<< END OF INFO --");
         let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>> AUDIO FORMATS --");
-        console.log(audioFormats);
-        console.log("<<<<<<<<<<<<<<<<<<<<<<<< END OF FORMATS --");
+        // console.log(">>>>>>>>>>>>>>>>>>>>>>>> AUDIO FORMATS --");
+        // console.log(audioFormats);
+        // console.log("<<<<<<<<<<<<<<<<<<<<<<<< END OF FORMATS --");
         res.send(audioFormats);
     }).catch(e => {
         console.log("-------------error response-------------");
@@ -89,6 +91,19 @@ app.get('/youtubeMp3', function (req, res) {
         res.sendStatus(500);
     });
 })
+
+app.get('/addEntry', function (req, res) {
+    console.log("adding entry", req.query);
+    let songEntry = req.query;
+    mixbotDB.addTrackDB(songEntry);
+});
+
+
+app.get('/checkForEntry', async function (req, res) {
+    console.log("checking for entry...", req.query);
+    let result = await mixbotDB.checkTrackDB(req.query);
+    res.send(result);
+});
 
 app.listen(process.env.PORT || 8080)
 console.log("listening!");

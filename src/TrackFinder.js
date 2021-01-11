@@ -117,7 +117,7 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
             }
         }).then(response => {
             let audioFormats = response.data;
-            foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage);
+            foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage, videoID);
             setChosenVideoID("");
         });
     }

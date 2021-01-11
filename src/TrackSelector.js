@@ -96,25 +96,42 @@ function TrackSelector({addToQueue}) {
         }
     }
 
-    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage) {
+    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID) {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName + "with id " + trackID);
-            getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage);
+            await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID);
         } else {
             console.log("track is already in the queue");
             setTrackDetail(null);
         }
     }
 
-    const getAudioAnalysis = (id, songName, songArtists, duration, songURL, trackImage) => {
+    async function checkForSong(songID) {
+        console.log("boutta check dis");
+        return axios.create({
+            baseURL: 'http://localhost:8080',
+            headers: {}
+        }).get('/checkForEntry', {
+            params: {
+               songID: songID
+            },
+        })
+    }
+
+    const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID) => {
         console.log("song id is " + id);
+
+        // TODO CHECK IF DB CONTAINS SONG
+        // axios(``)
+
         axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token
             }
         }).then(e => {
-            addToQueue(songName, songArtists, duration, songURL, e, trackImage, id);
+            
+            addToQueue(songName, songArtists, duration, songURL, e, trackImage, id, youtubeVideoID);
         }).catch(e => {
             // addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
             //! TODO DEAL WITH THIS PROPERLY
@@ -124,7 +141,11 @@ function TrackSelector({addToQueue}) {
     }
 
     return (
-        <div style={{marginTop: "15em"}}>
+        <div style={{ marginTop: "15em" }}>
+            <button onClick={async () => {
+                let a = await checkForSong("bababooei");
+                console.log(a);
+            }}>Make request</button>
             <form onSubmit={playlistSearchClicked}>
                 {tracklistSize() === 0 && <button type='submit' className="begin-mix">BEGIN MIX</button>}
                 <div style={{ marginTop: "4em" }}>
