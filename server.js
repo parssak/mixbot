@@ -100,10 +100,11 @@ app.get('/addSongRef', function (req, res) { // todo
 });
 
 //** Add song analysis to the database */
-app.get('/addAnalysis', function (req, res) { // todo
+app.get('/addAnalysis', function (req, res) { 
     console.log("adding entry", req.query.data);
     let songEntry = req.query.data;
     mixbotDB.addTrackAnalysisDB(songEntry);
+    res.sendStatus(200);
 });
 
 //** Check's if song is already in database with Spotify ID */

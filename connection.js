@@ -44,7 +44,7 @@ const addTrackToDatabase = async function (entry) {
     const client = new MongoClient(uri, { useUnifiedTopology: true });
     try {
         await client.connect();
-        createTrackAnalysisEntry(client, entry);
+        await createTrackAnalysisEntry(client, entry);
     } catch (e) {
         console.error(e);
     } finally {
@@ -66,8 +66,7 @@ const addTrackRefToDatabase = async function (entry) {
 
 async function createTrackRefEntry(client, newEntry) {
     console.log(">>> (DB): creating new track reference entry", newEntry);
-    const database = client.db("mixbotdb");
-    const collection = database.collection("songrefs");
+    const collection = client.db("mixbotdb").database.collection("songrefs");
     const properObj = JSON.parse(newEntry);
     const result = await collection.insertOne(properObj);
 
@@ -77,8 +76,12 @@ async function createTrackRefEntry(client, newEntry) {
 
 async function createTrackAnalysisEntry(client, newEntry) {
     console.log(">>> (DB): creating new analysis entry", newEntry);
-    // const result = await client.db()
-    // await client.db()
+    const collection = client.db("mixbotdb").collection("songdata");
+    const properObj = JSON.parse(newEntry);
+    const result = await collection.insertOne(properObj);
+
+    console.log(">>> (DB): added new entry:", newEntry);
+    console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`);
 }
 
 async function checkEntry(client, trackID) {

@@ -27,46 +27,9 @@ function TrackSelector({ addToQueue }) {
         })
             .then(tokenResponse => {
                 setToken(tokenResponse.data.access_token);
-                console.log("got ma token");
-                // axios('https://api.spotify.com/v1/browse/categories', {
-                //     method: 'GET',
-                //     headers: { 'Authorization' : 'Bearer ' + tokenResponse.data.access_token}
-                // })
-                //     .then (genreResponse => {
-                //         console.log(genreResponse)
-                //         setGenres({
-                //             selectedGenre: genres.selectedGenre,
-                //             listOfGenresFromAPI: genreResponse.data.categories.items
-                //         })
-                //     });
-
             });
 
     }, [genres.selectedGenre, spotify.ClientId, spotify.ClientSecret]);
-
-    function genreChanged(val) {
-        setGenres({
-            selectedGenre: val,
-            listOfGenresFromAPI: genres.listOfGenresFromAPI
-        });
-
-        axios(`https://api.spotify.com/v1/browse/categories/${val}/playlists?limit=30`, {
-            method: 'GET',
-            headers: { 'Authorization': 'Bearer ' + token }
-        }).then(playlistResponse => {
-            setPlaylist({
-                selectedPlaylist: playlist.selectedPlaylist,
-                listOfPlaylistFromAPI: playlistResponse.data.playlists.items
-            })
-        });
-    }
-
-    function playlistChanged(val) {
-        setPlaylist({
-            selectedPlaylist: val,
-            listOfPlaylistFromAPI: playlist.listOfPlaylistFromAPI
-        });
-    }
 
     function playlistSearchClicked(e) {
         e.preventDefault();
@@ -119,6 +82,21 @@ function TrackSelector({ addToQueue }) {
         return result.data;
     }
 
+    async function addSongAnalysisToDatabase(songID, songAnalysis) {
+        let dbAnalysis = {
+            songID: songID,
+            analysis: songAnalysis
+        }
+        await axios.get('http://localhost:8080/addAnalysis', {
+            params:
+            {
+                data: dbAnalysis
+            }
+        });
+
+        
+    }
+
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         console.log("song id is " + id);
 
@@ -143,6 +121,7 @@ function TrackSelector({ addToQueue }) {
             let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
             analysisInDB = analyzedData;
+            addSongAnalysisToDatabase(id, analyzedData);
         }
         console.log(">>>>>>>>>>>>>>>>..... analysis in db sending out!", analysisInDB);
         addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
