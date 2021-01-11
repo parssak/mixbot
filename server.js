@@ -99,7 +99,7 @@ app.get('/addSongRef', function (req, res) { // todo
     mixbotDB.addTrackRefDB(songEntry);
 });
 
-//** Add song entry to the database */
+//** Add song analysis to the database */
 app.get('/addAnalysis', function (req, res) { // todo
     console.log("adding entry", req.query);
     let songEntry = req.query;
