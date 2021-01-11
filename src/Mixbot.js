@@ -3,7 +3,6 @@ import TrackSelector from "./TrackSelector";
 import TrackPlayer from "./TrackPlayer";
 import QueueBox from "./frontend_components/Queue";
 import Brain from "./Brain";
-import { Analyzer } from './helper_classes/Analyzer';
 import axios from 'axios';
 
 let tracklist = [];
@@ -78,16 +77,6 @@ export default function Mixbot() {
 
         // TODO MAKE THIS ONLY HAPPEN IF NOT FOUND IN DATABASE
         if (analysis !== "NOTFOUND") {
-            let songData = analysis.data;
-
-            let analyzer = new Analyzer();
-            let analyzedData = analyzer.analyzeSong(songData);
-
-            analysis = {
-                data: songData,
-                analyzed: analyzedData
-            };
-
             if (!fromDatabase) {
                 console.log("not in db yet, adding it...");
 

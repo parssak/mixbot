@@ -12,12 +12,26 @@ async function listDatabases(client) {
     databasesList.databases.forEach(db => console.log(` - ${db.name}`));
 };
 
-const checkForTrackInDatabase = async function (checkID) {
+const checkTrackDatabase = async function (checkID) {
     let result = null;
     const client = new MongoClient(uri, { useUnifiedTopology: true });
     try {
         await client.connect();
         result = await checkEntry(client, checkID);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+    return result;
+}
+
+const checkTrackAnalysisDatabase = async function (checkID) {
+    let result = null;
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    try {
+        await client.connect();
+        result = await checkEntryAnalysis(client, checkID); // todo fix
     } catch (e) {
         console.error(e);
     } finally {
@@ -50,12 +64,6 @@ const addTrackRefToDatabase = async function (entry) {
     }
 }
 
-module.exports = {
-    addTrackRefDB: addTrackRefToDatabase,
-    addTrackAnalysisDB: addTrackToDatabase,
-    checkTrackDB: checkForTrackInDatabase
-}
-
 async function createTrackRefEntry(client, newEntry) {
     console.log(">>> (DB): creating new track reference entry", newEntry);
     const database = client.db("mixbotdb");
@@ -78,4 +86,19 @@ async function checkEntry(client, trackID) {
     const collection = client.db("mixbotdb").collection("songrefs");
     const result = await collection.findOne({ songID: trackID });
     return result;
+}
+
+async function checkEntryAnalysis(client, trackID) {
+    console.log(">>> (DB): checking for entry", trackID);
+    const collection = client.db("mixbotdb").collection("songdata");
+    const result = await collection.findOne({ songID: trackID });
+    return result;
+}
+
+
+module.exports = {
+    addTrackRefDB: addTrackRefToDatabase,
+    addTrackAnalysisDB: addTrackToDatabase,
+    checkTrackDB: checkTrackDatabase,
+    checkTrackAnalysisDB: checkTrackAnalysisDatabase,
 }

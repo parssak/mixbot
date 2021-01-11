@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import Dropdown from "./frontend_components/Dropdown";
 import { Credentials } from './Credentials';
 import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
-import Detail from "./frontend_components/Detail";
+import { Analyzer } from './helper_classes/Analyzer';
 import TrackFinder from "./TrackFinder";
-import { nextSongInQueue, thoughtType, trackAlreadyIn, tracklistSize} from "./Mixbot";
+import { trackAlreadyIn, tracklistSize } from "./Mixbot";
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
-function TrackSelector({addToQueue}) {
+function TrackSelector({ addToQueue }) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
@@ -89,7 +88,7 @@ function TrackSelector({addToQueue}) {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
-            console.log(">>>",trackInfo[0].track);
+            console.log(">>>", trackInfo[0].track);
             setTrackDetail(trackInfo[0].track);
         } else {
             console.log("track is already in the queue");
@@ -106,12 +105,12 @@ function TrackSelector({addToQueue}) {
         }
     }
 
-    async function checkForSong(songID) {
+    async function checkForSongAnalysis(songID) {
         console.log("boutta check dis");
         return axios.create({
             baseURL: 'http://localhost:8080',
             headers: {}
-        }).get('/checkForEntry', {
+        }).get('/checkForAnalysis', {
             params: {
                songID: songID
             },
@@ -121,30 +120,40 @@ function TrackSelector({addToQueue}) {
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         console.log("song id is " + id);
 
-        // TODO CHECK IF DB CONTAINS SONG
-        // axios(``)
+        // 1) Check if DB already contains songAnalysis
+        let analysisInDB = await checkForSongAnalysis(id);;
+        
+        console.log("analysis in db??:", analysisInDB);
+        // todo...
+        let analysis = null;
 
-        axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        }).then(e => {
-            addToQueue(songName, songArtists, duration, songURL, e, trackImage, id, youtubeVideoID, fromDatabase);
-        }).catch(e => {
-            // addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
-            //! TODO DEAL WITH THIS PROPERLY
-        }).finally(() => {
-            setTrackDetail(null);
-        });
+        
+        // 2) If song does not contain
+        if (!analysisInDB) {
+            let rawAnalysis = await axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            // Clean up the spotify data
+            let songData = rawAnalysis.data;
+            let analyzer = new Analyzer();
+            let analyzedData = analyzer.analyzeSong(songData);
+
+            analysis = {
+                data: songData,
+                analyzed: analyzedData
+            };
+        }
+
+        addToQueue(songName, songArtists, duration, songURL, analysis, trackImage, id, youtubeVideoID, fromDatabase);
+        setTrackDetail(null);
     }
 
     return (
         <div style={{ marginTop: "15em" }}>
-            <button onClick={async () => {
-                let a = await checkForSong("bababooei");
-                console.log(a);
-            }}>Make request</button>
             <form onSubmit={playlistSearchClicked}>
                 {tracklistSize() === 0 && <button type='submit' className="begin-mix">BEGIN MIX</button>}
                 <div style={{ marginTop: "4em" }}>

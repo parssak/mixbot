@@ -108,6 +108,14 @@ app.get('/addAnalysis', function (req, res) { // todo
 
 //** Check's if song is already in database with Spotify ID */
 app.get('/checkForEntry', async function (req, res) { // todo
+    console.log(">>>(SERVER): checking for entry analysis...", req.query.data);
+    let result = await mixbotDB.checkTrackAnalysisDB(req.query.data);
+    res.send(result);
+});
+
+
+//** Check's if song is already in database with Spotify ID */
+app.get('/checkForEntry', async function (req, res) { // todo
     console.log(">>>(SERVER): checking for entry...", req.query.data);
     let result = await mixbotDB.checkTrackDB(req.query.data);
     res.send(result);

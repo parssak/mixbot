@@ -388,7 +388,9 @@ export default class Deck extends Component {
         console.log("*****", this.props.deckName, "fading in", this.props.recommendedVolume);
         this.fadingIn = true;
         console.log(this.props.recommendedVolume);
-        this.waveform.setVolume(lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.05, this.props.deckName));
+        let newVol = lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.05, this.props.deckName);
+        if (isFinite(newVol)) this.waveform.setVolume(newVol);
+        
         if (this.waveform.getVolume() < this.props.recommendedVolume - 0.1) {
             setTimeout(() => {
                 this.fadeInSong();
