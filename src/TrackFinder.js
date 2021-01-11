@@ -64,15 +64,14 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
         videosSearch(searchQuery).then(async e => {
             const videoList = e.data.items;                                                     // a list of videos                 
             for (let video = 0; video < videoList.length; video++) {                            // for each video in the videoList...
-                console.log(">>>>>>>>", chosenVideoID, "<<<<<<<<<");
                 const thisDetails = await videoDetail(videoList[video].id.videoId);             // Get details...
                 const thisDur = toMilli(thisDetails.data.items[0].contentDetails.duration);     // Get duration from details...
                 if (Math.abs(duration_ms - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
-                    console.log(">>>>>>>> BINGO! <<<<<<<<<");
                     setChosenVideoID(videoList[video].id.videoId); // TODO FIX THIS OMG THIS IS AN ABSOLUTE ABUSE OF STATE.
                     break;
                 }
             }
+            console.log("??????????????????????????????                                hit here");
         })
     }
 

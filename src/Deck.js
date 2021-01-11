@@ -21,7 +21,6 @@ export default class Deck extends Component {
             trackName: this.props.songName,
             trackArtist: this.props.songArtist,
             audioCtx: new AudioContext(),
-            // audioElement: new Audio(this.props.thisSong),
             audioSettings: {
                 gain: 1,
                 lowpassF: 11000,
@@ -82,20 +81,14 @@ export default class Deck extends Component {
 
     componentDidMount() {
         console.log("|| ---- COMPONENT DID MOUNT ---- ||", this.props.deckName);
-        // wavesurfer begins here
         this.waveform = WaveSurfer.create(this.waveSurferOptions);
-
-
-        this.waveform.on('loading', e => {
-            console.log("loading:", e);
-        })
 
         this.waveform.on('error', e => {
             console.log("hit error:", e);
         })
       
         console.log("MOUNT THISSONG>>>",this.props.thisSong);
-        let dummy = new Audio(this.props.thisSong);
+        // let dummy = new Audio(this.props.thisSong);
         // console.log(">>>!!!>>>", dummy.src);
         // console.log(">>>>!!!!???", dummy.src === this.props.thisSong);
         this.waveform.load(this.props.thisSong);
@@ -160,7 +153,10 @@ export default class Deck extends Component {
             }
         }
 
-        if (!this.props.shouldSync) this.synced = true; // If this is the main track, don't sync it
+        if (!this.props.shouldSync) {
+            this.synced = true; // If this is the main track, don't sync it
+            this.waveform.setPlaybackRate(1);
+        }
 
         // If the offset between tracks is under 0.1 seconds and this is playing, this track is succesful
         // ! The margin of error of 0.1s is needed due to timing issues with WebAudio
@@ -246,7 +242,6 @@ export default class Deck extends Component {
             })
 
             let bars = this.props.songAnalysis.bars;
-
             bars.forEach(b => {
                 this.waveform.addRegion(b);
             })
@@ -368,10 +363,10 @@ export default class Deck extends Component {
     fadeOutSong() {
         console.log("fading out");
         this.fadingOut = true;
-        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 2), 0.1, this.props.deckName));
+        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 3), 0.1, this.props.deckName));
         this.state.lowpassNode.frequency.value -= (this.state.lowpassNode.frequency.value / 10);
         if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
-        if (this.waveform.getVolume() > 0.001) {
+        if (this.waveform.getVolume() > 0.01) {
             setTimeout(() => {
                 this.fadeOutSong();
             }, 1000);
@@ -418,11 +413,8 @@ export default class Deck extends Component {
                         </div>
                         <div id={`${this.props.waveformID}`} />
                     </div>
-                    {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} />
-                    <label>GAIN</label>
-                    <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} />
-                    <label>FILTER</label> */}
-                    {/* <button className={"playButton"} onClick={() => { this.playPause() }}>{this.state.playing ? "Pause" : "Play"}</button> */}
+                    {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} /> */}
+                    {/* <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} /> */}
                 </div>
             </>
         );

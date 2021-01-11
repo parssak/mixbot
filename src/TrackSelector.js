@@ -108,7 +108,6 @@ function TrackSelector({ addToQueue }) {
 
         // 2) If song does not contain
         if (!analysisInDB.data) {
-            console.log("IT ISNT MUCHHHHHHHHHHH");
             let rawAnalysis = await axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
                 method: 'GET',
                 headers: {

@@ -28,7 +28,7 @@ export class Analyzer {
         
 
         let songSections = [];
-        let currSection = 0;
+        // let currSection = 0;
 
         // song analysis variables
         // let numDrops = 0;
@@ -81,7 +81,7 @@ export class Analyzer {
         }
 
         sectionArray.forEach(e => {
-            currSection++;
+            // currSection++;
             let sectionType = SectionType.REGULAR;
             let is32length = false;
 
@@ -200,9 +200,9 @@ export class Analyzer {
         if (songSections.length > 2) {
             // console.log("sec1:", songSections[0].sizeComparison, "sec2:", songSections[1].sizeComparison);
             // console.log("sec1:", songSections[0].is32, "sec2:", songSections[1].is32);
-            if ((songSections[0].sizeComparison == 4) || (songSections[0].sizeComparison == 2 && songSections[1].sizeComparison == 2)) {
+            if ((songSections[0].sizeComparison === 4) || (songSections[0].sizeComparison === 2 && songSections[1].sizeComparison === 2)) {
                     startingPos= 0
-            } else if (songSections[0].sizeComparison == 2.0 && songSections[1].sizeComparison % 4 == 0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
+            } else if (songSections[0].sizeComparison === 2.0 && songSections[1].sizeComparison % 4 === 0) { // todo make this if songSections[1].sizeComparison is a multiple of 4
                 // console.log("mult of 4?", songSections[1].sizeComparison % 4);
                 startingPos = songSections[0].endpoint;  
             } 
