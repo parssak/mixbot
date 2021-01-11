@@ -4,8 +4,8 @@ import '../css_files/Queue.scss';
 const QueueBox = props => {
     return (
         <div className="queue-header">
-            <h2>UPCOMING TRACKS</h2>
-            <div className="queue">
+            <h2>TRACKLIST</h2>
+            <div className="queue" style={{ flexBasis: 'content' }}>
                 {
                     props.items.map((item, idx) =>
                         <div className={"entry"} key={item.id}>

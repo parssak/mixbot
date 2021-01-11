@@ -1,9 +1,17 @@
 @import "./Fonts.css";
 
 $darkColor: #7f7b80;
+$successColor: #48e26f;
+$failColor: #e24848;
 
 .queue-header {
+    display: flex;
+    // background-color: none;
+    position: relative;
+    z-index: 0;
+    flex-direction: column;
     margin-left: 1rem;
+    margin-top: 2rem;
     h2 {
         font-family: "Monument Black";
         font-weight: 800;

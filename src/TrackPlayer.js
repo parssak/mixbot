@@ -231,6 +231,7 @@ export default function TrackPlayer({newThought}) {
                         otherReady={deckTwoReady}
                         waveformID={"waveformA"}
                         bpm={deck1BPM}
+                        newThought={newThought}
                     />
                     }
 
@@ -257,6 +258,7 @@ export default function TrackPlayer({newThought}) {
                         otherReady={deckOneReady}
                         waveformID={"waveformB"}
                         bpm={deck2BPM}
+                        newThought={newThought}
                     />}
                 </div>
             </div>

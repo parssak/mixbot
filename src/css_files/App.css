@@ -41,6 +41,7 @@
 
 .body {
     margin: 1rem;
+    overflow: visible;
 }
 
 .dropdown {
@@ -72,6 +73,7 @@ button {
     font-weight: bolder;
     font-size: 0.7rem;
     box-shadow: 0 3px 100px rgba(255, 99, 71, 0);
+    overflow: visible;
 }
 
 button:hover {
@@ -79,6 +81,8 @@ button:hover {
     transform: scale(1.01);
     opacity: 1;
     box-shadow: 0 3px 100px rgba(255, 99, 71, 0.3);
+    overflow: visible;
+    z-index: 9999;
 }
 
 .slider {
@@ -112,6 +116,8 @@ button:hover {
     margin: auto;
     justify-content: center;
     display: flex;
+    position: relative;
+    z-index: 99;
     padding: 0.5em 1em;
     border-radius: 0.2rem;
     border-style: none;
@@ -120,12 +126,13 @@ button:hover {
     font-family: 'Monument Black';
     font-weight: 800;
     font-size: 0.7rem;
+    overflow: visible;
 }
 
 .mixbot-dropdowns {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
-    width: 100%;   
+    width: 100%;
     background-color: none;
 }

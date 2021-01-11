@@ -4,6 +4,7 @@ import WaveSurfer from 'wavesurfer.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
 import './css_files/Deck.scss';
 import { SectionType } from './helper_classes/Analyzer';
+import { thoughtType } from './Mixbot';
 
 let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: 'same-origin', redirect: 'follow', referrer: 'client', headers: [{ 'Access-Control-Allow-Origin': '*' }] };
 
@@ -289,6 +290,8 @@ export default class Deck extends Component {
                 if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0 && this.props.otherReady) {
                     this.props.playOtherTrack();
                     // TODO ADD BRAIN
+                    let think = "Fading out " + this.props.deckName;
+                    this.props.newThought(think, thoughtType.MIX);
                     this.fadeOutSong();
                 }
             } else {
@@ -309,6 +312,9 @@ export default class Deck extends Component {
         this.waveform.on('play', e => {
             console.log(this.props.deckName, " JUST STARTED PLAYING GONNA FADE IT IN NOW OK");
             this.waveform.setVolume(0.1);
+
+            let think = "Fading in " + this.props.deckName;
+            this.props.newThought(think, thoughtType.MIX);
             this.fadeInSong();
         })
 

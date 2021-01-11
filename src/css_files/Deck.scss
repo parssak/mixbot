@@ -107,6 +107,7 @@ $darkColor: #a7a7a7;
     padding-top: 0;
     border-radius: 0.2rem;
     transition: box-shadow 1s ease;
+    overflow:visible;
 
     & > * {
         background-color: #000000;
@@ -171,6 +172,7 @@ $darkColor: #a7a7a7;
         border-bottom: 5px solid #222;
         background-image: radial-gradient(100% 70%, #666 6%, #333 90%);
         box-shadow: 0 5px 15px 2px black, 0 0 5px 3px black, 0 0 0 12px #444;
+        overflow:visible;
     }
 
     .knob.inner {

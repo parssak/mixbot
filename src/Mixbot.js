@@ -43,14 +43,19 @@ export const thoughtType = {
     NEUTRAL: 1,
     SUCCESS: 2,
     FAILURE: 3,
+    MIX: 4
 }
 
 export default function Mixbot() {
     const [thoughts, setThoughts] = useState([]);
 
     function newThought(input, type=thoughtType.NEUTRAL) {
-        console.log("1. new thought added",input);
-        setThoughts([...thoughts, { id: "THOUGHT-" + thoughts.length, body: input, type: type }]);
+        console.log("1. new thought added", input);
+        let shouldShow = true;
+        if (thoughts[thoughts.length - 1].body === input) {
+            shouldShow = false;
+        }
+        setThoughts([...thoughts, { id: "THOUGHT-" + thoughts.length, body: input, type: type, display: shouldShow}]);
         console.log("2. new thought added", thoughts);
     }
 
@@ -85,7 +90,7 @@ export default function Mixbot() {
         upcomingSongs.push(packageSong);
         
         const think = `Added ${songName} to the tracklist`;
-        newThought(think, thoughtType.SUCCESS);
+        newThought(think, thoughtType.NEUTRAL);
     }
 
     return (
@@ -95,7 +100,7 @@ export default function Mixbot() {
                 <Brain decisions={thoughts} />
                 {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
             </div>
-            <TrackSelector newThought={newThought} addToQueue={addToQueue}/>
+            <TrackSelector addToQueue={addToQueue}/>
         </>
     )
 }

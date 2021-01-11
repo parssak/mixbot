@@ -9,7 +9,7 @@ import { nextSongInQueue, thoughtType, trackAlreadyIn, tracklistSize} from "./Mi
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
-function TrackSelector({newThought, addToQueue}) {
+function TrackSelector({addToQueue}) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
