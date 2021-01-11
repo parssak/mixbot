@@ -77,7 +77,7 @@ export default function Mixbot() {
         
         console.log(analysis);
         tracklist.push(newSong);
-        upcomingSongs.push(newSong);
+        upcomingSongs.push({ id: "upcoming" + upcomingSongs.length, body: newSong });
         
         const think = `Added ${songName} to the tracklist`;
         newThought(think, thoughtType.SUCCESS);
@@ -88,7 +88,7 @@ export default function Mixbot() {
             <TrackPlayer newThought={ newThought}/>
             <Brain decisions={thoughts} />
             {upcomingSongs.length == 0 ? null :
-                <div className="song-queue">
+                <div className="queue-header">
                     <h2>UPCOMING TRACKS</h2>
                     <QueueBox items={upcomingSongs} />
                 </div>
