@@ -28,6 +28,7 @@ function TrackSelector({addToQueue}) {
         })
             .then(tokenResponse => {
                 setToken(tokenResponse.data.access_token);
+                console.log("got ma token");
                 // axios('https://api.spotify.com/v1/browse/categories', {
                 //     method: 'GET',
                 //     headers: { 'Authorization' : 'Bearer ' + tokenResponse.data.access_token}
