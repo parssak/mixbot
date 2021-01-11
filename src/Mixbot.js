@@ -29,12 +29,9 @@ export function loadTrack() {
     return nextSong;
 }
 
-
-
-
 export function nextSongInQueue() {
     // console.log("next song in queue is:", upcomingSongs[0]);
-    return upcomingSongs[0];
+    return upcomingSongs[0] || null;
 }
 
 export const thoughtType = {
@@ -47,8 +44,10 @@ export default function Mixbot() {
     
     const [thoughts, setThoughts] = useState([]);
 
-    function newThought(input, type) {
+    function newThought(input, type=thoughtType.NEUTRAL) {
+        console.log("1. new thought added",input);
         setThoughts([...thoughts, { id: "THOUGHT-" + thoughts.length, body: input, type: type }]);
+        console.log("2. new thought added", thoughts);
     }
 
     function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage) {

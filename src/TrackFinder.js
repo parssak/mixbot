@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import youtubeApi from './api/youtube'
 import videoDetailFinder from './api/youtubeVideoContent'
-import {parse, end, toSeconds, pattern} from 'iso8601-duration';
-// import ytdl from "react-native-ytdl";
+import { parse, end, toSeconds, pattern } from 'iso8601-duration';
 
 /**
  * This class handles finding a track based on song name, artists, and duration
@@ -15,7 +14,7 @@ import {parse, end, toSeconds, pattern} from 'iso8601-duration';
  * @param trackID:
  */
 let lastChosenID = "";
-export default function TrackFinder({name, artists, duration_ms, foundSong, trackID, trackImage}) {
+export default function TrackFinder({ name, artists, duration_ms, foundSong, trackID, trackImage }) {
 
     const [songName, setSongName] = useState(name);
     const [songArtists, setSongArtists] = useState(artists);
@@ -23,7 +22,6 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
     const [chosenVideoID, setChosenVideoID] = useState("");
 
     function createSearchQuery() {
-        console.log(" -- Entered createSearchQuery -- ")
         let artistNames = [];
         artists.forEach(e => {
             const thisName = e.name;
@@ -32,25 +30,23 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
             }
         });
         let searchQuery = name + " by " + artistNames[0];
-        console.log("SEARCH QUERY:",searchQuery);
         return searchQuery;
     }
 
 
     async function videosSearch(search) {
-        console.log("--- Entered videosSearch ---")
         const response = await youtubeApi.get("/youtubeSearch", { // TODO CHANGE THIS TO SERVER
-            params:{
-                q:search
+            params: {
+                q: search
             }
         })
         return response;
     }
 
     async function videoDetail(videoID) {
-        const response = await videoDetailFinder.get("/youtubeDetail", { // TODO CHANGE THIS TO SERVER
-            params:{
-                id:videoID
+        const response = await videoDetailFinder.get("/youtubeDetail", {
+            params: {
+                id: videoID
             }
         })
         return response;
@@ -63,23 +59,16 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
      */
     async function getYoutubeVideo(searchQuery) {
         videosSearch(searchQuery).then(async e => {
-            const videoList = e.data.items;
-            console.log("-- Entered getYoutubeVideo --");
-            for (let video = 0; video < videoList.length; video++) {
-                const thisID = await videoDetail(videoList[video].id.videoId);
-                const thisDur = toMilli(thisID.data.items[0].contentDetails.duration);
-                if (Math.abs(duration - thisDur) <= 1000) {
-                    console.log(videoList[video]);
-                    setChosenVideoID(videoList[video].id.videoId);
+            const videoList = e.data.items;                                                     // a list of videos                 
+            for (let video = 0; video < videoList.length; video++) {                            // for each video in the videoList...
+                console.log(">>>>>>>>", chosenVideoID, "<<<<<<<<<");
+                const thisDetails = await videoDetail(videoList[video].id.videoId);             // Get details...
+                const thisDur = toMilli(thisDetails.data.items[0].contentDetails.duration);     // Get duration from details...
+                if (Math.abs(duration - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
+                    console.log(">>>>>>>> BINGO! <<<<<<<<<");
+                    setChosenVideoID(videoList[video].id.videoId); // TODO FIX THIS OMG THIS IS AN ABSOLUTE ABUSE OF STATE.
                     break;
                 }
-            }
-
-        }).finally(async () => {
-            if (chosenVideoID === "") {
-                // console.log("could not find song");
-            } else {
-                // console.log("found song")
             }
 
         })
@@ -91,7 +80,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
      * @returns {the ISO time in milliseconds}
      */
     function toMilli(ISO) {
-        return toSeconds( parse(ISO) ) * 1000;
+        return toSeconds(parse(ISO)) * 1000;
     }
 
     /**
@@ -105,7 +94,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
      * >> “ "lastChosenID === "" ”
      */
     useEffect(() => {
-        console.log("| got youtube video ID, effect triggered | ")
+
         if (chosenVideoID && lastChosenID === "") {
             lastChosenID = chosenVideoID;
             videoIDtoMP3(chosenVideoID);
@@ -113,8 +102,7 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
 
     }, [chosenVideoID])
 
-    useEffect(async () => {
-        console.log("----- entered fx");
+    useEffect(async () => {          // TODO FIX WHEN AVAILABLE
         setSongArtists(artists);
         setSongName(name);
         setDuration(duration_ms);
@@ -124,23 +112,15 @@ export default function TrackFinder({name, artists, duration_ms, foundSong, trac
     }, [name, artists, duration_ms]);
 
     async function videoIDtoMP3(videoID) {
-        console.log("-- Entered videoIDtoMP3 -- with videoID:", videoID);
         videoDetailFinder.get('/youtubeMp3', {
             params: {
                 id: videoID
             }
         }).then(response => {
-            console.log("got audioFormats!");
             let audioFormats = response.data;
-            console.log(audioFormats);
             foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage);
             setChosenVideoID("");
         });
-        // await ytdl.getInfo(videoID, { quality: 'highestaudio'}).then(info => {
-        //     let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-            // foundSong(songName, songArtists, duration, audioFormats[0].url, trackID, trackImage);
-            // setChosenVideoID("");
-        // });
     }
 
     return null;

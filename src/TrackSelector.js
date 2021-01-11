@@ -5,7 +5,7 @@ import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import Detail from "./frontend_components/Detail";
 import TrackFinder from "./TrackFinder";
-import { thoughtType, trackAlreadyIn} from "./Mixbot";
+import { nextSongInQueue, thoughtType, trackAlreadyIn} from "./Mixbot";
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 
@@ -13,7 +13,7 @@ function TrackSelector({newThought, addToQueue}) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [genres, setGenres] = useState({ selectedGenre: '', listOfGenresFromAPI: [] });
-    const [playlist, setPlaylist] = useState({ selectedPlaylist: '2818tC1Ba59cftJJqjWKZi', listOfPlaylistFromAPI: [] });
+    const [playlist, setPlaylist] = useState({ selectedPlaylist: euroHouseID, listOfPlaylistFromAPI: [] });
     const [tracks, setTracks] = useState({ selectedTrack: '', listOfTracksFromAPI: [] });
     const [trackDetail, setTrackDetail] = useState(null);
 
@@ -98,8 +98,6 @@ function TrackSelector({newThought, addToQueue}) {
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage) {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName + "with id " + trackID);
-            let think = "Adding: "+songName+" to tracklist";
-            newThought(think, thoughtType.NEUTRAL);
             getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage);
         } else {
             console.log("track is already in the queue");
@@ -115,11 +113,10 @@ function TrackSelector({newThought, addToQueue}) {
                 'Authorization': 'Bearer ' + token
             }
         }).then(e => {
-            console.log(e);
             addToQueue(songName, songArtists, duration, songURL, e, trackImage);
         }).catch(e => {
             addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
-            console.log(e);
+            //! TODO DEAL WITH THIS PROPERLY
         }).finally(() => {
             setTrackDetail(null);
         });
@@ -128,12 +125,9 @@ function TrackSelector({newThought, addToQueue}) {
     return (
         <div>
             <form onSubmit={playlistSearchClicked}>
-                {/* <Dropdown label="Genre: " options={genres.listOfGenresFromAPI} selectedValue={genres.selectedGenre} changed={genreChanged} /> */}
-                {/* <Dropdown label="Playlist: " options={playlist.listOfPlaylistFromAPI} selectedValue={playlist.selectedPlaylist} changed={playlistChanged} /> */}
-                {playlist.selectedPlaylist !== "" ? <button type='submit' className="begin-mix">BEGIN MIX</button> : null}
+                {nextSongInQueue() === null && <button type='submit' className="begin-mix">BEGIN MIX</button>}
                 <div>
                     <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} />
-                    {trackDetail && <Detail {...trackDetail} />}
                     {trackDetail && <TrackFinder name={trackDetail.name}
                         artists={trackDetail.artists}
                         duration_ms={trackDetail.duration_ms}

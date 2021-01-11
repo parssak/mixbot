@@ -460,7 +460,7 @@ export default class Deck extends Component {
 
             let analyzed = this.analyzeData();
 
-            //! Getting the best of each region
+            //* Getting the best of each region
             let bestReg;
             let bestDrop;
             let bestComedown;

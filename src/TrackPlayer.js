@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Deck from "./Deck";
 import './css_files/Queue.scss';
-import { loadTrack, nextSongInQueue } from "./Mixbot";
+import { loadTrack, nextSongInQueue, thoughtType } from "./Mixbot";
 
-let deck1playtime = NaN;
-let deck2playtime = NaN;
+// let deck1playtime = NaN;
+// let deck2playtime = NaN;
 
 let deck1startTime = 0;
 let deck2startTime = 0;
@@ -15,7 +15,7 @@ let mainTrack = 0;
 let deck1lastBar = 0;
 let deck2lastBar = 0;
 
-export default function TrackPlayer() {
+export default function TrackPlayer({newThought}) {
     const [clock, setClock] = useState();
 
     const [deck1Song, setDeck1Song] = useState('');
@@ -41,22 +41,16 @@ export default function TrackPlayer() {
         if (!clock) {
             let newClock = new AudioContext();
             setClock(newClock);
-            // console.log("current time is:", newClock.currentTime);
-        } else {
-            // console.log("current time is:", clock.currentTime);
-        }
+        } 
     })
 
     useEffect(() => {
-        
-        if (nextSongInQueue() !== undefined) {
-            console.log("theres a song in the queue!", nextSongInQueue);
+        if (nextSongInQueue() !== null) {
+            console.log(">>> theres a song in the queue!", nextSongInQueue());
             if ((deck1BPM == 0) && (deck1Song == '')) {
-                // TODO BRAIN
                 console.log(">> putting it in track a");
                 loadTrackA();
             } else if ((deck2BPM == 0) && (deck2Song == '')) {
-                // TODO BRAIN
                 console.log(">> putting it in track b");
                 loadTrackB();
             }
@@ -69,12 +63,10 @@ export default function TrackPlayer() {
         setDeck1Playing(false);
         if (newSong !== null) {
             setDeck1BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
-            console.log(">>>>>            here comes the next song", newSong);
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
                 if (deck2BPM !== 0) {
-                    // console.log("deck1bpm is:",newSong.songAnalysis.data.track.tempo,"and","deck2bpm is:",deck2BPM)
                     let ratio = (deck2BPM / newSong.songAnalysis.data.track.tempo).toPrecision(5);
                     setDeck1playback(ratio);
                 } else {
@@ -82,7 +74,9 @@ export default function TrackPlayer() {
                 }
             }
             console.log("> , --------------------------->> ", newSong);
-            setDeck1Song(newSong)
+            let think = "Put " + newSong.songName + " on Deck A";
+            newThought(think);
+            setDeck1Song(newSong);
         }
         else {
             console.log("new song was null");
@@ -106,6 +100,8 @@ export default function TrackPlayer() {
                     setDeck2playback(1);
                 }
             }
+            let think = "Put " + newSong.songName + " on Deck B";
+            newThought(think);
             setDeck2Song(newSong)
         } else {
             console.log("new song was null");
@@ -134,26 +130,26 @@ export default function TrackPlayer() {
         }
     }
 
-    function playDeck2SongScheduled(timeoutValue) {
-        console.log("setting timeout for:", timeoutValue);
-        setTimeout(function () {
-            console.log(clock.currentTime, deck2playtime);
-            console.log("checkin time bois", deck2playtime - clock.currentTime);
-            if (deck2playtime - clock.currentTime <= 0) {
-                deck2startTime = deck2playtime - clock.currentTime;
-                setDeck2Playing(true);
-            } else {
-                console.log(deck2playtime - clock.currentTime);
-                if ((deck2playtime - clock.currentTime) <= 0.5) {
-                    console.log("case a ");
-                    playDeck2SongScheduled(500);
-                } else {
-                    console.log("case b ");
-                    playDeck2SongScheduled((deck2playtime - clock.currentTime) / 2);
-                }
-            }
-        }, timeoutValue)
-    }
+    // function playDeck2SongScheduled(timeoutValue) {
+    //     console.log("setting timeout for:", timeoutValue);
+    //     setTimeout(function () {
+    //         console.log(clock.currentTime, deck2playtime);
+    //         console.log("checkin time bois", deck2playtime - clock.currentTime);
+    //         if (deck2playtime - clock.currentTime <= 0) {
+    //             deck2startTime = deck2playtime - clock.currentTime;
+    //             setDeck2Playing(true);
+    //         } else {
+    //             console.log(deck2playtime - clock.currentTime);
+    //             if ((deck2playtime - clock.currentTime) <= 0.5) {
+    //                 console.log("case a ");
+    //                 playDeck2SongScheduled(500);
+    //             } else {
+    //                 console.log("case b ");
+    //                 playDeck2SongScheduled((deck2playtime - clock.currentTime) / 2);
+    //             }
+    //         }
+    //     }, timeoutValue)
+    // }
 
     function playTrackTwo() {
         if (deck2prepared) {
