@@ -14,7 +14,7 @@ async function listDatabases(client) {
 
 const checkForTrackInDatabase = async function (checkID) {
     let result = false;
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
     try {
         await client.connect();
         await listDatabases(client);
@@ -28,10 +28,10 @@ const checkForTrackInDatabase = async function (checkID) {
 }
 
 const addTrackToDatabase = async function (entry) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
     try {
         await client.connect();
-        createTrackEntry(client, entry);
+        createTrackAnalysisEntry(client, entry);
     } catch (e) {
         console.error(e);
     } finally {
@@ -40,10 +40,10 @@ const addTrackToDatabase = async function (entry) {
 }
 
 const addTrackRefToDatabase = async function (entry) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
     try {
         await client.connect();
-        createTrackEntry(client, entry);
+        await createTrackRefEntry(client, entry);
     } catch (e) {
         console.error(e);
     } finally {
@@ -58,13 +58,18 @@ module.exports = {
 }
 
 async function createTrackRefEntry(client, newEntry) {
-    console.log(">>> (DB): creating new track reference entry", newEntry.data);
-    // const result = await client.db()
-    // await client.db()
+    console.log(">>> (DB): creating new track reference entry", newEntry);
+
+    const database = client.db("mixbotdb");
+    const collection = database.collection("songrefs");
+    const properObj = JSON.parse(newEntry);
+    const result = await collection.insertOne(properObj);
+    console.log(">>> (DB): added new entry:", newEntry);
+    console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`);
 }
 
-async function createTrackEntry(client, newEntry) {
-    console.log(">>> (DB): creating new analysis entry", newEntry.track);
+async function createTrackAnalysisEntry(client, newEntry) {
+    console.log(">>> (DB): creating new analysis entry", newEntry);
     // const result = await client.db()
     // await client.db()
 }
@@ -73,5 +78,3 @@ async function checkEntry(client, trackID) {
     console.log(">>> (DB): checking for entry", trackID);
     return true;
 }
-
-// mixbotDB({ foo: "heehee" }).catch(console.err);

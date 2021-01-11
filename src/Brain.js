@@ -30,7 +30,7 @@ export default function Brain({ decisions }) {
                 {decisions.map(thought => (
                 <>
                         {thought.display && <div className={"entry"} key={thought.id}>
-                            <p key={thought.id + "thought"} style={{ color: `${entryColor(thought.type)}` }}>{thought.body}</p>
+                            <p key={thought.id} style={{ color: `${entryColor(thought.type)}` }}>{thought.body}</p>
                         </div>}
                 </>))}
             </div>

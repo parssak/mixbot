@@ -94,15 +94,15 @@ app.get('/youtubeMp3', function (req, res) {
 
 //** Add song reference to the database */
 app.get('/addSongRef', function (req, res) { // todo
-    console.log("adding entry", req.query);
-    let songEntry = req.query;
+    let songEntry = req.query.data;
     mixbotDB.addTrackRefDB(songEntry);
+    res.sendStatus(200);
 });
 
 //** Add song analysis to the database */
 app.get('/addAnalysis', function (req, res) { // todo
-    console.log("adding entry", req.query);
-    let songEntry = req.query;
+    console.log("adding entry", req.query.data);
+    let songEntry = req.query.data;
     mixbotDB.addTrackAnalysisDB(songEntry);
 });
 
