@@ -99,7 +99,6 @@ export default function Mixbot() {
             // let databaseEntry = {
             // songID: songID,
             // songName: songName,
-            // songURL: songURL,
             // analyzed: analyzedData,
             // }
 

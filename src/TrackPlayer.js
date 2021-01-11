@@ -64,12 +64,12 @@ export default function TrackPlayer({newThought}) {
         if (newSong !== null) {
             console.log("new");
             console.log(newSong);
-            setDeck1BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
+            setDeck1BPM(Math.round(newSong.songAnalysis.tempo)) // terribly sus
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
                 if (deck2BPM !== 0) {
-                    let ratio = (deck2BPM / newSong.songAnalysis.data.track.tempo).toPrecision(5);
+                    let ratio = (deck2BPM / newSong.songAnalysis.tempo).toPrecision(5);
                     setDeck1playback(ratio);
                 } else {
                     setDeck1playback(1);
@@ -90,13 +90,13 @@ export default function TrackPlayer({newThought}) {
         setDeck2prepared(false);
         setDeck2Playing(false);
         if (newSong !== null) {
-            setDeck2BPM(Math.round(newSong.songAnalysis.data.track.tempo)) // terribly sus
+            setDeck2BPM(Math.round(newSong.songAnalysis.tempo)) // terribly sus
             console.log(">>>>>            here comes the next song", newSong);
             if (deck1Song === '') {
                 setDeck2playback(1);
             } else {
                 if (deck1BPM !== 0) {
-                    let ratio = (deck1BPM / Math.round(newSong.songAnalysis.data.track.tempo)).toPrecision(5);
+                    let ratio = (deck1BPM / Math.round(newSong.songAnalysis.tempo)).toPrecision(5);
                     setDeck2playback(ratio);
                 } else {
                     setDeck2playback(1);

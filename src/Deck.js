@@ -230,7 +230,7 @@ export default class Deck extends Component {
         this.waveform.backend.setFilter(lowpass, highpass);
 
         if (this.props.songAnalysis !== 'NOTFOUND') {
-            let analyzed = this.props.songAnalysis.analyzed.songSections;
+            let analyzed = this.props.songAnalysis.songSections;
             
             analyzed.forEach(section => {
                 let region = {
@@ -245,13 +245,13 @@ export default class Deck extends Component {
                 this.waveform.addRegion(region);
             })
 
-            let bars = this.props.songAnalysis.analyzed.bars;
+            let bars = this.props.songAnalysis.bars;
 
             bars.forEach(b => {
                 this.waveform.addRegion(b);
             })
             this.setState({
-                startingPos: this.props.songAnalysis.analyzed.startPos
+                startingPos: this.props.songAnalysis.startPos
             })
         }
         this.waveform.on('region-in', e => {

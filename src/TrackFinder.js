@@ -138,7 +138,6 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                     data: trackID
                 }
             });
-            console.log(">>> (TRACKFINDER): GOT", result);
         }
         return result.data;
     }

@@ -211,7 +211,10 @@ export class Analyzer {
         let finalAnalysis = {
             songSections: songSections,
             bars: calibrationArray,
-            startPos: startingPos
+            startPos: startingPos,
+            tempo: songData.track.tempo,
+            loudness: baselineLoudness,
+            songKey: songData.track.key
         }
 
         return finalAnalysis;

@@ -106,30 +106,31 @@ function TrackSelector({ addToQueue }) {
     }
 
     async function checkForSongAnalysis(songID) {
-        console.log("boutta check dis");
-        return axios.create({
-            baseURL: 'http://localhost:8080',
-            headers: {}
-        }).get('/checkForAnalysis', {
-            params: {
-               songID: songID
-            },
-        })
+        console.log("boutta check songAnalysis");
+        let result = null;
+        if (songID) {
+            result = await axios.get('http://localhost:8080/checkEntryAnalysis', {
+                params:
+                {
+                    data: songID
+                }
+            });
+        }
+        return result.data;
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         console.log("song id is " + id);
 
         // 1) Check if DB already contains songAnalysis
-        let analysisInDB = await checkForSongAnalysis(id);;
+        let analysisInDB = await checkForSongAnalysis(id);
         
-        console.log("analysis in db??:", analysisInDB);
-        // todo...
-        let analysis = null;
+        console.log(">>>> !> >!> >!>:", analysisInDB);
+        console.log("analysis in db??:", analysisInDB.data);
 
-        
         // 2) If song does not contain
-        if (!analysisInDB) {
+        if (!analysisInDB.data) {
+            console.log("IT ISNT MUCHHHHHHHHHHH");
             let rawAnalysis = await axios(`https://api.spotify.com/v1/audio-analysis/${id}`, {
                 method: 'GET',
                 headers: {
@@ -141,14 +142,10 @@ function TrackSelector({ addToQueue }) {
             let songData = rawAnalysis.data;
             let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
-
-            analysis = {
-                data: songData,
-                analyzed: analyzedData
-            };
+            analysisInDB = analyzedData;
         }
-
-        addToQueue(songName, songArtists, duration, songURL, analysis, trackImage, id, youtubeVideoID, fromDatabase);
+        console.log(">>>>>>>>>>>>>>>>..... analysis in db sending out!", analysisInDB);
+        addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
         setTrackDetail(null);
     }
 
