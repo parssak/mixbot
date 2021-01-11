@@ -96,10 +96,10 @@ function TrackSelector({addToQueue}) {
         }
     }
 
-    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID) {
+    async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         if (!trackAlreadyIn(songName)) {
             console.log("adding: " + songName + "with id " + trackID);
-            await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID);
+            await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
         } else {
             console.log("track is already in the queue");
             setTrackDetail(null);
@@ -118,7 +118,7 @@ function TrackSelector({addToQueue}) {
         })
     }
 
-    const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID) => {
+    const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         console.log("song id is " + id);
 
         // TODO CHECK IF DB CONTAINS SONG
@@ -130,8 +130,7 @@ function TrackSelector({addToQueue}) {
                 'Authorization': 'Bearer ' + token
             }
         }).then(e => {
-            
-            addToQueue(songName, songArtists, duration, songURL, e, trackImage, id, youtubeVideoID);
+            addToQueue(songName, songArtists, duration, songURL, e, trackImage, id, youtubeVideoID, fromDatabase);
         }).catch(e => {
             // addToQueue(songName, songArtists, duration, songURL, "NOTFOUND", trackImage);
             //! TODO DEAL WITH THIS PROPERLY
