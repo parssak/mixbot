@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Deck from "./Deck";
 import './css_files/Queue.scss';
-import { loadTrack, nextSongInQueue, thoughtType } from "./Mixbot";
+import { loadTrack, nextSongInQueue} from "./Mixbot";
 
 // let deck1playtime = NaN;
 // let deck2playtime = NaN;
@@ -14,6 +14,9 @@ let mainTrack = 0;
 
 let deck1lastBar = 0;
 let deck2lastBar = 0;
+
+let deckOneGlow = 9;
+let deckTwoGlow = 9;
 
 export default function TrackPlayer({newThought}) {
     const [clock, setClock] = useState();
@@ -42,6 +45,14 @@ export default function TrackPlayer({newThought}) {
             let newClock = new AudioContext();
             setClock(newClock);
         } 
+        
+        if (Math.random() > 0.5) {
+            deckOneGlow += 10;
+            if (deckOneGlow >= 360) deckOneGlow = 0;
+        } else {
+            deckTwoGlow += 10;
+            if (deckTwoGlow >= 360) deckTwoGlow = 0;
+        }
     })
 
     useEffect(() => {
@@ -188,7 +199,7 @@ export default function TrackPlayer({newThought}) {
     return (
         <>
             <div className={"djboard"}>
-                <div className={"boardpanel"} style={deck1Playing ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
+                <div className={"boardpanel"} style={deck1Playing ? { boxShadow: `0 3px 100px hsla(${deckOneGlow}, 100%, 64%, 0.302)` } : { boxShadow: `0 0 0 hsla(${deckOneGlow}, 100%, 64%, 0.302)` }}>
                     <h3>DECK A</h3>
                     {deck1Song !== '' && <Deck
                         thisSong={deck1Song.songURL}
@@ -215,7 +226,7 @@ export default function TrackPlayer({newThought}) {
                     }
 
                 </div>
-                <div className={"boardpanel"} style={deck2Playing ? { boxShadow: "0 3px 100px rgba(255, 99, 71, 0.3)" } : { boxShadow: "0 0 0 rgba(255, 99, 71, 0.3)" }}>
+                <div className={"boardpanel"} style={deck2Playing ? { boxShadow: `0 3px 100px hsla(${deckTwoGlow}, 100%, 64%, 0.302)` } : { boxShadow: `0 0 0 hsla(${deckTwoGlow}, 100%, 64%, 0.302)` }}>
                     <h3 style={{ textAlign: 'right' }}>DECK B</h3>
                     {deck2Song !== '' && <Deck
                         thisSong={deck2Song.songURL}
