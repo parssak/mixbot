@@ -29,12 +29,14 @@ $failColor: #e24848;
   display: none;
 }
 .queue {
+    transition: all 1s ease;
     margin-right: 2em;
     font-family: "Inter";
-     overflow-y: scroll;
-     background-color: none;
+    overflow-y: scroll;
+    background-color: none;
+    height: 12rem;
 
-     -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
     .entry {
         p {
@@ -49,4 +51,14 @@ $failColor: #e24848;
             border-radius: 0.1rem;
         }
     }
+}
+
+.queue::before {
+    content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgb(23, 20, 24) 100%);
 }

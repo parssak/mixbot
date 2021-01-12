@@ -132,27 +132,6 @@ export default function TrackPlayer({newThought}) {
         }
     }
 
-    // function playDeck2SongScheduled(timeoutValue) {
-    //     console.log("setting timeout for:", timeoutValue);
-    //     setTimeout(function () {
-    //         console.log(clock.currentTime, deck2playtime);
-    //         console.log("checkin time bois", deck2playtime - clock.currentTime);
-    //         if (deck2playtime - clock.currentTime <= 0) {
-    //             deck2startTime = deck2playtime - clock.currentTime;
-    //             setDeck2Playing(true);
-    //         } else {
-    //             console.log(deck2playtime - clock.currentTime);
-    //             if ((deck2playtime - clock.currentTime) <= 0.5) {
-    //                 console.log("case a ");
-    //                 playDeck2SongScheduled(500);
-    //             } else {
-    //                 console.log("case b ");
-    //                 playDeck2SongScheduled((deck2playtime - clock.currentTime) / 2);
-    //             }
-    //         }
-    //     }, timeoutValue)
-    // }
-
     function playTrackTwo() {
         if (deck2prepared) {
             console.log("+++ deck TWO is prepared, gonna play it!");

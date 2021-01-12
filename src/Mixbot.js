@@ -54,10 +54,10 @@ export default function Mixbot() {
     function newThought(input, type = thoughtType.NEUTRAL) {
         // console.log("1. new thought added", input);
         let shouldShow = true;
-        if (thoughts.length > 0 && thoughts[thoughts.length - 1].body === input) {
+        if (thoughts.length > 0 && thoughts[0].body === input) {
             shouldShow = false;
         }
-        setThoughts([...thoughts, { id: "THOUGHT-" + thoughts.length, body: input, type: type, display: shouldShow }]);
+        setThoughts([{ id: "THOUGHT-" + thoughts.length, body: input, type: type, display: shouldShow }, ...thoughts]);
         // console.log("2. new thought added", thoughts);
     }
 
