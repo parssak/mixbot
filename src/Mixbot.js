@@ -127,16 +127,16 @@ export default function Mixbot() {
         newThought(think, thoughtType.NEUTRAL);
     }
 
-    function addTrackAnalysisDB(entry) {
-        axios.create({
-            baseURL: 'http://localhost:8080',
-            headers: {}
-        }).get('/addAnalysis', {
-            params: {
-                data: entry
-            },
-        })
-    }
+    // function addTrackAnalysisDB(entry) {
+    //     axios.create({
+    //         baseURL: 'http://localhost:8080',
+    //         headers: {}
+    //     }).get('/addAnalysis', {
+    //         params: {
+    //             data: entry
+    //         },
+    //     })
+    // }
 
     function addSongRefDB(entry) {
         axios.get(addSongRefURL, {

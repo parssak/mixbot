@@ -82,9 +82,10 @@ function TrackSelector({ addToQueue }) {
         return result.data;
     }
 
-    async function addSongAnalysisToDatabase(songID, songAnalysis) {
+    async function addSongAnalysisToDatabase(songID, songAnalysis, songName) {
         let dbAnalysis = {
             songID: songID,
+            songName: songName,
             analysis: songAnalysis
         }
         await axios.get('http://localhost:8080/addAnalysis', {
@@ -98,8 +99,6 @@ function TrackSelector({ addToQueue }) {
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
-        // console.log("song id is " + id);
-
         // 1) Check if DB already contains songAnalysis
         let analysisInDB = await checkForSongAnalysis(id);
         
@@ -120,7 +119,7 @@ function TrackSelector({ addToQueue }) {
             let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
             analysisInDB = analyzedData;
-            addSongAnalysisToDatabase(id, analyzedData);
+            addSongAnalysisToDatabase(id, analyzedData, songName);
         }
         // console.log(">>>>>>>>>>>>>>>>..... analysis in db sending out!", analysisInDB);
         addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
