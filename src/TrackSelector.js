@@ -72,7 +72,7 @@ function TrackSelector({ addToQueue }) {
         // console.log("boutta check songAnalysis");
         let result = null;
         if (songID) {
-            result = await axios.get('http://localhost:8080/checkEntryAnalysis', {
+            result = await axios.get('http://localhost:8080/checkAnalysis', {
                 params:
                 {
                     data: songID

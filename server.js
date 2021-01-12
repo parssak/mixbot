@@ -77,13 +77,7 @@ app.use(function (req, res, next) {
 app.get('/youtubeMp3', function (req, res) {
     console.log("REQUEST QUERY:", req.query);
     ytdl.getInfo(req.query.id, { quality: 'highestaudio' }).then(info => {
-        // console.log(">>>>>>>>>>>>>>>>>>>> GOT INFO --");
-        // console.log(info);
-        // console.log("<<<<<<<<<<<<<<<<<<<< END OF INFO --");
         let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-        // console.log(">>>>>>>>>>>>>>>>>>>>>>>> AUDIO FORMATS --");
-        // console.log(audioFormats);
-        // console.log("<<<<<<<<<<<<<<<<<<<<<<<< END OF FORMATS --");
         res.send(audioFormats);
     }).catch(e => {
         console.log("-------------error response-------------");
@@ -93,40 +87,48 @@ app.get('/youtubeMp3', function (req, res) {
 })
 
 //** Add song reference to the database */
-app.get('/addSongRef', function (req, res) { // todo
+app.get('/addReference', function (req, res) { // todo
+    console.log(">>>(SERVER): adding reference...", req.query.data.songID);
     let songEntry = req.query.data;
-    mixbotDB.addTrackRefDB(songEntry);
+    mixbotDB.addReference(songEntry);
     res.sendStatus(200);
+});
+
+//** Check's if song is already in database with Spotify ID */
+app.get('/checkReference', async function (req, res) { // todo
+    console.log(">>>(SERVER): checking for entry...", req.query.data.songID);
+    let result = await mixbotDB.checkReference(req.query.data);
+    res.send(result);
 });
 
 //** Add song analysis to the database */
 app.get('/addAnalysis', function (req, res) { 
+    console.log(">>>(SERVER): adding analysis...", req.query.data.songID);
     let songEntry = req.query.data;
-    mixbotDB.addTrackAnalysisDB(songEntry);
+    mixbotDB.addAnalysis(songEntry);
     res.sendStatus(200);
+});
+
+//** Check's if song is already in database with Spotify ID */
+app.get('/checkAnalysis', async function (req, res) { // todo
+    console.log(">>>(SERVER): checking for analysis...", req.query.data);
+    let result = await mixbotDB.checkAnalysis(req.query.data);
+    res.send(result);
+});
+
+//** Check's if song is already in database with Spotify ID */
+app.get('/checkWhitelist', async function (req, res) { // todo
+    console.log(">>>(SERVER): checking for whitelist entry...");
+    let result = await mixbotDB.checkWhitelist(req.query.data);
+    res.send(result);
 });
 
 //** Add whitelist song to the database */
-app.get('/whitelistEntry', function (req, res) {
-    console.log(">>>(SERVER): whitelisting entry...", req.query.data);
+app.get('/addWhitelist', function (req, res) {
+    console.log(">>>(SERVER): whitelisting entry...");
     let songEntry = req.query.data;
-    mixbotDB.addWhitelistTrackDB(songEntry);
+    mixbotDB.addWhitelist(songEntry);
     res.sendStatus(200);
-});
-
-//** Check's if song is already in database with Spotify ID */
-app.get('/checkEntryAnalysis', async function (req, res) { // todo
-    console.log(">>>(SERVER): checking for entry analysis...", req.query.data);
-    let result = await mixbotDB.checkTrackAnalysisDB(req.query.data);
-    res.send(result);
-});
-
-
-//** Check's if song is already in database with Spotify ID */
-app.get('/checkForEntry', async function (req, res) { // todo
-    console.log(">>>(SERVER): checking for entry...", req.query.data);
-    let result = await mixbotDB.checkTrackDB(req.query.data);
-    res.send(result);
 });
 
 app.listen(process.env.PORT || 8080)

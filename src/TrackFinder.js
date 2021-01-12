@@ -4,7 +4,11 @@ import videoDetailFinder from './api/youtubeVideoContent'
 import { parse, end, toSeconds, pattern } from 'iso8601-duration';
 import axios from 'axios';
 
-const baseURL = 'http://localhost:8080';
+const addWhitelistURL = 'http://localhost:8080/addWhitelist';
+const checkReferenceURL = 'http://localhost:8080/checkReference';
+const checkWhitelistURL = 'http://localhost:8080/checkWhitelist';
+
+
 /**
  * This class handles finding a track based on song name, artists, and duration
  * and calls the foundSong prop when a song has been found.
@@ -67,11 +71,10 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                 const thisDetails = await videoDetail(videoList[video].id.videoId);             // Get details...
                 const thisDur = toMilli(thisDetails.data.items[0].contentDetails.duration);     // Get duration from details...
                 if (Math.abs(duration_ms - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
-                    setChosenVideoID(videoList[video].id.videoId); // TODO FIX THIS OMG THIS IS AN ABSOLUTE ABUSE OF STATE.
+                    setChosenVideoID(videoList[video].id.videoId); 
                     break;
                 }
             }
-            console.log("??????????????????????????????                                hit here");
             if (!chosenVideoID) {
                 console.log("COULDNT FIND A SONG!!!!!!!");
                 let whitelistObj = {
@@ -120,13 +123,21 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
         // console.log("use effect for checking entereed");
         async function findYoutubeID() {
             // console.log("entered async bit");
-            const result = await checkDatabase();
+            const result = await checkReferenceDB();
             lastChosenID = "";
             if (result === "") {
                 // console.log("Going to find the song");
-                fromDatabase = false;
-                const search = createSearchQuery();
-                await getYoutubeVideo(search);
+
+                console.log("-------Not found in reference DB, going to check whitelist");
+                const whitelistResult = await checkWhitelistDB();
+                if (whitelistResult === "") {
+                    console.log("-------Not whitelisted yet, going to find it!");
+                    fromDatabase = false;
+                    const search = createSearchQuery();
+                    await getYoutubeVideo(search);
+                } else {
+                    console.log("Not going further, this song was already whitelisted");
+                }
             } else {
                 // console.log("Got it from the DB!");
                 fromDatabase = true;
@@ -138,10 +149,23 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
 
     }, [name, artists, duration_ms]);
 
-    async function checkDatabase() { // TODO MOVE THIS INTO IT'S OWN CLASS
+    async function checkReferenceDB() { // TODO MOVE THIS INTO IT'S OWN CLASS
         let result = null;
         if (trackID) {
-            result = await axios.get(baseURL + '/checkForEntry', {
+            result = await axios.get(checkReferenceURL, {
+                params:
+                {
+                    data: trackID
+                }
+            });
+        }
+        return result.data;
+    }
+
+    async function checkWhitelistDB() {
+        let result = null;
+        if (trackID) {
+            result = await axios.get(checkWhitelistURL, {
                 params:
                 {
                     data: trackID
@@ -152,8 +176,8 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
     }
 
     async function addToWhitelist(whitelistObj) { // TODO MOVE THIS INTO IT'S OWN CLASS
-        console.log("ADDING TO WHITELIST>>>");
-        await axios.get(baseURL + '/whitelistEntry', {
+        console.log("ADDING TO WHITELIST>>>", whitelistObj);
+        await axios.get(addWhitelistURL, {
             params:
             {
                 data: whitelistObj

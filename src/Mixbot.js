@@ -9,8 +9,7 @@ let tracklist = [];
 let upcomingSongs = [];
 let alreadyPlayed = [];
 
-const baseURL = 'http://localhost:8080';
-const addSongRefURL = baseURL + '/addSongRef'
+const addSongRefURL = 'http://localhost:8080/addReference'
 
 // --- Global Functions ---
 export function trackAlreadyIn(trackName) {
