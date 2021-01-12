@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Credentials } from './api/Credentials';
 import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
@@ -10,7 +10,7 @@ import { Gateway } from './helper_classes/Gateway';
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 let gateway = new Gateway();
 
-function TrackSelector({ addToQueue }) {
+function TrackSelector({ addToQueue, addMoreSongs }) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [playlist, setPlaylist] = useState({ selectedPlaylist: euroHouseID, listOfPlaylistFromAPI: [] });
@@ -32,6 +32,8 @@ function TrackSelector({ addToQueue }) {
 
     }, [spotify.ClientId, spotify.ClientSecret]);
 
+    
+
     function playlistSearchClicked(e) {
         e.preventDefault();
         axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=40`, {
@@ -47,13 +49,38 @@ function TrackSelector({ addToQueue }) {
         });
     }
 
-    function selectTrack(val) {
+    const selectTrack = useCallback((val) => {
+        console.log("VAL IS");
+        console.log(val);
+        console.log("))))");
+        console.log(tracks.listOfTracksFromAPI);
         const currentTracks = [...tracks.listOfTracksFromAPI];
+
+        console.log("))))");
+        console.log(currentTracks);
+
         const trackInfo = currentTracks.filter(t => t.track.id === val);
+        console.log('TRRACK INFO');
+        console.log(trackInfo);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
+            console.log("setting track detail:", trackInfo[0].track);
+            console.log("setting track detail BACKUP:", trackInfo);
             setTrackDetail(trackInfo[0].track);
-        } 
-    }
+        }
+    });
+
+    useEffect(() => {
+        if (tracks.listOfTracksFromAPI.length > 0) {
+            console.log("Got some songs!");
+            if (trackDetail == null && addMoreSongs) {
+                console.log("Haven't chosen a song yet..., gonna chose one!");
+                console.log(tracks);
+                let selected = tracks.listOfTracksFromAPI[Math.floor(Math.random() * tracks.listOfTracksFromAPI.length - 1)];
+                console.log(selected);
+                selectTrack(selected.track.id);
+            }
+        }
+    }, [tracks, trackDetail, selectTrack])
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         if (!trackAlreadyIn(songName)) {

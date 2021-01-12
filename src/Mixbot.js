@@ -13,9 +13,9 @@ const addSongRefURL = 'http://localhost:8080/addReference'
 
 // --- Global Functions ---
 export function trackAlreadyIn(trackName) {
-    // console.log("checking if track is already in....", trackName);
+    console.log(">>>>>>>>>>>>>>> checking if track is already in....", trackName);
     for (const trackObj of tracklist) {
-        // console.log(trackObj.songName)
+        console.log(trackObj)
         if (trackObj.songName === trackName)
             return true;
     }
@@ -151,7 +151,7 @@ export default function Mixbot() {
                 <Brain decisions={thoughts} />
                 {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
             </div>
-            <TrackSelector addToQueue={addToQueue} />
+            <TrackSelector addToQueue={addToQueue} addMoreSongs={upcomingSongs.length < 2}/>
         </>
     )
 }
