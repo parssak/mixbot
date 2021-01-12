@@ -3,7 +3,7 @@ import { Credentials } from './Credentials';
 import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import { Analyzer } from './helper_classes/Analyzer';
-import TrackFinder from "./TrackFinder";
+import TrackFinder from "./helper_classes/TrackFinder";
 import { trackAlreadyIn, tracklistSize } from "./Mixbot";
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";

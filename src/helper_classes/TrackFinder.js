@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import youtubeApi from './api/youtube'
-import videoDetailFinder from './api/youtubeVideoContent'
+import youtubeApi from '../api/youtube'
+import videoDetailFinder from '../api/youtubeVideoContent'
 import { parse, end, toSeconds, pattern } from 'iso8601-duration';
-import { Gateway } from './helper_classes/Gateway';
+import { Gateway } from './Gateway';
 
 let gateway = new Gateway();
 /**
