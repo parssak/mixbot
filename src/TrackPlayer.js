@@ -3,9 +3,6 @@ import Deck from "./Deck";
 import './css_files/Queue.scss';
 import { loadTrack, nextSongInQueue} from "./Mixbot";
 
-// let deck1playtime = NaN;
-// let deck2playtime = NaN;
-
 let deck1startTime = 0;
 let deck2startTime = 0;
 
