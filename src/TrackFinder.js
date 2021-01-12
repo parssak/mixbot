@@ -2,16 +2,12 @@ import React, { useEffect, useState } from 'react';
 import youtubeApi from './api/youtube'
 import videoDetailFinder from './api/youtubeVideoContent'
 import { parse, end, toSeconds, pattern } from 'iso8601-duration';
-import axios from 'axios';
+import { Gateway } from './helper_classes/Gateway';
 
-const addWhitelistURL = 'http://localhost:8080/addWhitelist';
-const checkReferenceURL = 'http://localhost:8080/checkReference';
-const checkWhitelistURL = 'http://localhost:8080/checkWhitelist';
-
-
+let gateway = new Gateway();
 /**
  * This class handles finding a track based on song name, artists, and duration
- * and calls the foundSong prop when a song has been found.
+ * and calls the { foundSong } prop when a song has been found.
  *
  * @param name: Name of the Song
  * @param artists: An array of artist objects
@@ -22,10 +18,6 @@ const checkWhitelistURL = 'http://localhost:8080/checkWhitelist';
 let lastChosenID = "";
 let fromDatabase = false;
 export default function TrackFinder({ name, artists, duration_ms, foundSong, trackID, trackImage }) {
-
-    // const [songName, setSongName] = useState(name);
-    // const [songArtists, setSongArtists] = useState(artists);
-    // const [duration, setDuration] = useState(duration_ms);
     const [chosenVideoID, setChosenVideoID] = useState("");
 
     function createSearchQuery() {
@@ -71,19 +63,18 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                 const thisDetails = await videoDetail(videoList[video].id.videoId);             // Get details...
                 const thisDur = toMilli(thisDetails.data.items[0].contentDetails.duration);     // Get duration from details...
                 if (Math.abs(duration_ms - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
-                    setChosenVideoID(videoList[video].id.videoId); 
+                    setChosenVideoID(videoList[video].id.videoId);
                     break;
                 }
             }
             if (!chosenVideoID) {
-                console.log("COULDNT FIND A SONG!!!!!!!");
                 let whitelistObj = {
                     songID: trackID,
                     songName: name,
                     songArtists: artists,
                     expectedDuration: duration_ms,
                 }
-                await addToWhitelist(whitelistObj); // ! TODO TEST THISSS <<<<<<<<<<<<<<<<<<<<<<<<
+                await gateway.addToWhitelist(whitelistObj); // ! TODO TEST THISSS <<<<<<<<<<<<<<<<<<<<<<<<
             }
         })
     }
@@ -117,29 +108,17 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
     }, [chosenVideoID])
 
     useEffect(() => {          // TODO FIX WHEN AVAILABLE
-        // setSongArtists(artists);
-        // setSongName(name);
-        // setDuration(duration_ms);
-        // console.log("use effect for checking entereed");
         async function findYoutubeID() {
-            // console.log("entered async bit");
-            const result = await checkReferenceDB();
+            const result = await gateway.checkReferenceDB(trackID);
             lastChosenID = "";
             if (result === "") {
-                // console.log("Going to find the song");
-
-                console.log("-------Not found in reference DB, going to check whitelist");
-                const whitelistResult = await checkWhitelistDB();
+                const whitelistResult = await gateway.checkWhitelistDB(trackID);
                 if (whitelistResult === "") {
-                    console.log("-------Not whitelisted yet, going to find it!");
                     fromDatabase = false;
                     const search = createSearchQuery();
                     await getYoutubeVideo(search);
-                } else {
-                    console.log("Not going further, this song was already whitelisted");
                 }
             } else {
-                // console.log("Got it from the DB!");
                 fromDatabase = true;
                 setChosenVideoID(result.videoID);
             }
@@ -149,42 +128,6 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
 
     }, [name, artists, duration_ms]);
 
-    async function checkReferenceDB() { // TODO MOVE THIS INTO IT'S OWN CLASS
-        let result = null;
-        if (trackID) {
-            result = await axios.get(checkReferenceURL, {
-                params:
-                {
-                    data: trackID
-                }
-            });
-        }
-        return result.data;
-    }
-
-    async function checkWhitelistDB() {
-        let result = null;
-        if (trackID) {
-            result = await axios.get(checkWhitelistURL, {
-                params:
-                {
-                    data: trackID
-                }
-            });
-        }
-        return result.data;
-    }
-
-    async function addToWhitelist(whitelistObj) { // TODO MOVE THIS INTO IT'S OWN CLASS
-        console.log("ADDING TO WHITELIST>>>", whitelistObj);
-        await axios.get(addWhitelistURL, {
-            params:
-            {
-                data: whitelistObj
-            }
-        });
-    }
-
     async function videoIDtoMP3(videoID) {
         videoDetailFinder.get('/youtubeMp3', {
             params: {
@@ -192,10 +135,9 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
             }
         }).then(response => {
             let audioFormats = response.data;
-            foundSong(name, artists, duration_ms, audioFormats[0].url, trackID, trackImage, videoID, fromDatabase); // ! ADD FROMDATABASE
+            foundSong(name, artists, duration_ms, audioFormats[0].url, trackID, trackImage, videoID, fromDatabase);
             setChosenVideoID("");
         });
     }
-
     return null;
 }
