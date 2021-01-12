@@ -361,7 +361,7 @@ export default class Deck extends Component {
     }
 
     fadeOutSong() {
-        console.log("fading out");
+        // console.log("fading out");
         this.fadingOut = true;
         this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 3), 0.1, this.props.deckName));
         this.state.lowpassNode.frequency.value -= (this.state.lowpassNode.frequency.value / 10);
@@ -380,9 +380,9 @@ export default class Deck extends Component {
     }
 
     fadeInSong() {
-        console.log("*****", this.props.deckName, "fading in", this.props.recommendedVolume);
+        // console.log("*****", this.props.deckName, "fading in", this.props.recommendedVolume);
         this.fadingIn = true;
-        console.log(this.props.recommendedVolume);
+        // console.log(this.props.recommendedVolume);
         let newVol = lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.05, this.props.deckName);
         if (isFinite(newVol)) this.waveform.setVolume(newVol);
         
@@ -422,7 +422,7 @@ export default class Deck extends Component {
 }
 
 function lerp(start, end, amt, deckname) {
-    console.log(deckname, "lerped this:", start, end, amt, "to:", (1 - amt) * start + amt * end);
+    // console.log(deckname, "lerped this:", start, end, amt, "to:", (1 - amt) * start + amt * end);
     return (1 - amt) * start + amt * end
 }
 

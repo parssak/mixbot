@@ -6,23 +6,36 @@ $failColor: #e24848;
 
 .queue-header {
     display: flex;
-    // background-color: none;
+    background-color: none;
     position: relative;
     z-index: 0;
     flex-direction: column;
+   
     margin-left: 1rem;
-    margin-top: 2rem;
+    margin-top: 0rem;
     h2 {
         font-family: "Monument Black";
         font-weight: 800;
         font-size: 0.8rem;
         color: $darkColor;
+        background-color: none;
+    }
+    
+    & > * {
+        background-color: none;
     }
 }
-
+.queue::-webkit-scrollbar {
+  display: none;
+}
 .queue {
     margin-right: 2em;
     font-family: "Inter";
+     overflow-y: scroll;
+     background-color: none;
+
+     -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
     .entry {
         p {
             font-size: 0.6rem;

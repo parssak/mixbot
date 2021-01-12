@@ -52,6 +52,18 @@ const addTrackToDatabase = async function (entry) {
     }
 }
 
+const addWhitelistToDatabase = async function (entry) {
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    try {
+        await client.connect();
+        await createWhitelistEntry(client, entry);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
 const addTrackRefToDatabase = async function (entry) {
     const client = new MongoClient(uri, { useUnifiedTopology: true });
     try {
@@ -64,9 +76,22 @@ const addTrackRefToDatabase = async function (entry) {
     }
 }
 
+async function createWhitelistEntry(client, newEntry) {
+    console.log(">>> (DB): creating new whitelist entry", newEntry);
+    const collection = client.db("mixbotdb").collection("notfoundref");
+    const properObj = JSON.parse(newEntry);
+    // console.log("1 >>>>>>>>>>>>>> i'm gonna put in ", newEntry);
+    // console.log("2 >>>>>>>>>>>>>> i'm gonna put in ", properObj);
+    const result = await collection.insertOne(properObj);
+    console.log(">>> (DB): added new entry:", properObj);
+    console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`);
+}
+
+
+
 async function createTrackRefEntry(client, newEntry) {
     console.log(">>> (DB): creating new track reference entry", newEntry);
-    const collection = client.db("mixbotdb").database.collection("songrefs");
+    const collection = client.db("mixbotdb").collection("songrefs");
     const properObj = JSON.parse(newEntry);
     const result = await collection.insertOne(properObj);
 
@@ -75,12 +100,13 @@ async function createTrackRefEntry(client, newEntry) {
 }
 
 async function createTrackAnalysisEntry(client, newEntry) {
-    console.log(">>> (DB): creating new analysis entry", newEntry);
+    console.log(">>> (DB): creating new analysis entry");
+    const alreadyIn = await checkEntryAnalysis(client, newEntry.songID);
+    console.log("ALREADY IN>>>>>>>>>> "+alreadyIn);
     const collection = client.db("mixbotdb").collection("songdata");
     const properObj = JSON.parse(newEntry);
     const result = await collection.insertOne(properObj);
-
-    console.log(">>> (DB): added new entry:", newEntry);
+    console.log(">>> (DB): added new entry:");
     console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`);
 }
 
@@ -102,6 +128,7 @@ async function checkEntryAnalysis(client, trackID) {
 module.exports = {
     addTrackRefDB: addTrackRefToDatabase,
     addTrackAnalysisDB: addTrackToDatabase,
+    addWhitelistTrackDB: addWhitelistToDatabase,
     checkTrackDB: checkTrackDatabase,
     checkTrackAnalysisDB: checkTrackAnalysisDatabase,
 }

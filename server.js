@@ -106,6 +106,14 @@ app.get('/addAnalysis', function (req, res) {
     res.sendStatus(200);
 });
 
+//** Add whitelist song to the database */
+app.get('/whitelistEntry', function (req, res) {
+    console.log(">>>(SERVER): whitelisting entry...", req.query.data);
+    let songEntry = req.query.data;
+    mixbotDB.addWhitelistTrackDB(songEntry);
+    res.sendStatus(200);
+});
+
 //** Check's if song is already in database with Spotify ID */
 app.get('/checkEntryAnalysis', async function (req, res) { // todo
     console.log(">>>(SERVER): checking for entry analysis...", req.query.data);

@@ -33,7 +33,7 @@ function TrackSelector({ addToQueue }) {
 
     function playlistSearchClicked(e) {
         e.preventDefault();
-        console.log("selected playlist was" + playlist.selectedPlaylist);
+        // console.log("selected playlist was" + playlist.selectedPlaylist);
         axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=40`, {
             method: 'GET',
             headers: {
@@ -51,25 +51,25 @@ function TrackSelector({ addToQueue }) {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
-            console.log(">>>", trackInfo[0].track);
+            // console.log(">>>", trackInfo[0].track);
             setTrackDetail(trackInfo[0].track);
         } else {
-            console.log("track is already in the queue");
+            // console.log("track is already in the queue");
         }
     }
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         if (!trackAlreadyIn(songName)) {
-            console.log("adding: " + songName + "with id " + trackID);
+            // console.log("adding: " + songName + "with id " + trackID);
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
         } else {
-            console.log("track is already in the queue");
+            // console.log("track is already in the queue");
             setTrackDetail(null);
         }
     }
 
     async function checkForSongAnalysis(songID) {
-        console.log("boutta check songAnalysis");
+        // console.log("boutta check songAnalysis");
         let result = null;
         if (songID) {
             result = await axios.get('http://localhost:8080/checkEntryAnalysis', {
@@ -98,13 +98,13 @@ function TrackSelector({ addToQueue }) {
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
-        console.log("song id is " + id);
+        // console.log("song id is " + id);
 
         // 1) Check if DB already contains songAnalysis
         let analysisInDB = await checkForSongAnalysis(id);
         
-        console.log(">>>> !> >!> >!>:", analysisInDB);
-        console.log("analysis in db??:", analysisInDB.data);
+        // console.log(">>>> !> >!> >!>:", analysisInDB);
+        // console.log("analysis in db??:", analysisInDB.data);
 
         // 2) If song does not contain
         if (!analysisInDB.data) {
@@ -122,13 +122,13 @@ function TrackSelector({ addToQueue }) {
             analysisInDB = analyzedData;
             addSongAnalysisToDatabase(id, analyzedData);
         }
-        console.log(">>>>>>>>>>>>>>>>..... analysis in db sending out!", analysisInDB);
+        // console.log(">>>>>>>>>>>>>>>>..... analysis in db sending out!", analysisInDB);
         addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
         setTrackDetail(null);
     }
 
     return (
-        <div style={{ marginTop: "15em" }}>
+        <div>
             <form onSubmit={playlistSearchClicked}>
                 {tracklistSize() === 0 && <button type='submit' className="begin-mix">BEGIN MIX</button>}
                 <div style={{ marginTop: "4em" }}>

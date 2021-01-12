@@ -14,9 +14,9 @@ const addSongRefURL = baseURL + '/addSongRef'
 
 // --- Global Functions ---
 export function trackAlreadyIn(trackName) {
-    console.log("checking if track is already in....", trackName);
+    // console.log("checking if track is already in....", trackName);
     for (const trackObj of tracklist) {
-        console.log(trackObj.songName)
+        // console.log(trackObj.songName)
         if (trackObj.songName === trackName)
             return true;
     }
@@ -92,7 +92,7 @@ export default function Mixbot() {
                 }
                 addSongRefDB(songRefEntry);
             } else {
-                console.log("got it from db!");
+                // console.log("got it from db!");
             }
           
             // Add it to the DB // todo
@@ -114,16 +114,16 @@ export default function Mixbot() {
             songAnalysis: analysis,
             trackImage: trackImage
         }
-        console.log(">>>(MIXBOT): NEW SONG IS:", newSong);
-        console.log(">>>(MIXBOT): ANALYSIS:", analysis);
+        // console.log(">>>(MIXBOT): NEW SONG IS:", newSong);
+        // console.log(">>>(MIXBOT): ANALYSIS:", analysis);
         let packageSong = { id: "tracklist" + tracklist.length, body: newSong }
-        console.log(">>>(MIXBOT): PACKAGED SONG:", packageSong);
+        // console.log(">>>(MIXBOT): PACKAGED SONG:", packageSong);
         tracklist.push(packageSong);
-        console.log(">>>(MIXBOT): ADDED TO TRACKLIST:", tracklist);
+        // console.log(">>>(MIXBOT): ADDED TO TRACKLIST:", tracklist);
         upcomingSongs.push(packageSong);
-        console.log(">>>(MIXBOT): ADDED TO UPCOMING SONGS:", upcomingSongs);
+        // console.log(">>>(MIXBOT): ADDED TO UPCOMING SONGS:", upcomingSongs);
         const think = `Added ${songName} to the tracklist`;
-        console.log(">>>(MIXBOT): ABOUT TO THINK:", think);
+        // console.log(">>>(MIXBOT): ABOUT TO THINK:", think);
         newThought(think, thoughtType.NEUTRAL);
     }
 

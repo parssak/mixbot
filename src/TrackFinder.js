@@ -72,6 +72,16 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                 }
             }
             console.log("??????????????????????????????                                hit here");
+            if (!chosenVideoID) {
+                console.log("COULDNT FIND A SONG!!!!!!!");
+                let whitelistObj = {
+                    songID: trackID,
+                    songName: name,
+                    songArtists: artists,
+                    expectedDuration: duration_ms,
+                }
+                await addToWhitelist(whitelistObj); // ! TODO TEST THISSS <<<<<<<<<<<<<<<<<<<<<<<<
+            }
         })
     }
 
@@ -107,20 +117,20 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
         // setSongArtists(artists);
         // setSongName(name);
         // setDuration(duration_ms);
-        console.log("use effect for checking entereed");
+        // console.log("use effect for checking entereed");
         async function findYoutubeID() {
-            console.log("entered async bit");
+            // console.log("entered async bit");
             const result = await checkDatabase();
             lastChosenID = "";
             if (result === "") {
-                console.log("Going to find the song");
+                // console.log("Going to find the song");
                 fromDatabase = false;
                 const search = createSearchQuery();
                 await getYoutubeVideo(search);
             } else {
-                console.log("Got it from the DB!");
+                // console.log("Got it from the DB!");
                 fromDatabase = true;
-                setChosenVideoID(result.videoID); 
+                setChosenVideoID(result.videoID);
             }
         }
 
@@ -141,7 +151,17 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
         return result.data;
     }
 
-    async function videoIDtoMP3(videoID) { 
+    async function addToWhitelist(whitelistObj) { // TODO MOVE THIS INTO IT'S OWN CLASS
+        console.log("ADDING TO WHITELIST>>>");
+        await axios.get(baseURL + '/whitelistEntry', {
+            params:
+            {
+                data: whitelistObj
+            }
+        });
+    }
+
+    async function videoIDtoMP3(videoID) {
         videoDetailFinder.get('/youtubeMp3', {
             params: {
                 id: videoID

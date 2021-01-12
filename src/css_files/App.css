@@ -8,7 +8,7 @@
 
 @import 'Waveform.css';
 * {
-    background: #171418;
+    /* background: #171418; */
     color: white;
     font-size: 30px;
     font-weight: 300;
@@ -19,6 +19,10 @@
     display: flex;
     margin-left: 1em;
     margin-right: 1em;
+}
+
+html {
+    background: #171418;
 }
 
 .title h1 {
@@ -42,6 +46,7 @@
 .body {
     margin: 1rem;
     overflow: visible;
+    background: #171418;
 }
 
 .dropdown {
