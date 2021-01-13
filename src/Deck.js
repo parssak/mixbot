@@ -77,6 +77,7 @@ export default class Deck extends Component {
         this.changeGain = this.changeGain.bind(this);
         this.reconnectAudio = this.reconnectAudio.bind(this);
         this.handlePosChange = this.handlePosChange.bind(this);
+        this.takeOutSong = this.takeOutSong.bind(this);
     }
 
     componentDidMount() {
@@ -84,24 +85,9 @@ export default class Deck extends Component {
         this.waveform = WaveSurfer.create(this.waveSurferOptions);
 
         this.waveform.on('error', e => {
-            console.log("hit error:", e);
-        })
-      
-        console.log("MOUNT THISSONG>>>",this.props.thisSong);
-        // let dummy = new Audio(this.props.thisSong);
-        // console.log(">>>!!!>>>", dummy.src);
-        // console.log(">>>>!!!!???", dummy.src === this.props.thisSong);
+            console.error(e);
+        })     
         this.waveform.load(this.props.thisSong);
-
-        // console.log(this.props.thisSong);
-        // let ooga = this.props.thisSong;
-        // console.log("ooga is:", ooga);
-        // console.log("song src WAS:", song.src);
-        // // song.src = this.props.thisSong;
-        // song.crossOrigin = "anonymous";
-        // console.log("loading song in mount >>>!", this.props.thisSong);
-        
-        // this.waveform.load("http://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3");
         console.log("loaded song", this.waveform.src);
         this.waveform.setPlaybackRate(this.props.playbackRate);
         this.reconnectAudio();
@@ -124,10 +110,7 @@ export default class Deck extends Component {
             this.waveform.destroy();
 
             this.waveform = WaveSurfer.create(this.waveSurferOptions);
-            this.waveform.on('loading', e => {
-                console.log("loading:", e);
-            })
-
+            
             this.waveform.on('error', e => {
                 console.log("hit error:", e);
             })
@@ -197,7 +180,6 @@ export default class Deck extends Component {
     }
 
     reconnectAudio() {
-        // this.state.audi1oElement.crossOrigin = "anonymous";
         console.log("reconnecting audio");
         // LOWPASS
         let lowpass = this.waveform.backend.ac.createBiquadFilter();
@@ -281,13 +263,13 @@ export default class Deck extends Component {
                         is32: thisSection.is32
                     }
                 })
-
-                if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0 && this.props.otherReady) {
-                    this.props.playOtherTrack();
-                    // TODO ADD BRAIN
-                    let think = "Fading out " + this.props.deckName;
-                    this.props.newThought(think, thoughtType.MIX);
-                    this.fadeOutSong();
+                console.log(this.props.deckName, " HAS FINISHED", this.waveform.getCurrentTime() / this.waveform.getDuration(), "OF ITS SONG");
+                if (this.props.otherReady && (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.5)) {
+                    if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0) {
+                        this.takeOutSong()
+                    } else if (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.7) {
+                        this.takeOutSong()
+                    }
                 }
             } else {
                 this.props.hitBar();
@@ -313,6 +295,15 @@ export default class Deck extends Component {
             this.fadeInSong();
         })
 
+    }
+
+    takeOutSong() {
+
+        let think = "Fading out " + this.props.deckName;
+        this.props.newThought(think, thoughtType.MIX);
+
+        this.props.playOtherTrack();
+        this.fadeOutSong();
     }
 
     playPause() {

@@ -4,13 +4,14 @@ import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
 import { Analyzer } from './helper_classes/Analyzer';
 import TrackFinder from "./helper_classes/TrackFinder";
-import { trackAlreadyIn, tracklistSize } from "./Mixbot";
+import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
 let gateway = new Gateway();
+let offset = 0;
 
-function TrackSelector({ addToQueue, addMoreSongs }) {
+function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [playlist, setPlaylist] = useState({ selectedPlaylist: euroHouseID, listOfPlaylistFromAPI: [] });
@@ -40,8 +41,15 @@ function TrackSelector({ addToQueue, addMoreSongs }) {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token
+            }, 
+            params: {
+                offset: offset
             }
         }).then(tracksResponse => {
+            console.log("----------------------------");
+            console.log("----------------------------- GOT SONGS, OFFSETTING FROM", offset);
+            console.log("----------------------------");
+            offset += 40;
             setTracks({
                 selectedTrack: tracks.selectedTrack,
                 listOfTracksFromAPI: tracksResponse.data.items
@@ -50,37 +58,34 @@ function TrackSelector({ addToQueue, addMoreSongs }) {
     }
 
     const selectTrack = useCallback((val) => {
-        console.log("VAL IS");
-        console.log(val);
-        console.log("))))");
-        console.log(tracks.listOfTracksFromAPI);
+        console.log("VAL IS", val);
         const currentTracks = [...tracks.listOfTracksFromAPI];
-
-        console.log("))))");
-        console.log(currentTracks);
-
         const trackInfo = currentTracks.filter(t => t.track.id === val);
-        console.log('TRRACK INFO');
-        console.log(trackInfo);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
             console.log("setting track detail:", trackInfo[0].track);
             console.log("setting track detail BACKUP:", trackInfo);
             setTrackDetail(trackInfo[0].track);
+            return true;
         }
+        return false;
+    });
+
+    const chooseSong = useCallback((choiceSelections) => {
+        let selected = choiceSelections[Math.floor(Math.random() * (choiceSelections.length - 1))];
+        selectTrack(selected.track.id);
     });
 
     useEffect(() => {
         if (tracks.listOfTracksFromAPI.length > 0) {
             console.log("Got some songs!");
             if (trackDetail == null && addMoreSongs) {
-                console.log("Haven't chosen a song yet..., gonna chose one!");
+                console.log("ADDING ANOTHER SONG!");
                 console.log(tracks);
-                let selected = tracks.listOfTracksFromAPI[Math.floor(Math.random() * tracks.listOfTracksFromAPI.length - 1)];
-                console.log(selected);
-                selectTrack(selected.track.id);
+                chooseSong(tracks.listOfTracksFromAPI)
             }
         }
-    }, [tracks, trackDetail, selectTrack])
+    }, [tracks, trackDetail, addMoreSongs, chooseSong])
+
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         if (!trackAlreadyIn(songName)) {
@@ -114,6 +119,12 @@ function TrackSelector({ addToQueue, addMoreSongs }) {
         setTrackDetail(null);
     }
 
+    const couldntBeFound = () => {
+        const think = "Unable to add " + trackDetail.name;
+        newThought(think, thoughtType.FAILURE);
+        setTrackDetail(null);
+    }
+
     return (
         <div>
             <form onSubmit={playlistSearchClicked}>
@@ -125,7 +136,8 @@ function TrackSelector({ addToQueue, addMoreSongs }) {
                         duration_ms={trackDetail.duration_ms}
                         trackID={trackDetail.id}
                         trackImage={trackDetail.album.images[1]}
-                        foundSong={addSongToTracklist} />}
+                        foundSong={addSongToTracklist}
+                        cantFind={couldntBeFound}/>}
                 </div>
             </form>
         </div>

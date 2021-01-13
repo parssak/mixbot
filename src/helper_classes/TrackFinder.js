@@ -17,7 +17,7 @@ let gateway = new Gateway();
  */
 let lastChosenID = "";
 let fromDatabase = false;
-export default function TrackFinder({ name, artists, duration_ms, foundSong, trackID, trackImage }) {
+export default function TrackFinder({ name, artists, duration_ms, foundSong, trackID, trackImage, cantFind }) {
     const [chosenVideoID, setChosenVideoID] = useState("");
 
     function createSearchQuery() {
@@ -74,7 +74,9 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                     songArtists: artists,
                     expectedDuration: duration_ms,
                 }
-                await gateway.addToWhitelist(whitelistObj); // ! TODO TEST THISSS <<<<<<<<<<<<<<<<<<<<<<<<
+
+                await gateway.addToWhitelist(whitelistObj);
+                cantFind();
             }
         })
     }
@@ -107,7 +109,7 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
 
     }, [chosenVideoID])
 
-    useEffect(() => {          // TODO FIX WHEN AVAILABLE
+    useEffect(() => {        
         async function findYoutubeID() {
             const result = await gateway.checkReferenceDB(trackID);
             lastChosenID = "";
@@ -117,6 +119,8 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                     fromDatabase = false;
                     const search = createSearchQuery();
                     await getYoutubeVideo(search);
+                } else {
+                    cantFind();
                 }
             } else {
                 fromDatabase = true;

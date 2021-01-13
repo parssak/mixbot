@@ -151,7 +151,7 @@ export default function Mixbot() {
                 <Brain decisions={thoughts} />
                 {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
             </div>
-            <TrackSelector addToQueue={addToQueue} addMoreSongs={upcomingSongs.length < 2}/>
+            <TrackSelector addToQueue={addToQueue} addMoreSongs={upcomingSongs.length < 2} newThought={ newThought}/>
         </>
     )
 }
