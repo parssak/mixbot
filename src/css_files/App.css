@@ -25,6 +25,10 @@ html {
     background: #171418;
 }
 
+* {
+    outline: 2px solid brown;
+}
+
 .title h1 {
     font-size: 1.4rem;
 }

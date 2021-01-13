@@ -108,7 +108,7 @@ $darkColor: #a7a7a7;
     padding-top: 0;
     border-radius: 0.2rem;
     transition: box-shadow 1s ease;
-    overflow:visible;
+    overflow: visible;
 
     & > * {
         background-color: #000000;
@@ -133,61 +133,5 @@ $darkColor: #a7a7a7;
     .loadbutton {
         background-color: #d88903;
         font-weight: bolder;
-    }
-}
-/* 
-.next-to-picture {
-    display: flex;
-    flex-direction: row;
-} */
-
-.knobs {
-    //? I don't know if knob, .knob.outer, and .knob.inner should be child
-    display: flex;
-    flex-direction: column;
-    margin-top: 1em;
-    margin-bottom: 1em;
-    align-items: center;
-
-    .knob {
-        display: flex;
-        position: relative;
-        .ticks {
-            position: absolute;
-            .tick {
-                position: absolute;
-                background: black;
-                border: 0px;
-                width: 3px;
-                transition: background 0.1s;
-            }
-            .tick.active {
-                background: #4fbce3;
-            }
-        }
-    }
-
-    .knob.outer {
-        border-radius: 50%;
-        border: 1px solid #222;
-        border-bottom: 5px solid #222;
-        background-image: radial-gradient(100% 70%, #666 6%, #333 90%);
-        box-shadow: 0 5px 15px 2px black, 0 0 5px 3px black, 0 0 0 12px #444;
-        overflow:visible;
-    }
-
-    .knob.inner {
-        border-radius: 50%;
-
-        .grip {
-            position: absolute;
-            width: 5%;
-            height: 20%;
-            bottom: 2%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 1em;
-            background: #ffffff;
-        }
     }
 }

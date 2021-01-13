@@ -95,7 +95,6 @@ export default class Deck extends Component {
 
     componentDidUpdate(prevProps) {
         console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
-        console.log("TRACK IMG:", this.props.songImage)
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
@@ -178,7 +177,7 @@ export default class Deck extends Component {
             }
         }
 
-        if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync) {
+        if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync && this.props.otherReady) {
             console.log("AAAAAAAA");
             this.takeOutSong("OINGO BOINGOOOO");
         }
@@ -382,11 +381,6 @@ export default class Deck extends Component {
         if (isFinite(newVol)) this.waveform.setVolume(newVol);
         
         if (this.waveform.getVolume() < this.props.recommendedVolume - 0.1) {   // TODO TWEAK THIS BASED ON IF MAIN TRACK OR NOT
-
-            // if (this.waveform.getVolume() / 2 > this.props.recommendedVolume) {
-                
-            // }
-
             setTimeout(() => {
                 this.fadeInSong();
             }, 1000);
