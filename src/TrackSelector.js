@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Credentials } from './api/Credentials';
 import axios from 'axios';
-import Listbox from "./frontend_components/Listbox";
-// import { Analyzer } from './helper_classes/Analyzer';
 import TrackFinder from "./helper_classes/TrackFinder";
 import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
 
-const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
-const superChillHouseID = "52yAobXW9CokfKnLhe3C8Z";
-const crimeID = "1Hve0lapmmb6ddgKd7KLmd";
+const euroHouseMix_1 = "2818tC1Ba59cftJJqjWKZi";
+const euroHouseMix_2 = "1fWDDXepy50hFXLhwGR5xP";
+const chillMix_1 = "52yAobXW9CokfKnLhe3C8Z";
+const chillMix_2 = "6el7EnAXJJ2kvnoBDvWXvk";
+const techHouseMix_1 = "7HRYveKYzLJFqb1PTJejoL";
 
-const chosenPlaylist = superChillHouseID;
+let chosenPlaylist = null;
 
 let gateway = new Gateway();
 let offset = 0;
@@ -19,9 +19,10 @@ let offset = 0;
 function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
-    const [playlist, setPlaylist] = useState({ selectedPlaylist: chosenPlaylist, listOfPlaylistFromAPI: [] });
+    const [playlist, setPlaylist] = useState({ selectedPlaylist: null, listOfPlaylistFromAPI: [] });
     const [tracks, setTracks] = useState({ selectedTrack: '', listOfTracksFromAPI: [] });
     const [trackDetail, setTrackDetail] = useState(null);
+    const [chosenMix, setChosenMix] = useState(false);
 
     useEffect(() => {                                       // used for verification
         axios('https://accounts.spotify.com/api/token', {
@@ -38,7 +39,18 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
 
     }, [spotify.ClientId, spotify.ClientSecret]);
 
-    
+    function changeChosen(playlist) {
+        if (playlist === 1) { // euro house
+            chosenPlaylist = Math.random() > 0.5 ? euroHouseMix_1 : euroHouseMix_2;
+        } else if (playlist === 2) {
+            chosenPlaylist = Math.random() > 0.5 ? chillMix_1 : chillMix_2;
+        } else {
+            chosenPlaylist = techHouseMix_1;
+        }
+
+        setPlaylist({ selectedPlaylist: chosenPlaylist });
+        setChosenMix(true);
+    }    
 
     function playlistSearchClicked(e) {
         e.preventDefault();
@@ -52,7 +64,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
             }
         }).then(tracksResponse => {
             console.log("----------------------------- GOT SONGS, OFFSETTING FROM", offset);
-            offset += 40;
+            // offset += 40;
             setTracks({
                 selectedTrack: tracks.selectedTrack,
                 listOfTracksFromAPI: tracksResponse.data.items
@@ -63,11 +75,15 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     const selectTrack = useCallback((val) => {
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
-        if (!trackAlreadyIn(trackInfo[0].track.name)) {
+        console.log(">>>>>>>>>>>>>>>>>> 1");
+        const willAdd = !trackAlreadyIn(trackInfo[0].track.name);
+        console.log(">>>>>>>>>>>>>>>>>> 1 WAS", willAdd);
+        if (willAdd) {
             setTrackDetail(trackInfo[0].track);
-            return true;
         }
-        return false;
+        return willAdd;
+        
+        
     });
 
     const chooseSong = useCallback((choiceSelections) => {
@@ -87,9 +103,12 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
 
     // TODO FIXING DUPLICATE SONG BUG
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
+        console.log(">>>>>>>>>>>>>>>>>> 2");
         if (!trackAlreadyIn(songName)) {
+            console.log(">>>>>>>>>>>>>>>>>> 2 NOT IN YET GETTING ANALYSIS", songName);
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
         } else {
+            console.log(">>>>>>>>>>>>>>>>>> 2 ALREADY IN SETTING DETAIL NULL", songName);
             setTrackDetail(null);
         }
     }
@@ -133,10 +152,15 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
 
     return (
         <div>
+            <div className="playlist-select">
+                {tracklistSize() === 0 && <button onClick={() => changeChosen(1)}>EURO HOUSE</button>}
+                {tracklistSize() === 0 && <button onClick={() => changeChosen(2)}>CHILL HOUSE</button>}
+                {tracklistSize() === 0 && <button onClick={() => changeChosen(3)}>TECH HOUSE</button>}
+            </div>
+            
             <form onSubmit={playlistSearchClicked}>
-                {tracklistSize() === 0 && <button type='submit' className="begin-mix">BEGIN MIX</button>}
+                {chosenMix && tracklistSize() === 0 && <button className="begin-mix">Begin</button>}
                 <div style={{ marginTop: "4em" }}>
-                    {/* <Listbox items={tracks.listOfTracksFromAPI} clicked={selectTrack} /> */}
                     {trackDetail && <TrackFinder name={trackDetail.name}
                         artists={trackDetail.artists}
                         duration_ms={trackDetail.duration_ms}

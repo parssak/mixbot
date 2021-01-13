@@ -15,9 +15,10 @@ const addSongRefURL = 'http://localhost:8080/addReference'
 export function trackAlreadyIn(trackName) {
     console.log(">>>>>>>>> CHECKING IF", trackName, "IS ALREADY IN TRACKLIST");
     for (const trackObj of tracklist) {
-        if (trackObj.songName === trackName)
-            console.log(">>>>>>>>> ",trackName, "IS ALREADY IN TRACKLIST");
+        if (trackObj.songName === trackName) {
+            console.log(">>>>>>>>> ", trackName, "IS ALREADY IN TRACKLIST");
             return true;
+        }
     }
     console.log(">>>>>>>>> ", trackName, "IS NOT NOT NOT NOT NOTALREADY IN TRACKLIST");
     return false;
@@ -94,7 +95,7 @@ export default function Mixbot() {
             } else {
                 // console.log("got it from db!");
             }
-          
+
             // Add it to the DB // todo
             // let databaseEntry = {
             // songID: songID,
@@ -152,7 +153,7 @@ export default function Mixbot() {
                 <Brain decisions={thoughts} />
                 {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
             </div>
-            <TrackSelector addToQueue={addToQueue} addMoreSongs={upcomingSongs.length < 1} newThought={ newThought}/>
+            <TrackSelector addToQueue={addToQueue} addMoreSongs={upcomingSongs.length < 1} newThought={newThought} />
         </>
     )
 }

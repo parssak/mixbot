@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Deck from "./Deck";
 import './css_files/Queue.scss';
-import { loadTrack, nextSongInQueue} from "./Mixbot";
+import { loadTrack, nextSongInQueue } from "./Mixbot";
 
 let deck1startTime = 0;
 let deck2startTime = 0;
@@ -15,7 +15,9 @@ let deck2lastBar = 0;
 let deckOneGlow = 9;
 let deckTwoGlow = 9;
 
-export default function TrackPlayer({newThought}) {
+export default function TrackPlayer({ newThought }) {
+    
+
     const [clock, setClock] = useState();
 
     const [deck1Song, setDeck1Song] = useState('');
