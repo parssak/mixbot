@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import './css_files/App.css';
+import './css_files/App.scss';
 import Mixbot from './Mixbot';
 
 function App() {

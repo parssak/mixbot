@@ -1,47 +1,46 @@
-@import 'Fonts.css';
+@import "Fonts.css";
 :root {
     --accent-color: tomato;
 }
 
-@import 'Listbox.css';
+@import "Listbox.css";
 /* @import 'Deck.css'; */
 
-@import 'Waveform.css';
+@import "Waveform.css";
 * {
-    /* background: #171418; */
     color: white;
     font-size: 30px;
     font-weight: 300;
 }
 
+$bgColor: rgb(23, 20, 24);
+
 .title {
-    font-family: 'Monument Black';
+    font-family: "Monument Black";
     display: flex;
     margin-left: 1em;
     margin-right: 1em;
+    h1 {
+        font-size: 1.4rem;
+    }
 }
 
 html {
-    background: #171418;
-}
-
-
-.title h1 {
-    font-size: 1.4rem;
+    background: rgb(23, 20, 24);
 }
 
 .credits {
     display: flex;
     flex-grow: 1;
-}
 
-.credits h3 {
-    font-family: 'Monument Regular';
-    font-size: 0.4rem;
-    color: #5c595d;
-    margin-left: auto;
-    margin-top: auto;
-    margin-bottom: auto;
+    h3 {
+        font-family: "Monument Regular";
+        font-size: 0.4rem;
+        color: #5c595d;
+        margin-left: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+    }
 }
 
 .body {
@@ -70,25 +69,25 @@ button {
     /* background: #5437c0; */
     background: var(--accent-color);
     margin: 0.2rem;
-    padding: 0.em 0.4em;
+    padding: 0em 0.4em;
     border-radius: 0.2rem;
     border-style: none;
     transition: all 0.5s ease;
     opacity: 0.8;
-    font-family: 'Inter';
+    font-family: "Inter";
     font-weight: bolder;
     font-size: 0.7rem;
-    box-shadow: 0 3px 100px rgba(255, 99, 71, 0);
+    // box-shadow: 0 3px 100px rgba(255, 99, 71, 0.3);
     overflow: visible;
-}
 
-button:hover {
-    cursor: pointer;
-    transform: scale(1.01);
-    opacity: 1;
-    box-shadow: 0 3px 100px rgba(255, 99, 71, 0.3);
-    overflow: visible;
-    z-index: 9999;
+    &:hover {
+        cursor: pointer;
+        transform: scale(1.01);
+        opacity: 1;
+        
+        overflow: visible;
+        // z-index: 9999;
+    }
 }
 
 .slider {
@@ -104,9 +103,9 @@ button:hover {
     /* Remove outline */
     opacity: 0.7;
     /* Set transparency (for mouse-over effects on hover) */
-    -webkit-transition: .2s;
+    -webkit-transition: 0.2s;
     /* 0.2 seconds transition on hover */
-    transition: opacity .2s;
+    transition: opacity 0.2s;
     border-radius: 1em;
     /*display: block;*/
     margin: 0.3rem 0.5em 0.5em;
@@ -123,16 +122,20 @@ button:hover {
     justify-content: center;
     display: flex;
     position: relative;
-    z-index: 99;
+    // z-index: 99;
     padding: 0.5em 1em;
     border-radius: 0.2rem;
     border-style: none;
     transition: all 0.1s ease;
     opacity: 0.8;
-    font-family: 'Monument Black';
+    font-family: "Monument Black";
     font-weight: 800;
     font-size: 0.7rem;
     overflow: visible;
+}
+
+.mixbot-body {
+    // transition: all 1s ease;
 }
 
 .mixbot-dropdowns {
@@ -141,4 +144,40 @@ button:hover {
     flex-grow: 1;
     width: 100%;
     background-color: none;
+}
+
+.selector-wrapper {
+    position: absolute;
+    top: 5rem;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(23, 20, 24, 0.4);
+    margin: 0;
+    & * {
+        
+        font-family: "Monument Black";
+    // box-shadow: 0 3px 100px rgba(255, 99, 71, 0.3);
+
+    }
+    h1 {
+        text-transform: uppercase;
+        text-align: center;
+        text-shadow: 0 3px 50px rgba(255, 99, 71, 1);
+    }
+    .playlist-select {
+        display: flex;
+        flex-direction: row;
+        
+        // flex-basis: content;
+        // z-index: 999;
+            // flex-grow: 1;
+        
+        & > * {
+            flex-grow: 1;
+            height: 4rem;
+            margin: 2rem;
+            flex-basis: 200px;
+        }
+    }
 }

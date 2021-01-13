@@ -49,6 +49,8 @@ export const thoughtType = {
     MIX: 4
 }
 
+let mixChosen = false;
+
 export default function Mixbot() {
     const [thoughts, setThoughts] = useState([]);
 
@@ -145,15 +147,29 @@ export default function Mixbot() {
         });
     }
 
+    function choseMix() {
+        mixChosen = true;
+    }
 
     return (
         <>
-            <TrackPlayer newThought={newThought} />
-            <div className="mixbot-dropdowns">
-                <Brain decisions={thoughts} />
-                {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
+            <div className="mixbot-body" style={{ filter: mixChosen ? "blur(0px)" : "blur(3px)" }}>
+                <TrackPlayer newThought={newThought} />
+                <div className="mixbot-dropdowns">
+                    <Brain decisions={thoughts} />
+                    {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
+                </div>
             </div>
-            <TrackSelector addToQueue={addToQueue} addMoreSongs={upcomingSongs.length < 1} newThought={newThought} />
+            <div style={{ display: mixChosen ? 'none' : 'inherit' }}>
+                <TrackSelector
+                    addToQueue={addToQueue}
+                    addMoreSongs={upcomingSongs.length < 1}
+                    newThought={newThought}
+                    mixChosen={choseMix}
+
+                />
+            </div>
+
         </>
     )
 }

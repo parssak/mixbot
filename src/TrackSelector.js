@@ -16,7 +16,7 @@ let chosenPlaylist = null;
 let gateway = new Gateway();
 let offset = 0;
 
-function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
+function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
     const [playlist, setPlaylist] = useState({ selectedPlaylist: null, listOfPlaylistFromAPI: [] });
@@ -69,6 +69,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
                 selectedTrack: tracks.selectedTrack,
                 listOfTracksFromAPI: tracksResponse.data.items
             })
+            mixChosen();
         });
     }
 
@@ -151,7 +152,9 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     }
 
     return (
-        <div>
+        <div className="selector-wrapper">
+
+            <h1>Select a mix</h1>
             <div className="playlist-select">
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(1)}>EURO HOUSE</button>}
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(2)}>CHILL HOUSE</button>}
