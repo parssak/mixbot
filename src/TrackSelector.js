@@ -107,13 +107,18 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         let analysisInDB = await gateway.checkAnalysisDB(id);
 
-        if (!analysisInDB.data) {
+        if (!analysisInDB) {
+            console.log(">>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<>>>>>>>>>>>>>>><<<<<<<<<<<<<<<>>>>>>>>>>>>>");
+            console.log(analysisInDB);
             let rawAnalysis = await gateway.getSpotifyAnalysis(id, token);
             let songData = rawAnalysis.data;
             let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
             analysisInDB = analyzedData;
             addSongAnalysisToDatabase(id, analyzedData, songName);
+        } else {
+            console.log("!!!!!!!>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<>>>>>>>>>>>>>>><<<<<<<<<<<<<<<>>>>>>>>>>>>>");
+            console.log(analysisInDB);
         }
         addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
         setTrackDetail(null);

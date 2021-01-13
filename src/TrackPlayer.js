@@ -30,6 +30,9 @@ export default function TrackPlayer({newThought}) {
     const [deck1prepared, setDeck1prepared] = useState(false);
     const [deck2prepared, setDeck2prepared] = useState(false);
 
+    const [deck1remove, setDeck1remove] = useState(false);
+    const [deck2remove, setDeck2remove] = useState(false);
+
     const [deck1Playing, setDeck1Playing] = useState(false);
     const [deck2Playing, setDeck2Playing] = useState(false);
 
@@ -69,15 +72,16 @@ export default function TrackPlayer({newThought}) {
         let newSong = loadTrack();
         setDeck1prepared(false);
         setDeck1Playing(false);
+        setDeck1remove(false);
         if (newSong !== null) {
             console.log("new");
             console.log(newSong);
-            setDeck1BPM(Math.round(newSong.songAnalysis.tempo)) // terribly sus
+            setDeck1BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
                 if (deck2BPM !== 0) {
-                    let ratio = (deck2BPM / newSong.songAnalysis.tempo).toPrecision(5);
+                    let ratio = (deck2BPM / newSong.songAnalysis.analysis.tempo).toPrecision(5);
                     setDeck1playback(ratio);
                 } else {
                     setDeck1playback(1);
@@ -97,14 +101,15 @@ export default function TrackPlayer({newThought}) {
         let newSong = loadTrack();
         setDeck2prepared(false);
         setDeck2Playing(false);
+        setDeck2remove(false);
         if (newSong !== null) {
-            setDeck2BPM(Math.round(newSong.songAnalysis.tempo)) // terribly sus
+            setDeck2BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             console.log(">>>>>            here comes the next song", newSong);
             if (deck1Song === '') {
                 setDeck2playback(1);
             } else {
                 if (deck1BPM !== 0) {
-                    let ratio = (deck1BPM / Math.round(newSong.songAnalysis.tempo)).toPrecision(5);
+                    let ratio = (deck1BPM / Math.round(newSong.songAnalysis.analysis.tempo)).toPrecision(5);
                     setDeck2playback(ratio);
                 } else {
                     setDeck2playback(1);
@@ -193,6 +198,14 @@ export default function TrackPlayer({newThought}) {
         loadTrackB();
     }
 
+    function takeOutA() {
+        setDeck1remove(true);
+    }
+
+    function takeOutB() {
+        setDeck2remove(true);
+    }
+
     return (
         <>
             <div className={"djboard"}>
@@ -219,6 +232,8 @@ export default function TrackPlayer({newThought}) {
                         waveformID={"waveformA"}
                         bpm={deck1BPM}
                         newThought={newThought}
+                        shouldRemove={deck1remove}
+                        removeOther={takeOutA}
                     />
                     }
 
@@ -246,6 +261,8 @@ export default function TrackPlayer({newThought}) {
                         waveformID={"waveformB"}
                         bpm={deck2BPM}
                         newThought={newThought}
+                        shouldRemove={deck2remove}
+                        removeOther={takeOutB}
                     />}
                 </div>
             </div>
