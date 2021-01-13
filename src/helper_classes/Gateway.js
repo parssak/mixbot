@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { Analyzer } from './Analyzer';
 const baseURL = 'http://localhost:8080'
 
 const addWhitelistURL = baseURL + '/addWhitelist';
@@ -85,12 +85,17 @@ export class Gateway {
     async getSpotifyAnalysis(trackID, token) {
         let result = null;
         if (trackID) {
+            let analyzer = new Analyzer();
             result = await axios(`https://api.spotify.com/v1/audio-analysis/${trackID}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
             });
+
+            let songData = result.data;
+            result = await analyzer.analyzeSong(songData);
+            
         }
         return result;
     }

@@ -172,8 +172,7 @@ export default class Deck extends Component {
         }
 
         if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync && this.props.otherPlaying) {
-            console.log("AAAAAAAA");
-            this.takeOutSong("OINGO BOINGOOOO");
+            this.takeOutSong();
         }
     }
 
@@ -298,10 +297,9 @@ export default class Deck extends Component {
 
     }
 
-    takeOutSong(balls) {
-        console.log("TAKING OUT SONG IN", this.props.deckName);
+    takeOutSong() {
         this.fadeOutSong();
-        let think = "Fading out " + this.props.deckName + balls;
+        let think = "Fading out " + this.props.deckName;
         this.props.newThought(think, thoughtType.MIX);
     }
 

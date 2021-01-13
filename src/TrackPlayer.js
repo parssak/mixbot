@@ -70,6 +70,11 @@ export default function TrackPlayer({newThought}) {
         setDeck1Playing(false);
         setDeck1remove(false);
         if (newSong !== null) {
+            if (!newSong.songAnalysis.analysis) {
+                console.log("CASE A", newSong);
+            } else {
+                console.log("CASE B", newSong);
+            }
             setDeck1BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             if (deck2Song === '') {
                 setDeck1playback(1);
@@ -93,6 +98,15 @@ export default function TrackPlayer({newThought}) {
         setDeck2Playing(false);
         setDeck2remove(false);
         if (newSong !== null) {
+            
+
+            // EITHER IS newSong.songAnalysis || newSOng.songAnalysis.analysis
+            if (!newSong.songAnalysis.analysis) {
+                console.log("CASE A", newSong);
+            } else {
+                console.log("CASE B", newSong);
+            }
+
             setDeck2BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             if (deck1Song === '') {
                 setDeck2playback(1);

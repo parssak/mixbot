@@ -2,19 +2,24 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Credentials } from './api/Credentials';
 import axios from 'axios';
 import Listbox from "./frontend_components/Listbox";
-import { Analyzer } from './helper_classes/Analyzer';
+// import { Analyzer } from './helper_classes/Analyzer';
 import TrackFinder from "./helper_classes/TrackFinder";
 import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
 
 const euroHouseID = "2818tC1Ba59cftJJqjWKZi";
+const superChillHouseID = "52yAobXW9CokfKnLhe3C8Z";
+const crimeID = "1Hve0lapmmb6ddgKd7KLmd";
+
+const chosenPlaylist = superChillHouseID;
+
 let gateway = new Gateway();
 let offset = 0;
 
 function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     const spotify = Credentials();
     const [token, setToken] = useState('');
-    const [playlist, setPlaylist] = useState({ selectedPlaylist: euroHouseID, listOfPlaylistFromAPI: [] });
+    const [playlist, setPlaylist] = useState({ selectedPlaylist: chosenPlaylist, listOfPlaylistFromAPI: [] });
     const [tracks, setTracks] = useState({ selectedTrack: '', listOfTracksFromAPI: [] });
     const [trackDetail, setTrackDetail] = useState(null);
 
@@ -80,7 +85,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
         }
     }, [tracks, trackDetail, addMoreSongs, chooseSong])
 
-
+    // TODO FIXING DUPLICATE SONG BUG
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         if (!trackAlreadyIn(songName)) {
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
@@ -89,27 +94,34 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
         }
     }
 
-    async function addSongAnalysisToDatabase(songID, songAnalysis, songName) {
-        let dbAnalysis = {
-            songID: songID,
-            songName: songName,
-            analysis: songAnalysis
-        }
-        await gateway.addToAnalysis(dbAnalysis);
+    async function addSongAnalysisToDatabase(dbObj) {
+        // let dbAnalysis = {
+        //     songID: songID,
+        //     songName: songName,
+        //     analysis: songAnalysis
+        // }
+        await gateway.addToAnalysis(dbObj);
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         let analysisInDB = await gateway.checkAnalysisDB(id);
-
-        if (!analysisInDB) {
-            let rawAnalysis = await gateway.getSpotifyAnalysis(id, token);
-            let songData = rawAnalysis.data;
-            let analyzer = new Analyzer();
-            let analyzedData = analyzer.analyzeSong(songData);
-            analysisInDB = analyzedData;
-            addSongAnalysisToDatabase(id, analyzedData, songName);
+        let takenFromDB = !analysisInDB;
+        if (takenFromDB) {
+            analysisInDB = await gateway.getSpotifyAnalysis(id, token);
+            let dbAnalysis = {
+                songID: id,
+                songName: songName,
+                analysis: analysisInDB
+            }
+            analysisInDB = dbAnalysis;
+            // let songData = rawAnalysis.data;
+            // let analyzer = new Analyzer();
+            
+            // analysisInDB = analyzedData;
         }
+        
         addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
+        await addSongAnalysisToDatabase(analysisInDB);
         setTrackDetail(null);
     }
 
