@@ -13,9 +13,7 @@ const addSongRefURL = 'http://localhost:8080/addReference'
 
 // --- Global Functions ---
 export function trackAlreadyIn(trackName) {
-    console.log(">>>>>>>>>>>>>>> checking if track is already in....", trackName);
     for (const trackObj of tracklist) {
-        console.log(trackObj)
         if (trackObj.songName === trackName)
             return true;
     }

@@ -81,20 +81,17 @@ export default class Deck extends Component {
     }
 
     componentDidMount() {
-        console.log("|| ---- COMPONENT DID MOUNT ---- ||", this.props.deckName);
         this.waveform = WaveSurfer.create(this.waveSurferOptions);
 
         this.waveform.on('error', e => {
             console.error(e);
         })     
         this.waveform.load(this.props.thisSong);
-        console.log("loaded song", this.waveform.src);
         this.waveform.setPlaybackRate(this.props.playbackRate);
         this.reconnectAudio();
     }
 
     componentDidUpdate(prevProps) {
-        console.log("||| ---- COMPONENT DID UPDATE ---- |||", this.props.deckName);
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
@@ -114,15 +111,12 @@ export default class Deck extends Component {
                 console.log("hit error:", e);
             })
 
-            console.log("loading song in update >>>!", this.props.thisSong);
             let dummy = new Audio(this.props.thisSong);
             this.waveform.load(dummy.src);
             this.waveform.setPlaybackRate(this.props.playbackRate);
 
             this.reconnectAudio();
-        } else {
-            console.log("SONG DIDN'T CHANGE");
-        }
+        } 
 
         if (this.state.audioCtx.state !== 'suspended') {
             if (this.props.play !== this.waveform.isPlaying()) {
@@ -177,7 +171,7 @@ export default class Deck extends Component {
             }
         }
 
-        if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync && this.props.otherReady) {
+        if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync && this.props.otherPlaying) {
             console.log("AAAAAAAA");
             this.takeOutSong("OINGO BOINGOOOO");
         }

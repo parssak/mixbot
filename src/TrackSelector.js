@@ -46,9 +46,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
                 offset: offset
             }
         }).then(tracksResponse => {
-            console.log("----------------------------");
             console.log("----------------------------- GOT SONGS, OFFSETTING FROM", offset);
-            console.log("----------------------------");
             offset += 40;
             setTracks({
                 selectedTrack: tracks.selectedTrack,
@@ -58,12 +56,9 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
     }
 
     const selectTrack = useCallback((val) => {
-        console.log("VAL IS", val);
         const currentTracks = [...tracks.listOfTracksFromAPI];
         const trackInfo = currentTracks.filter(t => t.track.id === val);
         if (!trackAlreadyIn(trackInfo[0].track.name)) {
-            console.log("setting track detail:", trackInfo[0].track);
-            console.log("setting track detail BACKUP:", trackInfo);
             setTrackDetail(trackInfo[0].track);
             return true;
         }
@@ -77,10 +72,9 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
 
     useEffect(() => {
         if (tracks.listOfTracksFromAPI.length > 0) {
-            console.log("Got some songs!");
+            console.log("We have songs!");
             if (trackDetail == null && addMoreSongs) {
-                console.log("ADDING ANOTHER SONG!");
-                console.log(tracks);
+                console.log("Adding another song!");
                 chooseSong(tracks.listOfTracksFromAPI)
             }
         }
@@ -108,17 +102,12 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought }) {
         let analysisInDB = await gateway.checkAnalysisDB(id);
 
         if (!analysisInDB) {
-            console.log(">>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<>>>>>>>>>>>>>>><<<<<<<<<<<<<<<>>>>>>>>>>>>>");
-            console.log(analysisInDB);
             let rawAnalysis = await gateway.getSpotifyAnalysis(id, token);
             let songData = rawAnalysis.data;
             let analyzer = new Analyzer();
             let analyzedData = analyzer.analyzeSong(songData);
             analysisInDB = analyzedData;
             addSongAnalysisToDatabase(id, analyzedData, songName);
-        } else {
-            console.log("!!!!!!!>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<>>>>>>>>>>>>>>><<<<<<<<<<<<<<<>>>>>>>>>>>>>");
-            console.log(analysisInDB);
         }
         addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
         setTrackDetail(null);

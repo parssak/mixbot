@@ -40,7 +40,6 @@ export default function TrackPlayer({newThought}) {
     const [deck2offset, setDeck2offset] = useState(0);
 
     useEffect(() => {
-        console.log("-----------------player did update!-----------------");
         if (!clock) {
             let newClock = new AudioContext();
             setClock(newClock);
@@ -57,12 +56,9 @@ export default function TrackPlayer({newThought}) {
 
     useEffect(() => {
         if (nextSongInQueue() !== null) {
-            console.log(">>> theres a song in the queue!", nextSongInQueue());
             if ((deck1BPM == 0) && (deck1Song == '')) {
-                console.log(">> putting it in track a");
                 loadTrackA();
             } else if ((deck2BPM == 0) && (deck2Song == '')) {
-                console.log(">> putting it in track b");
                 loadTrackB();
             }
         }
@@ -74,8 +70,6 @@ export default function TrackPlayer({newThought}) {
         setDeck1Playing(false);
         setDeck1remove(false);
         if (newSong !== null) {
-            console.log("new");
-            console.log(newSong);
             setDeck1BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             if (deck2Song === '') {
                 setDeck1playback(1);
@@ -87,13 +81,9 @@ export default function TrackPlayer({newThought}) {
                     setDeck1playback(1);
                 }
             }
-            console.log("> , --------------------------->> ", newSong);
             let think = "Put " + newSong.songName + " on Deck A";
             newThought(think);
             setDeck1Song(newSong);
-        }
-        else {
-            console.log("new song was null");
         }
     }
 
@@ -104,7 +94,6 @@ export default function TrackPlayer({newThought}) {
         setDeck2remove(false);
         if (newSong !== null) {
             setDeck2BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
-            console.log(">>>>>            here comes the next song", newSong);
             if (deck1Song === '') {
                 setDeck2playback(1);
             } else {
@@ -126,9 +115,7 @@ export default function TrackPlayer({newThought}) {
     function deckOneReady() {
         if (!deck1prepared) {
             setDeck1prepared(true);
-            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTING D1READY");
             if (!deck2Playing) {
-                console.log("telling deck 1 to play");
                 setDeck1Playing(true);
             }
         }
@@ -137,9 +124,7 @@ export default function TrackPlayer({newThought}) {
     function deckTwoReady() {
         if (!deck2prepared) {
             setDeck2prepared(true);
-            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTING D2READY");
             if (!deck1Playing) {
-                console.log("telling deck 2 to play");
                 setDeck2Playing(true);
             }
         }
@@ -147,7 +132,6 @@ export default function TrackPlayer({newThought}) {
 
     function playTrackTwo() {
         if (deck2prepared) {
-            console.log("+++ deck TWO is prepared, gonna play it!");
             setDeck2Playing(true);
             setDeck2prepared(false);
             if (lastTrackSet === 0) {
@@ -159,7 +143,6 @@ export default function TrackPlayer({newThought}) {
 
     function playTrackOne() {
         if (deck1prepared) {
-            console.log("+++ deck ONE is prepared, gonna play it!");
             setDeck1Playing(true);
             setDeck1prepared(false);
             if (lastTrackSet === 0) {
@@ -173,7 +156,6 @@ export default function TrackPlayer({newThought}) {
     function hitBarD1() {
         deck1lastBar = clock.currentTime;
         if (deck2Playing) {
-            console.log("DECK1", deck1offset);
             setDeck1offset(deck2lastBar - deck1lastBar);
         }
     }
@@ -181,7 +163,6 @@ export default function TrackPlayer({newThought}) {
     function hitBarD2() {
         deck2lastBar = clock.currentTime;
         if (deck1Playing) {
-            console.log("DECK2", deck2offset);
             setDeck2offset(deck1lastBar - deck2lastBar);
         }
     }
@@ -199,11 +180,12 @@ export default function TrackPlayer({newThought}) {
     }
 
     function takeOutA() {
-        setDeck1remove(true);
+        if (deck1Playing) setDeck1remove(true);
+        
     }
 
     function takeOutB() {
-        setDeck2remove(true);
+        if (deck2Playing) setDeck2remove(true);
     }
 
     return (
@@ -233,7 +215,8 @@ export default function TrackPlayer({newThought}) {
                         bpm={deck1BPM}
                         newThought={newThought}
                         shouldRemove={deck1remove}
-                        removeOther={takeOutA}
+                        removeOther={takeOutB}
+                        otherPlaying={deck2Playing}
                     />
                     }
 
@@ -262,7 +245,8 @@ export default function TrackPlayer({newThought}) {
                         bpm={deck2BPM}
                         newThought={newThought}
                         shouldRemove={deck2remove}
-                        removeOther={takeOutB}
+                        removeOther={takeOutA}
+                        otherPlaying={deck1Playing}
                     />}
                 </div>
             </div>
