@@ -262,8 +262,8 @@ export default class Deck extends Component {
                     }
                 })
                 console.log(this.props.deckName, " HAS FINISHED", this.waveform.getCurrentTime() / this.waveform.getDuration(), "OF ITS SONG");
-                if (this.props.otherReady && (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.5)) {
-                    if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0) {
+                if (this.props.otherReady && (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.4)) {
+                    if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0 || thisSection.sectionType === SectionType.COMEDOWN) {
                         this.props.playOtherTrack();                                                    // TODO LEFT OFF HERE SONG B NOT PLAYING
                     } else if (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.7) {
                         this.props.playOtherTrack();

@@ -39,6 +39,7 @@ app.get('/youtubeSearch', function (req, res) {
         res.send(e.data);
     }).catch(e => {
         console.log("------------- error -------------");
+        console.log(e.response);
         res.sendStatus(500);
     })
 })

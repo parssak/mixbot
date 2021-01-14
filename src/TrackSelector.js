@@ -5,6 +5,13 @@ import TrackFinder from "./helper_classes/TrackFinder";
 import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
 
+const MixType = {
+    EURO_HOUSE: 1,
+    CHILL_HOUSE: 2,
+    TECH_HOUSE: 3,
+}
+
+let currentMix = null; // meant to be a mixType
 const euroHouseMix_1 = "2818tC1Ba59cftJJqjWKZi";
 const euroHouseMix_2 = "1fWDDXepy50hFXLhwGR5xP";
 const chillMix_1 = "52yAobXW9CokfKnLhe3C8Z";
@@ -15,6 +22,19 @@ let chosenPlaylist = null;
 
 let gateway = new Gateway();
 let offset = 0;
+
+function getMixText() {
+    switch (currentMix) {
+        case MixType.EURO_HOUSE:
+            return "Euro House Mix";
+        case MixType.TECH_HOUSE:
+            return "Tech House Mix";
+        case MixType.CHILL_HOUSE:
+            return "Chill House Mix";
+        default:
+            break;
+    }
+}
 
 function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     const spotify = Credentials();
@@ -39,12 +59,17 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     }, [spotify.ClientId, spotify.ClientSecret]);
 
+
+
     function changeChosen(playlist) {
         if (playlist === 1) { // euro house
+            currentMix = MixType.EURO_HOUSE;
             chosenPlaylist = Math.random() > 0.5 ? euroHouseMix_1 : euroHouseMix_2;
         } else if (playlist === 2) {
+            currentMix = MixType.CHILL_HOUSE;
             chosenPlaylist = Math.random() > 0.5 ? chillMix_1 : chillMix_2;
         } else {
+            currentMix = MixType.TECH_HOUSE;
             chosenPlaylist = techHouseMix_1;
         }
 
@@ -69,7 +94,8 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
                 selectedTrack: tracks.selectedTrack,
                 listOfTracksFromAPI: tracksResponse.data.items
             })
-            mixChosen();
+
+            mixChosen(getMixText());
         });
     }
 
@@ -155,6 +181,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
         <div className="selector-wrapper">
 
             <h1>Select a mix</h1>
+            {chosenMix && <h2>{getMixText()}</h2>}
             <div className="playlist-select">
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(1)}>EURO HOUSE</button>}
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(2)}>CHILL HOUSE</button>}
@@ -162,7 +189,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
             </div>
             
             <form onSubmit={playlistSearchClicked}>
-                {chosenMix && tracklistSize() === 0 && <button className="begin-mix">Begin</button>}
+                {chosenMix && tracklistSize() === 0 && <button className="begin-mix">Begin mix</button>}
                 <div style={{ marginTop: "4em" }}>
                     {trackDetail && <TrackFinder name={trackDetail.name}
                         artists={trackDetail.artists}

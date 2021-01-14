@@ -123,6 +123,8 @@ button {
     display: flex;
     position: relative;
     // z-index: 99;
+            text-transform: uppercase;
+
     padding: 0.5em 1em;
     border-radius: 0.2rem;
     border-style: none;
@@ -132,11 +134,9 @@ button {
     font-weight: 800;
     font-size: 0.7rem;
     overflow: visible;
+    margin-top: 5rem;
 }
 
-.mixbot-body {
-    // transition: all 1s ease;
-}
 
 .mixbot-dropdowns {
     display: flex;
@@ -163,6 +163,13 @@ button {
     h1 {
         text-transform: uppercase;
         text-align: center;
+        text-shadow: 0 3px 25px rgba(255, 99, 71, 1);
+    }
+
+    h2 {
+        text-transform: uppercase;
+        text-align: center;
+        font-size: 1.7rem;
         text-shadow: 0 3px 50px rgba(255, 99, 71, 1);
     }
     .playlist-select {
@@ -172,12 +179,14 @@ button {
         // flex-basis: content;
         // z-index: 999;
             // flex-grow: 1;
-        
+        // width: 1rem;
         & > * {
             flex-grow: 1;
             height: 4rem;
+            // width: 10rem;
             margin: 2rem;
             flex-basis: 200px;
+            font-size: 1rem;
         }
     }
 }

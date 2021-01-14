@@ -49,10 +49,11 @@ export const thoughtType = {
     MIX: 4
 }
 
-let mixChosen = false;
+let currMixType = null;
 
 export default function Mixbot() {
     const [thoughts, setThoughts] = useState([]);
+    const [mixChosen, setMixChosen] = useState(false);
 
     function newThought(input, type = thoughtType.NEUTRAL) {
         // console.log("1. new thought added", input);
@@ -147,8 +148,11 @@ export default function Mixbot() {
         });
     }
 
-    function choseMix() {
-        mixChosen = true;
+    function choseMix(mixType) {
+        const think = "Selected " + mixType + ", beginning mix";
+        newThought(think, thoughtType.SUCCESS);
+        currMixType = mixType;
+        setMixChosen(true);
     }
 
     return (
@@ -156,7 +160,7 @@ export default function Mixbot() {
             <div className="mixbot-body" style={{ filter: mixChosen ? "blur(0px)" : "blur(3px)" }}>
                 <TrackPlayer newThought={newThought} />
                 <div className="mixbot-dropdowns">
-                    <Brain decisions={thoughts} />
+                    <Brain decisions={thoughts} mixType={currMixType}/>
                     {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
                 </div>
             </div>

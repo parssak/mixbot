@@ -2,7 +2,7 @@ import React from 'react'
 import './css_files/Queue.scss';
 import { thoughtType } from './Mixbot';
 
-export default function Brain({ decisions }) {
+export default function Brain({ decisions, mixType }) {
 
     const entryColor = type => {
         let color = '#7f7b80';
@@ -25,7 +25,7 @@ export default function Brain({ decisions }) {
 
     return (
         <div className="queue-header" style={{ flexGrow: 1 }}>
-            <h2>MIXBOT BRAIN</h2>
+            <h2>MIXBOT BRAIN // {mixType && mixType}</h2>
             <div className="queue">
                 {decisions.map(thought => (
                 <>

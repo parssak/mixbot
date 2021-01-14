@@ -7,4 +7,4 @@ const youtubeKey3 = "AIzaSyBpT_RmX3P3wp_OMxiJT0SZIhkqFwMfVrA"; // not set up yet
 const youtubeKey4 = "AIzaSyDgc98evXaE_C01NhK6ls2n7ZDkR - vg6sU"; // backupPlan
 
 
-export const currentKey = youtubeKey4;
+export const currentKey = youtubeKey2;
