@@ -12,15 +12,16 @@ let alreadyPlayed = [];
 const addSongRefURL = 'http://localhost:8080/addReference'
 
 // --- Global Functions ---
-export function trackAlreadyIn(trackName) {
-    console.log(">>>>>>>>> CHECKING IF", trackName, "IS ALREADY IN TRACKLIST");
+export function trackAlreadyIn(songID) { // todo converting this
+    console.log(">>>>>>>>> CHECKING IF", songID, "IS ALREADY IN TRACKLIST  <<<<<<<");
     for (const trackObj of tracklist) {
-        if (trackObj.songName === trackName) {
-            console.log(">>>>>>>>> ", trackName, "IS ALREADY IN TRACKLIST");
+        if (trackObj.songID === songID) {
+            console.log(">>>>>>>>> ", songID, "IS ALREADY IN TRACKLIST  <<<<<<<");
             return true;
         }
+        console.log("Compared", trackObj, "with", songID, "and failed <<<<<<<");
     }
-    console.log(">>>>>>>>> ", trackName, "IS NOT NOT NOT NOT NOTALREADY IN TRACKLIST");
+    console.log(">>>>>>>>> ", songID, "IS NOT ALREADY IN TRACKLIST <<<<<<<");
     return false;
 }
 
@@ -78,8 +79,12 @@ export default function Mixbot() {
      * @param {boolean} fromDatabase: true if fetched yt id from database
      */
     async function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage, songID, videoID, fromDatabase) {
+        console.log("CHECKING ADD TO QUEUE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        if (trackAlreadyIn(songID)) {
+            console.log(songID, " YAHOOOOOOO WAS ALREADY INNNNNNNNNNNNNNN");          
+            return;
+        }
 
-        // TODO MAKE THIS ONLY HAPPEN IF NOT FOUND IN DATABASE
         if (analysis !== "NOTFOUND") {
             if (!fromDatabase) {
                 console.log("not in db yet, adding it...");
@@ -95,19 +100,7 @@ export default function Mixbot() {
                     duration: duration_ms,
                 }
                 addSongRefDB(songRefEntry);
-            } else {
-                // console.log("got it from db!");
             }
-
-            // Add it to the DB // todo
-            // let databaseEntry = {
-            // songID: songID,
-            // songName: songName,
-            // analyzed: analyzedData,
-            // }
-
-            // addTrackAnalysisDB(databaseEntry);
-
         }
 
         const newSong = {
@@ -120,7 +113,7 @@ export default function Mixbot() {
         }
         // console.log(">>>(MIXBOT): NEW SONG IS:", newSong);
         // console.log(">>>(MIXBOT): ANALYSIS:", analysis);
-        let packageSong = { id: "tracklist" + tracklist.length, body: newSong }
+        let packageSong = { id: "tracklist" + tracklist.length, body: newSong, songID: songID }
         // console.log(">>>(MIXBOT): PACKAGED SONG:", packageSong);
         tracklist.push(packageSong);
         // console.log(">>>(MIXBOT): ADDED TO TRACKLIST:", tracklist);
@@ -130,17 +123,6 @@ export default function Mixbot() {
         // console.log(">>>(MIXBOT): ABOUT TO THINK:", think);
         newThought(think, thoughtType.NEUTRAL);
     }
-
-    // function addTrackAnalysisDB(entry) {
-    //     axios.create({
-    //         baseURL: 'http://localhost:8080',
-    //         headers: {}
-    //     }).get('/addAnalysis', {
-    //         params: {
-    //             data: entry
-    //         },
-    //     })
-    // }
 
     function addSongRefDB(entry) {
         axios.get(addSongRefURL, {
@@ -161,7 +143,7 @@ export default function Mixbot() {
                 <TrackPlayer newThought={newThought} />
                 <div className="mixbot-dropdowns">
                     <Brain decisions={thoughts} mixType={currMixType}/>
-                    {tracklist.length == 0 ? null : <QueueBox items={tracklist} />}
+                    <QueueBox items={tracklist}/>
                 </div>
             </div>
             <div style={{ display: mixChosen ? 'none' : 'inherit' }}>

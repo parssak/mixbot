@@ -100,15 +100,20 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     }
 
     const selectTrack = useCallback((val) => {
-        const currentTracks = [...tracks.listOfTracksFromAPI];
-        const trackInfo = currentTracks.filter(t => t.track.id === val);
-        console.log(">>>>>>>>>>>>>>>>>> 1");
-        const willAdd = !trackAlreadyIn(trackInfo[0].track.name);
-        console.log(">>>>>>>>>>>>>>>>>> 1 WAS", willAdd);
-        if (willAdd) {
+        if (!trackAlreadyIn(val)) {
+            console.log(">>>>>>>>>>>>>>>>>> Selected track");
+            const currentTracks = [...tracks.listOfTracksFromAPI];
+            const trackInfo = currentTracks.filter(t => t.track.id === val);
             setTrackDetail(trackInfo[0].track);
         }
-        return willAdd;
+        
+
+        // const willAdd = !trackAlreadyIn(trackInfo[0].track.name);
+        // console.log(">>>>>>>>>>>>>>>>>> 1 WAS", willAdd);
+        // if (willAdd) {
+            // setTrackDetail(trackInfo[0].track);
+        // }
+        // return willAdd;
         
         
     });
@@ -131,7 +136,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     // TODO FIXING DUPLICATE SONG BUG
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         console.log(">>>>>>>>>>>>>>>>>> 2");
-        if (!trackAlreadyIn(songName)) {
+        if (!trackAlreadyIn(trackID)) {
             console.log(">>>>>>>>>>>>>>>>>> 2 NOT IN YET GETTING ANALYSIS", songName);
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
         } else {
@@ -166,14 +171,16 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
             // analysisInDB = analyzedData;
         }
         
-        addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase);
+        await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); // ! todo added "Await" this 
         await addSongAnalysisToDatabase(analysisInDB);
         setTrackDetail(null);
     }
 
-    const couldntBeFound = () => {
-        const think = "Unable to add " + trackDetail.name;
-        newThought(think, thoughtType.FAILURE);
+    const couldntBeFound = (alreadyDB) => {
+        if (!alreadyDB) {
+            const think = "Unable to add " + trackDetail.name;
+            newThought(think, thoughtType.FAILURE);
+        }
         setTrackDetail(null);
     }
 

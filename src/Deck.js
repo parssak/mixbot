@@ -78,6 +78,7 @@ export default class Deck extends Component {
         this.reconnectAudio = this.reconnectAudio.bind(this);
         this.handlePosChange = this.handlePosChange.bind(this);
         this.takeOutSong = this.takeOutSong.bind(this);
+        this.normalizePlayback = this.normalizePlayback.bind(this);
     }
 
     componentDidMount() {
@@ -131,7 +132,8 @@ export default class Deck extends Component {
 
         if (!this.props.shouldSync) {
             this.synced = true; // If this is the main track, don't sync it
-            this.waveform.setPlaybackRate(1);
+            this.normalizePlayback();
+            
         }
 
         // If the offset between tracks is under 0.1 seconds and this is playing, this track is succesful
@@ -173,6 +175,15 @@ export default class Deck extends Component {
 
         if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync && this.props.otherPlaying) {
             this.takeOutSong();
+        }
+    }
+
+    normalizePlayback() {
+        if (this.waveform.getPlaybackRate() !== 1) {
+            let newRate = lerp(this.waveform.getPlaybackRate(), 1, 0.1, this.props.deckName);
+            if (isFinite(newRate)) this.waveform.setVolume(newRate);
+            if (Math.abs(1 - this.waveform.getPlaybackRate()) < 0.1) this.waveform.setPlaybackRate(1);
+            else this.normalizePlayback();
         }
     }
 

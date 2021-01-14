@@ -76,7 +76,7 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                 }
 
                 await gateway.addToWhitelist(whitelistObj);
-                cantFind();
+                cantFind(false);
             }
         })
     }
@@ -120,7 +120,7 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                     const search = createSearchQuery();
                     await getYoutubeVideo(search);
                 } else {
-                    cantFind();
+                    cantFind(true);
                 }
             } else {
                 fromDatabase = true;
