@@ -4,6 +4,7 @@ import TrackPlayer from "./TrackPlayer";
 import QueueBox from "./frontend_components/Queue";
 import Brain from "./Brain";
 import axios from 'axios';
+import MixConfig from './frontend_components/MixConfig';
 
 let tracklist = [];
 let upcomingSongs = [];
@@ -13,15 +14,11 @@ const addSongRefURL = 'http://localhost:8080/addReference'
 
 // --- Global Functions ---
 export function trackAlreadyIn(songID) { // todo converting this
-    console.log(">>>>>>>>> CHECKING IF", songID, "IS ALREADY IN TRACKLIST  <<<<<<<");
     for (const trackObj of tracklist) {
         if (trackObj.songID === songID) {
-            console.log(">>>>>>>>> ", songID, "IS ALREADY IN TRACKLIST  <<<<<<<");
             return true;
         }
-        console.log("Compared", trackObj, "with", songID, "and failed <<<<<<<");
     }
-    console.log(">>>>>>>>> ", songID, "IS NOT ALREADY IN TRACKLIST <<<<<<<");
     return false;
 }
 
@@ -57,13 +54,11 @@ export default function Mixbot() {
     const [mixChosen, setMixChosen] = useState(false);
 
     function newThought(input, type = thoughtType.NEUTRAL) {
-        // console.log("1. new thought added", input);
         let shouldShow = true;
         if (thoughts.length > 0 && thoughts[0].body === input) {
             shouldShow = false;
         }
         setThoughts([{ id: "THOUGHT-" + thoughts.length, body: input, type: type, display: shouldShow }, ...thoughts]);
-        // console.log("2. new thought added", thoughts);
     }
 
     /**
@@ -139,20 +134,20 @@ export default function Mixbot() {
 
     return (
         <>
-            <div className="mixbot-body" style={{ filter: mixChosen ? "blur(0px)" : "blur(3px)" }}>
+            <div className="mixbot-body">
                 <TrackPlayer newThought={newThought} />
                 <div className="mixbot-dropdowns">
                     <Brain decisions={thoughts} mixType={currMixType}/>
-                    <QueueBox items={tracklist}/>
+                    <QueueBox items={tracklist} />
+                    <MixConfig/>
                 </div>
             </div>
             <div style={{ display: mixChosen ? 'none' : 'inherit' }}>
                 <TrackSelector
                     addToQueue={addToQueue}
-                    addMoreSongs={upcomingSongs.length < 1}
+                    addMoreSongs={upcomingSongs.length < 2}
                     newThought={newThought}
                     mixChosen={choseMix}
-
                 />
             </div>
 

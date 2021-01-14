@@ -93,6 +93,7 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
+        console.log(">>>Updated! recommended:", this.props.recommendedVolume, " and is:", this.waveform.getVolume());
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
             console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
@@ -275,7 +276,7 @@ export default class Deck extends Component {
                 console.log(this.props.deckName, " HAS FINISHED", this.waveform.getCurrentTime() / this.waveform.getDuration(), "OF ITS SONG");
                 if (this.props.otherReady && (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.4)) {
                     if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0 || thisSection.sectionType === SectionType.COMEDOWN) {
-                        this.props.playOtherTrack();                                                    // TODO LEFT OFF HERE SONG B NOT PLAYING
+                        this.props.playOtherTrack();                                                 
                     } else if (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.7) {
                         this.props.playOtherTrack();
                     }

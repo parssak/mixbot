@@ -15,6 +15,8 @@ let deck2lastBar = 0;
 let deckOneGlow = 9;
 let deckTwoGlow = 9;
 
+let equalizedGainVal = -100;
+
 export default function TrackPlayer({ newThought }) {
     
 
@@ -40,6 +42,12 @@ export default function TrackPlayer({ newThought }) {
 
     const [deck1offset, setDeck1offset] = useState(0);
     const [deck2offset, setDeck2offset] = useState(0);
+
+    // const [deck1gain, setDeck1Gain] = useState(null); // actual volumes in db
+    // const [deck2gain, setDeck2Gain] = useState(null);
+
+    const [deck1vol, setdeck1vol] = useState(1); // relative vol 0 -1
+    const [deck2vol, setdeck2vol] = useState(1);
 
     useEffect(() => {
         if (!clock) {
@@ -78,12 +86,17 @@ export default function TrackPlayer({ newThought }) {
                 console.log("CASE B", newSong);
             }
             setDeck1BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
+            let newvol = (newSong.songAnalysis.analysis.loudness / equalizedGainVal).toPrecision(5);
+            console.log("DECK A NEW VOLUME >>>>>>>>>>>>>>>>", newvol);
+            setdeck1vol(newvol);
+            // setDeck1Gain(newSong.songAnalysis.analysis.loudness);
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
                 if (deck2BPM !== 0) {
-                    let ratio = (deck2BPM / newSong.songAnalysis.analysis.tempo).toPrecision(5);
-                    setDeck1playback(ratio);
+                    let ratioPB = (deck2BPM / newSong.songAnalysis.analysis.tempo).toPrecision(5);
+                    // let ratioVOL = (deck2gain / newSong.songAnalysis.analysis.loudness)
+                    setDeck1playback(ratioPB);
                 } else {
                     setDeck1playback(1);
                 }
@@ -110,6 +123,10 @@ export default function TrackPlayer({ newThought }) {
             }
 
             setDeck2BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
+            let newvol = (newSong.songAnalysis.analysis.loudness / equalizedGainVal).toPrecision(5);
+            console.log("DECK B NEW VOLUME >>>>>>>>>>>>>>>>", newvol);
+            setdeck1vol(newvol);
+
             if (deck1Song === '') {
                 setDeck2playback(1);
             } else {
@@ -221,10 +238,11 @@ export default function TrackPlayer({ newThought }) {
                         startTime={deck1startTime}
                         playOtherTrack={playTrackTwo}
                         hitBar={hitBarD1}
+                        
                         offset={deck1offset}
                         deckName={"Deck A"}
                         finished={changeTrackA}
-                        recommendedVolume={1}
+                        recommendedVolume={deck1vol}
                         shouldSync={mainTrack !== 1}
                         otherReady={deckTwoReady}
                         waveformID={"waveformA"}
@@ -254,7 +272,7 @@ export default function TrackPlayer({ newThought }) {
                         offset={deck2offset}
                         deckName={"Deck B"}
                         finished={changeTrackB}
-                        recommendedVolume={1}
+                        recommendedVolume={deck2vol}
                         shouldSync={mainTrack !== 2}
                         otherReady={deckOneReady}
                         waveformID={"waveformB"}

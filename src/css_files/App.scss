@@ -154,6 +154,7 @@ button {
     height: 100%;
     background-color: rgba(23, 20, 24, 0.4);
     margin: 0;
+    z-index: 1000;
     & * {
         
         font-family: "Monument Black";

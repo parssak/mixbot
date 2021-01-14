@@ -88,7 +88,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
                 offset: offset
             }
         }).then(tracksResponse => {
-            console.log("----------------------------- GOT SONGS, OFFSETTING FROM", offset);
+            // console.log("----------------------------- GOT SONGS, OFFSETTING FROM", offset);
             // offset += 40;
             setTracks({
                 selectedTrack: tracks.selectedTrack,
@@ -101,7 +101,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     const selectTrack = useCallback((val) => {
         if (!trackAlreadyIn(val)) {
-            console.log(">>>>>>>>>>>>>>>>>> Selected track");
+            // console.log(">>>>>>>>>>>>>>>>>> Selected track");
             const currentTracks = [...tracks.listOfTracksFromAPI];
             const trackInfo = currentTracks.filter(t => t.track.id === val);
             setTrackDetail(trackInfo[0].track);
@@ -125,9 +125,9 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     useEffect(() => {
         if (tracks.listOfTracksFromAPI.length > 0) {
-            console.log("We have songs!");
+            // console.log("We have songs!");
             if (trackDetail == null && addMoreSongs) {
-                console.log("Adding another song!");
+                // console.log("Adding another song!");
                 chooseSong(tracks.listOfTracksFromAPI)
             }
         }
@@ -135,12 +135,12 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     // TODO FIXING DUPLICATE SONG BUG
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
-        console.log(">>>>>>>>>>>>>>>>>> 2");
+        // console.log(">>>>>>>>>>>>>>>>>> 2");
         if (!trackAlreadyIn(trackID)) {
-            console.log(">>>>>>>>>>>>>>>>>> 2 NOT IN YET GETTING ANALYSIS", songName);
+            // console.log(">>>>>>>>>>>>>>>>>> 2 NOT IN YET GETTING ANALYSIS", songName);
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
         } else {
-            console.log(">>>>>>>>>>>>>>>>>> 2 ALREADY IN SETTING DETAIL NULL", songName);
+            // console.log(">>>>>>>>>>>>>>>>>> 2 ALREADY IN SETTING DETAIL NULL", songName);
             setTrackDetail(null);
         }
     }
