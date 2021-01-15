@@ -17,9 +17,6 @@ const Listbox = props => {
                             id={item.track.id}>
                             {item.track.name}
                         </button>
-                        {/* <div className={"listbox-button-details"}>
-                            <p>{item.track.name}</p>
-                        </div> */}
                     </div>)
             }
         </div>

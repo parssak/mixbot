@@ -1,0 +1,62 @@
+.update-mixbot {
+    background: #1c1b1f;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    padding-top: 0.5rem;
+    box-shadow: 0 4px 40px rgba(255, 91, 62, 0.4);
+    width: 50%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    h1 {
+        font-family: "Monument Black";
+        font-weight: 900;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: tomato;
+    }
+    .buttons {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        display: flex;
+        flex-grow: 1;
+        width: 90%;
+        button {
+            flex-grow: 1;
+            margin-inline: 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            padding: 0.5rem;
+            color: white;
+            font-family: "Monument Black";
+        }
+        .nothanks {
+            color: tomato;
+            background-color: white;
+        }
+    }
+
+    .update-content {
+        display: flex;
+        .card {
+            margin-inline: 1rem;
+            flex-basis: content;
+            & * {
+                text-transform: none;
+                color: white;
+                font-weight: 600;
+                padding: 0.4rem;
+                border-radius: 0.25rem;
+                background-color: rgb(46, 49, 60);
+                // padding-left: 0.4rem;
+                // font-size: 1rem;
+                //    font-family: "Inter";
+            }
+            align-self: center;
+            justify-self: center;
+        }
+    }
+}

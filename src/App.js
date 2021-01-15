@@ -1,12 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import './css_files/App.scss';
+import UpdateMixBot from './frontend_components/UpdateMixBot';
 import { Gateway } from './helper_classes/Gateway';
 import Mixbot from './Mixbot';
 
-const version = "0.2";
+const version = "0.1";
 
 function App() {
     const [updateAvailable, setUpdateAvailable] = useState(null);
+    const [updateContent, setUpdateContent] = useState(null);
 
     useEffect(() => {
         async function checkForUpdate() {
@@ -14,17 +16,21 @@ function App() {
             console.log("Checking for update...");
             let newestVersion = await gateway.checkForUpdate(version);
             console.log("Checking for update... GOT", newestVersion);
-            let needUpdate = version === newestVersion.version;
+            let needUpdate = version !== newestVersion.version;
             console.log(needUpdate);
             if (needUpdate) {
-                setUpdateAvailable(newestVersion);
-                console.log("NEED TO UPDATE");
+                setUpdateContent(newestVersion.newFeatures);
+                setUpdateAvailable(true);
             } else {
-                console.log("UP TO DATE");
+                setUpdateAvailable(false);
             }
         }
         checkForUpdate();
     }, [])
+
+    function dontCare() {
+        setUpdateAvailable(false);
+    }
 
     return(
         <div className={"body"}>
@@ -34,8 +40,7 @@ function App() {
                     <h3>An Open Source project by Parssa Kyanzadeh</h3> 
                  </div>
             </div>
-            {!updateAvailable && <Mixbot />}
-            
+            {updateAvailable != null ? updateAvailable ? <UpdateMixBot details={updateContent} dontCare={dontCare}/> :<Mixbot/> : null}            
         </div>
     );
 }
