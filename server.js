@@ -132,5 +132,12 @@ app.get('/addWhitelist', function (req, res) {
     res.sendStatus(200);
 });
 
+//** Check's if programs version is up to date */
+app.get('/checkUpdate', async function (req, res) { // todo
+    console.log(">>>(SERVER): checking for whitelist entry...");
+    let result = await mixbotDB.checkUpdate();
+    res.send(result);
+});
+
 app.listen(process.env.PORT || 8080)
 console.log("listening!");

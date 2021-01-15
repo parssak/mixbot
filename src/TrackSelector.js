@@ -101,25 +101,15 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     const selectTrack = useCallback((val) => {
         if (!trackAlreadyIn(val)) {
-            // console.log(">>>>>>>>>>>>>>>>>> Selected track");
             const currentTracks = [...tracks.listOfTracksFromAPI];
             const trackInfo = currentTracks.filter(t => t.track.id === val);
             setTrackDetail(trackInfo[0].track);
         }
-        
-
-        // const willAdd = !trackAlreadyIn(trackInfo[0].track.name);
-        // console.log(">>>>>>>>>>>>>>>>>> 1 WAS", willAdd);
-        // if (willAdd) {
-            // setTrackDetail(trackInfo[0].track);
-        // }
-        // return willAdd;
-        
-        
     });
 
     const chooseSong = useCallback((choiceSelections) => {
         let selected = choiceSelections[Math.floor(Math.random() * (choiceSelections.length - 1))];
+        console.log("random choice:", selected);
         selectTrack(selected.track.id);
     });
 

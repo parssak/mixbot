@@ -2,6 +2,8 @@ import axios from 'axios';
 import { Analyzer } from './Analyzer';
 const baseURL = 'http://localhost:8080'
 
+const checkUpdateURL = baseURL + '/checkUpdate';
+
 const addWhitelistURL = baseURL + '/addWhitelist';
 const checkWhitelistURL = baseURL + '/checkWhitelist';
 
@@ -12,6 +14,17 @@ const checkReferenceURL = baseURL +'/checkReference';
 const addReferenceURL = baseURL + '/addReference';
 
 export class Gateway {
+
+    async checkForUpdate(currVersion) {
+        let result = null;
+        result = await axios.get(checkUpdateURL, {
+            params:
+            {
+                data: currVersion
+            }
+        });
+        return result.data;
+    }
 
     //*** ADDING DB*/
     async addToAnalysis(analysisObj) {

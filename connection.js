@@ -128,6 +128,26 @@ const whitelistCheck = async function (checkID) {
     return result;
 }
 
+//* Check version of app
+const checkUpdate = async function () {
+    console.log(">>> (DB-UPDATE): getting latest version");
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    try {
+        await client.connect();
+
+        const database = client.db("mixbotdb");
+        const collection = database.collection("app-version");
+
+        const query = { latest: true };
+        const result = await collection.findOne(query);
+        return result;
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
 module.exports = {
     addReference: refAdd,
     checkReference: refCheck,
@@ -137,4 +157,6 @@ module.exports = {
 
     addWhitelist: whitelistAdd,
     checkWhitelist: whitelistCheck,
+
+    checkUpdate: checkUpdate,
 }

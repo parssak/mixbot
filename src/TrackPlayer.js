@@ -125,7 +125,7 @@ export default function TrackPlayer({ newThought }) {
             setDeck2BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             let newvol = (newSong.songAnalysis.analysis.loudness / equalizedGainVal).toPrecision(5);
             console.log("DECK B NEW VOLUME >>>>>>>>>>>>>>>>", newvol);
-            setdeck1vol(newvol);
+            setdeck2vol(newvol);
 
             if (deck1Song === '') {
                 setDeck2playback(1);
