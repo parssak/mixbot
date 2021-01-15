@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Knob from './frontend_components/Knob';
 import WaveSurfer from 'wavesurfer.js';
 import RegionPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min.js';
 import './css_files/Deck.scss';
@@ -7,7 +6,7 @@ import { SectionType } from './helper_classes/Analyzer';
 import { thoughtType } from './Mixbot';
 
 let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: 'same-origin', redirect: 'follow', referrer: 'client', headers: [{ 'Access-Control-Allow-Origin': '*' }] };
-
+let isMasterPaused = false;
 export default class Deck extends Component {
     constructor(props) {
         super(props);
@@ -93,9 +92,17 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log(">>>Updated! recommended:", this.props.recommendedVolume, " and is:", this.waveform.getVolume());
+        // console.log(">>>Updated!",this.props.deckName," recommended:", this.props.recommendedVolume, " and is:", this.waveform.getVolume());
+        if (this.waveform.getVolume() > this.props.recommendedVolume) {
+            console.log(">>>Changing!", this.props.deckName, " volume to:", this.props.recommendedVolume);
+            this.waveform.setVolume(this.props.recommendedVolume);
+            console.log(">>>Now is", this.props.deckName,"->", this.waveform.getVolume());
+
+        }
+        
+
         if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
-            console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
+            // console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
             this.waveform.pause();
 
             this.synced = false;
@@ -162,9 +169,9 @@ export default class Deck extends Component {
                 this.lastAdjustTime = this.waveform.getCurrentTime();
                 let adjustedOffset = this.props.offset;
                 this.totalOffset = this.props.offset;
-                console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset);
+                // console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset);
                 let desiredTime = this.waveform.getCurrentTime() + this.props.offset;
-                console.log("%%%   ", this.props.deckName, " song pos was at:", this.waveform.getCurrentTime(), "we need:", desiredTime);
+                // console.log("%%%   ", this.props.deckName, " song pos was at:", this.waveform.getCurrentTime(), "we need:", desiredTime);
                 this.waveform.pause();
                 this.waveform.skip(adjustedOffset);
                 this.waveform.playPause();
@@ -176,6 +183,19 @@ export default class Deck extends Component {
 
         if (this.props.shouldRemove && !this.fadingOut && !this.shouldSync && this.props.otherPlaying) {
             this.takeOutSong();
+        }
+
+        if (this.props.masterPlay !== prevProps.masterPlay) {
+            if (this.props.masterPlay) {
+                this.waveform.pause();
+                isMasterPaused = true;
+            } else {
+                if (this.waveform.isPlaying() !== this.props.play) {
+                    this.waveform.play();
+                } else {
+                    isMasterPaused = false;
+                }
+            }
         }
     }
 
@@ -189,7 +209,7 @@ export default class Deck extends Component {
     }
 
     reconnectAudio() {
-        console.log("reconnecting audio");
+        // console.log("reconnecting audio");
         // LOWPASS
         let lowpass = this.waveform.backend.ac.createBiquadFilter();
         lowpass.frequency.value = this.state.audioSettings.lowpassF || 11000;
@@ -215,8 +235,8 @@ export default class Deck extends Component {
             gainNode: gain
         });
         this.waveform.backend.setFilter(lowpass, highpass);
-        console.log("INNNNNNNNDAAAADEEECKKKKKKK");
-        console.log(this.props.songAnalysis);
+        // console.log("INNNNNNNNDAAAADEEECKKKKKKK");
+        // console.log(this.props.songAnalysis);
         if (this.props.songAnalysis !== 'NOTFOUND') {
             let analyzed = this.props.songAnalysis.analysis.songSections;
             
@@ -243,6 +263,7 @@ export default class Deck extends Component {
         }
         this.waveform.on('region-in', e => {
             this.props.hitBar();
+            console.log(">>>> HIT BAR : ", e.data.computed);
             if (e.data.sectionType !== undefined) { // has data!
                 if (e.data.sectionType === SectionType.DROP) {
                     this.numDropsPassed++;
@@ -275,7 +296,7 @@ export default class Deck extends Component {
                 })
                 console.log(this.props.deckName, " HAS FINISHED", this.waveform.getCurrentTime() / this.waveform.getDuration(), "OF ITS SONG");
                 if (this.props.otherReady && (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.4)) {
-                    if (thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0 || thisSection.sectionType === SectionType.COMEDOWN) {
+                    if ((thisSection.sectionType === SectionType.DROP && this.numDropsPassed > 0) || thisSection.sectionType === SectionType.COMEDOWN) {
                         this.props.playOtherTrack();                                                 
                     } else if (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.7) {
                         this.props.playOtherTrack();
@@ -293,16 +314,20 @@ export default class Deck extends Component {
                 this.playPause();
                 this.props.prepared();
             }
-            this.waveform.setVolume(0.1);
+            this.waveform.setVolume(0.01);
         });
 
         this.waveform.on('play', e => {
-            this.waveform.setVolume(0.1);
+            this.waveform.setVolume(0.01);
             if (this.props.play) {
-                console.log(this.props.deckName, " JUST STARTED PLAYING GONNA FADE IT IN NOW OK");
-                let think = "Fading in " + this.props.deckName;
-                this.props.newThought(think, thoughtType.MIX);
-                this.fadeInSong();
+                // console.log(this.props.deckName, " JUST STARTED PLAYING GONNA FADE IT IN NOW OK");
+                if (isMasterPaused) {
+                    isMasterPaused = false;
+                } else {
+                    let think = "Fading in " + this.props.deckName;
+                    this.props.newThought(think, thoughtType.MIX);
+                    this.fadeInSong();
+                }
             }
             
         })
@@ -351,7 +376,7 @@ export default class Deck extends Component {
                 gain: (amount / 100).toPrecision(2)
             }
         })
-        this.waveform.setVolume((amount / 100).toPrecision(2) || 1);
+        // this.waveform.setVolume((amount / 100).toPrecision(2) || 1);
     }
 
     handlePosChange(e) {
@@ -361,9 +386,8 @@ export default class Deck extends Component {
     }
 
     fadeOutSong() {
-        // console.log("fading out");
         this.fadingOut = true;
-        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.max(this.waveform.getVolume() / 3), 0.1, this.props.deckName));
+        this.waveform.setVolume(lerp(this.waveform.getVolume(), 0, Math.min(this.waveform.getVolume() / 3), 0.1, this.props.deckName));
         this.state.lowpassNode.frequency.value -= (this.state.lowpassNode.frequency.value / 10);
         if (this.waveform.getVolume() < 0.2) this.waveform.setVolume(this.waveform.getVolume() - 0.03);
         if (this.waveform.getVolume() > 0.01) {
@@ -382,9 +406,12 @@ export default class Deck extends Component {
     fadeInSong() {
         this.fadingIn = true;
         let newVol = lerp(this.waveform.getVolume(), this.props.recommendedVolume, Math.min((this.waveform.getVolume()) / 4), 0.03, this.props.deckName);
-        if (isFinite(newVol)) this.waveform.setVolume(newVol);
+        if (isFinite(newVol)) {
+            if (newVol >= this.props.recommendedVolume) this.waveform.setVolume(this.props.recommendedVolume);
+            else this.waveform.setVolume(newVol);
+        }
         
-        if (this.waveform.getVolume() < this.props.recommendedVolume - 0.1) {   // TODO TWEAK THIS BASED ON IF MAIN TRACK OR NOT
+        if (this.waveform.getVolume() < this.props.recommendedVolume) {   // TODO TWEAK THIS BASED ON IF MAIN TRACK OR NOT
             setTimeout(() => {
                 this.fadeInSong();
             }, 1000);

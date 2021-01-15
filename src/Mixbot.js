@@ -52,6 +52,7 @@ let currMixType = null;
 export default function Mixbot() {
     const [thoughts, setThoughts] = useState([]);
     const [mixChosen, setMixChosen] = useState(false);
+    const [masterPlay, setMasterPlay] = useState(true);
 
     function newThought(input, type = thoughtType.NEUTRAL) {
         let shouldShow = true;
@@ -132,14 +133,20 @@ export default function Mixbot() {
         setMixChosen(true);
     }
 
+    function hitMasterPlay() {
+        console.log("hit master play");
+        setMasterPlay(!masterPlay);
+        return masterPlay;
+    }
+
     return (
         <>
             <div className="mixbot-body">
-                <TrackPlayer newThought={newThought} />
+                <TrackPlayer newThought={newThought} masterPlay={masterPlay}/>
                 <div className="mixbot-dropdowns">
                     <Brain decisions={thoughts} mixType={currMixType}/>
                     <QueueBox items={tracklist} />
-                    <MixConfig/>
+                    <MixConfig hitPause={hitMasterPlay}/>
                 </div>
             </div>
             <div style={{ display: mixChosen ? 'none' : 'inherit' }}>

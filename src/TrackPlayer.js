@@ -15,11 +15,9 @@ let deck2lastBar = 0;
 let deckOneGlow = 9;
 let deckTwoGlow = 9;
 
-let equalizedGainVal = -100;
+let equalizedGainVal = -10;
 
-export default function TrackPlayer({ newThought }) {
-    
-
+export default function TrackPlayer({ newThought, masterPlay }) {
     const [clock, setClock] = useState();
 
     const [deck1Song, setDeck1Song] = useState('');
@@ -124,7 +122,7 @@ export default function TrackPlayer({ newThought }) {
 
             setDeck2BPM(Math.round(newSong.songAnalysis.analysis.tempo)) // terribly sus
             let newvol = (newSong.songAnalysis.analysis.loudness / equalizedGainVal).toPrecision(5);
-            console.log("DECK B NEW VOLUME >>>>>>>>>>>>>>>>", newvol);
+            // console.log("DECK B NEW VOLUME >>>>>>>>>>>>>>>>", newvol);
             setdeck2vol(newvol);
 
             if (deck1Song === '') {
@@ -141,7 +139,7 @@ export default function TrackPlayer({ newThought }) {
             newThought(think);
             setDeck2Song(newSong)
         } else {
-            console.log("new song was null");
+            console.log("[WARNING] new song was null");
         }
     }
 
@@ -227,11 +225,13 @@ export default function TrackPlayer({ newThought }) {
                 <div className={"boardpanel"} style={deck1Playing ? { boxShadow: `0 3px 100px hsla(${deckOneGlow}, 100%, 64%, 0.302)` } : { boxShadow: `0 0 0 hsla(${deckOneGlow}, 100%, 64%, 0.302)` }}>
                     <h3>DECK A</h3>
                     {deck1Song !== '' && <Deck
+                        
                         thisSong={deck1Song.songURL}
                         songName={deck1Song.songName}
                         songArtist={deck1Song.songArtists[0].name}
                         songImage={deck1Song.trackImage}
                         songAnalysis={deck1Song.songAnalysis}
+                        
                         playbackRate={deck1playback}
                         prepared={deckOneReady}
                         play={deck1Playing}
@@ -251,6 +251,8 @@ export default function TrackPlayer({ newThought }) {
                         shouldRemove={deck1remove}
                         removeOther={takeOutB}
                         otherPlaying={deck2Playing}
+
+                        masterPlay={masterPlay}
                     />
                     }
 
@@ -263,6 +265,7 @@ export default function TrackPlayer({ newThought }) {
                         songArtist={deck2Song.songArtists[0].name}
                         songImage={deck2Song.trackImage}
                         songAnalysis={deck2Song.songAnalysis}
+                        
                         playbackRate={deck2playback}
                         prepared={deckTwoReady}
                         play={deck2Playing}
@@ -281,6 +284,8 @@ export default function TrackPlayer({ newThought }) {
                         shouldRemove={deck2remove}
                         removeOther={takeOutA}
                         otherPlaying={deck1Playing}
+
+                        masterPlay={masterPlay}
                     />}
                 </div>
             </div>
