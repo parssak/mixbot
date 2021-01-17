@@ -22,6 +22,8 @@ let chosenPlaylist = null;
 
 let gateway = new Gateway();
 let offset = 0;
+let numChosen = 0;
+let numLimit = 100;
 
 function getMixText() {
     switch (currentMix) {
@@ -79,7 +81,8 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     function playlistSearchClicked(e) {
         e.preventDefault();
-        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=40`, {
+        numChosen = 0;
+        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=${numLimit}`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token
@@ -88,8 +91,6 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
                 offset: offset
             }
         }).then(tracksResponse => {
-            // console.log("----------------------------- GOT SONGS, OFFSETTING FROM", offset);
-            // offset += 40;
             setTracks({
                 selectedTrack: tracks.selectedTrack,
                 listOfTracksFromAPI: tracksResponse.data.items
@@ -115,15 +116,12 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     useEffect(() => {
         if (tracks.listOfTracksFromAPI.length > 0) {
-            // console.log("We have songs!");
             if (trackDetail == null && addMoreSongs) {
-                // console.log("Adding another song!");
                 chooseSong(tracks.listOfTracksFromAPI)
             }
         }
     }, [tracks, trackDetail, addMoreSongs, chooseSong])
 
-    // TODO FIXING DUPLICATE SONG BUG
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
         // console.log(">>>>>>>>>>>>>>>>>> 2");
         if (!trackAlreadyIn(trackID)) {
@@ -163,7 +161,13 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
         
         await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); // ! todo added "Await" this 
         await addSongAnalysisToDatabase(analysisInDB);
+        numChosen++;
         setTrackDetail(null);
+        if (numChosen >= numLimit - 10) {
+            console.log("Going to refresh the playlist");
+            offset += numLimit;
+            playlistSearchClicked();
+        }
     }
 
     const couldntBeFound = (alreadyDB) => {

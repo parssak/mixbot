@@ -12,7 +12,7 @@ $dopeColor: hsla(19, 100%, 64%, 0.302);
     position: relative;
     z-index: 0;
     flex-direction: column;
-   
+
     margin-left: 1rem;
     margin-top: 0rem;
     h2 {
@@ -22,13 +22,13 @@ $dopeColor: hsla(19, 100%, 64%, 0.302);
         color: $darkColor;
         background-color: none;
     }
-    
+
     & > * {
         background-color: none;
     }
 }
 .queue::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 .queue {
     transition: all 1s ease;
@@ -38,8 +38,15 @@ $dopeColor: hsla(19, 100%, 64%, 0.302);
     background-color: none;
     height: 12rem;
 
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+
+    button {
+        width: 90%;
+        padding: 1em;
+        font-weight: 800;
+    }
+
     .entry {
         p {
             font-size: 0.6rem;
@@ -57,11 +64,11 @@ $dopeColor: hsla(19, 100%, 64%, 0.302);
 }
 
 .queue::before {
-    content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgb(23, 20, 24) 100%);
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgb(23, 20, 24) 100%);
 }

@@ -93,7 +93,7 @@ export default class Deck extends Component {
 
     componentDidUpdate(prevProps) {
         // console.log(">>>Updated!",this.props.deckName," recommended:", this.props.recommendedVolume, " and is:", this.waveform.getVolume());
-        if (this.waveform.getVolume() > this.props.recommendedVolume) {
+        if (this.waveform.getVolume() < this.props.recommendedVolume && !this.fadingIn && !this.fadingOut) {
             console.log(">>>Changing!", this.props.deckName, " volume to:", this.props.recommendedVolume);
             this.waveform.setVolume(this.props.recommendedVolume);
             console.log(">>>Now is", this.props.deckName,"->", this.waveform.getVolume());
@@ -263,7 +263,13 @@ export default class Deck extends Component {
         }
         this.waveform.on('region-in', e => {
             this.props.hitBar();
-            console.log(">>>> HIT BAR : ", e.data.computed);
+            console.log(">>>> HIT BAR : DIFF", e.data.computed.differential, "COMPLOUD", e.data.computed.comparisonLoudness);
+            if (e.data.computed.differential < 0) {
+                if (this.props.otherReady && (this.waveform.getCurrentTime() / this.waveform.getDuration() > 0.4)) {
+                    this.props.playOtherTrack();                                                 
+                    console.log(this.props.deckName, "good mixing spot");
+                }
+            }
             if (e.data.sectionType !== undefined) { // has data!
                 if (e.data.sectionType === SectionType.DROP) {
                     this.numDropsPassed++;
@@ -318,12 +324,14 @@ export default class Deck extends Component {
         });
 
         this.waveform.on('play', e => {
-            this.waveform.setVolume(0.01);
+            
             if (this.props.play) {
                 // console.log(this.props.deckName, " JUST STARTED PLAYING GONNA FADE IT IN NOW OK");
                 if (isMasterPaused) {
+                    console.log("was a master pause");
                     isMasterPaused = false;
                 } else {
+                    this.waveform.setVolume(0.01);
                     let think = "Fading in " + this.props.deckName;
                     this.props.newThought(think, thoughtType.MIX);
                     this.fadeInSong();
@@ -376,7 +384,6 @@ export default class Deck extends Component {
                 gain: (amount / 100).toPrecision(2)
             }
         })
-        // this.waveform.setVolume((amount / 100).toPrecision(2) || 1);
     }
 
     handlePosChange(e) {
@@ -411,7 +418,7 @@ export default class Deck extends Component {
             else this.waveform.setVolume(newVol);
         }
         
-        if (this.waveform.getVolume() < this.props.recommendedVolume) {   // TODO TWEAK THIS BASED ON IF MAIN TRACK OR NOT
+        if (this.waveform.getVolume() < this.props.recommendedVolume - 0.05) {   // TODO TWEAK THIS BASED ON IF MAIN TRACK OR NOT
             setTimeout(() => {
                 this.fadeInSong();
             }, 1000);
@@ -423,10 +430,16 @@ export default class Deck extends Component {
         }
     }
 
+    skipSong() {
+        this.takeOutSong();
+        this.props.playOtherTrack();
+    }
+
     render() {
         return (
             <>
                 <div className={"deck"}>
+                    
                     <img src={this.props.songImage.url} alt="" />
                     <div className={"deck-content"}>
                         <div className={"deck-text"}>
@@ -435,10 +448,12 @@ export default class Deck extends Component {
                         </div>
                         <div className={"deck-text"}>
                             <h4>{this.props.bpm} BPM</h4>
+                            <button onClick={() => this.skipSong()}>SKIP SONG</button>
                             {/* <h4>{this.props.bpm} BPM</h4> */}
                         </div>
                         <div id={`${this.props.waveformID}`} />
                     </div>
+                    
                     {/* <Knob size={70} numTicks={70} degrees={260} min={0} max={100} value={50} color={true} onChange={this.changeGain} /> */}
                     {/* <Knob size={70} numTicks={70} degrees={260} min={1000} max={30000} value={15000} color={true} onChange={this.changeFilter} /> */}
                 </div>
