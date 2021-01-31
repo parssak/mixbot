@@ -12,9 +12,9 @@
 /build
 
 #api keys
-/src/api
-connection.js
-/src/helper_classes/Gateway.js
+# /src/api
+# connection.js
+# /src/helper_classes/Gateway.js
 
 # misc
 .DS_Store
