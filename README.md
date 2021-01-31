@@ -6,6 +6,8 @@ MixBot uses the Spotify API, YouTube API, and ytdl to find and play songs for yo
 
 MixBot is written in JavaScript/React with Express.js/NodeJS for the backend
 
+Shoutout to https://www.algoriddim.com/ and their application "Djay" for being the inspiration for this project
+
 ## Usage
 
 I'm currently working on creating a production build for Mac and Windows using Electron, which will be available soon
