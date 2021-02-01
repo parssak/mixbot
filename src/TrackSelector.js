@@ -123,12 +123,9 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     }, [tracks, trackDetail, addMoreSongs, chooseSong])
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
-        // console.log(">>>>>>>>>>>>>>>>>> 2");
         if (!trackAlreadyIn(trackID)) {
-            // console.log(">>>>>>>>>>>>>>>>>> 2 NOT IN YET GETTING ANALYSIS", songName);
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
         } else {
-            // console.log(">>>>>>>>>>>>>>>>>> 2 ALREADY IN SETTING DETAIL NULL", songName);
             setTrackDetail(null);
         }
     }

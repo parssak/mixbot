@@ -87,13 +87,11 @@ export default function TrackPlayer({ newThought, masterPlay }) {
             let newvol = (newSong.songAnalysis.analysis.loudness / equalizedGainVal).toPrecision(5);
             console.log("DECK A NEW VOLUME >>>>>>>>>>>>>>>>", newvol);
             setdeck1vol(newvol);
-            // setDeck1Gain(newSong.songAnalysis.analysis.loudness);
             if (deck2Song === '') {
                 setDeck1playback(1);
             } else {
                 if (deck2BPM !== 0) {
                     let ratioPB = (deck2BPM / newSong.songAnalysis.analysis.tempo).toPrecision(5);
-                    // let ratioVOL = (deck2gain / newSong.songAnalysis.analysis.loudness)
                     setDeck1playback(ratioPB);
                 } else {
                     setDeck1playback(1);
@@ -242,7 +240,7 @@ export default function TrackPlayer({ newThought, masterPlay }) {
                         offset={deck1offset}
                         deckName={"Deck A"}
                         finished={changeTrackA}
-                        recommendedVolume={deck1vol}
+                        recommendedVolume={1}
                         shouldSync={mainTrack !== 1}
                         otherReady={deckTwoReady}
                         waveformID={"waveformA"}
@@ -275,7 +273,7 @@ export default function TrackPlayer({ newThought, masterPlay }) {
                         offset={deck2offset}
                         deckName={"Deck B"}
                         finished={changeTrackB}
-                        recommendedVolume={deck2vol}
+                        recommendedVolume={1}
                         shouldSync={mainTrack !== 2}
                         otherReady={deckOneReady}
                         waveformID={"waveformB"}

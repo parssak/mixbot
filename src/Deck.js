@@ -7,10 +7,10 @@ import { thoughtType } from './Mixbot';
 
 let xhr = { cache: 'default', mode: 'cors', method: 'GET', credentials: 'same-origin', redirect: 'follow', referrer: 'client', headers: [{ 'Access-Control-Allow-Origin': '*' }] };
 let isMasterPaused = false;
+
 export default class Deck extends Component {
     constructor(props) {
         super(props);
-        console.log("entered constructor call!");
         this.state = {
             pos: 0,
             locked: false,
@@ -92,26 +92,22 @@ export default class Deck extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        // console.log(">>>Updated!",this.props.deckName," recommended:", this.props.recommendedVolume, " and is:", this.waveform.getVolume());
-        if (this.waveform.getVolume() < this.props.recommendedVolume && !this.fadingIn && !this.fadingOut) {
-            console.log(">>>Changing!", this.props.deckName, " volume to:", this.props.recommendedVolume);
+        if (this.waveform.getVolume() < this.props.recommendedVolume &&
+            !this.fadingIn &&
+            !this.fadingOut) {
             this.waveform.setVolume(this.props.recommendedVolume);
-            console.log(">>>Now is", this.props.deckName,"->", this.waveform.getVolume());
-
         }
         
-
-        if (this.props.thisSong !== prevProps.thisSong) { // TODO LEFT OFF HERE, YOU WERE TRYING TO MAKE SWITCHING SONGS ON A SINGLE DECK WORK BC IT KEEPS PLAYING THE OLD ONE ALSO REGIONS AREN"T DISAPPEARING
-            // console.log("|| -- THE SONG CHANGED -- ||", this.props.deckName);
+        if (this.props.thisSong !== prevProps.thisSong) { 
             this.waveform.pause();
-
             this.synced = false;
             this.numSuccessful = 0;
             this.totalOffset = 0;
             this.fadingOut = false;
             this.fadingIn = false;
             this.numDropsPassed = 0;
-
+            
+            // !Prone to memory leak ngl 0.o
             this.waveform.destroy();
 
             this.waveform = WaveSurfer.create(this.waveSurferOptions);
@@ -169,9 +165,7 @@ export default class Deck extends Component {
                 this.lastAdjustTime = this.waveform.getCurrentTime();
                 let adjustedOffset = this.props.offset;
                 this.totalOffset = this.props.offset;
-                // console.log("%%%   ", this.props.deckName, "total offset:", this.totalOffset);
                 let desiredTime = this.waveform.getCurrentTime() + this.props.offset;
-                // console.log("%%%   ", this.props.deckName, " song pos was at:", this.waveform.getCurrentTime(), "we need:", desiredTime);
                 this.waveform.pause();
                 this.waveform.skip(adjustedOffset);
                 this.waveform.playPause();
@@ -235,8 +229,6 @@ export default class Deck extends Component {
             gainNode: gain
         });
         this.waveform.backend.setFilter(lowpass, highpass);
-        // console.log("INNNNNNNNDAAAADEEECKKKKKKK");
-        // console.log(this.props.songAnalysis);
         if (this.props.songAnalysis !== 'NOTFOUND') {
             let analyzed = this.props.songAnalysis.analysis.songSections;
             
