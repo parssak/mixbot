@@ -131,12 +131,14 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     }
 
     async function addSongAnalysisToDatabase(dbObj) {
+        // !temporarily removed
         // let dbAnalysis = {
         //     songID: songID,
         //     songName: songName,
         //     analysis: songAnalysis
         // }
-        await gateway.addToAnalysis(dbObj);
+        // await gateway.addToAnalysis(dbObj);
+        
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
@@ -150,14 +152,10 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
                 analysis: analysisInDB
             }
             analysisInDB = dbAnalysis;
-            // let songData = rawAnalysis.data;
-            // let analyzer = new Analyzer();
-            
-            // analysisInDB = analyzedData;
         }
         
         await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); // ! todo added "Await" this 
-        await addSongAnalysisToDatabase(analysisInDB);
+        addSongAnalysisToDatabase(analysisInDB);
         numChosen++;
         setTrackDetail(null);
         if (numChosen >= numLimit - 10) {
