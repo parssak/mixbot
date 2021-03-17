@@ -17,18 +17,23 @@ let gateway = new Gateway();
  */
 let lastChosenID = "";
 let fromDatabase = false;
-export default function TrackFinder({ name, artists, duration_ms, foundSong, trackID, trackImage, cantFind }) {
+// name = { trackDetail.name }
+                        // artists={trackDetail.artists}
+                        // duration_ms={trackDetail.duration_ms}
+                        // trackID={trackDetail.id}
+                        // trackImage={trackDetail.album.images[1]}
+export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
     const [chosenVideoID, setChosenVideoID] = useState("");
 
     function createSearchQuery() {
         let artistNames = [];
-        artists.forEach(e => {
+        trackDetail.artists.forEach(e => {
             const thisName = e.name;
             if (thisName) {
                 artistNames.push(thisName)
             }
         });
-        let searchQuery = name + " by " + artistNames[0];
+        let searchQuery = trackDetail.name + " by " + artistNames[0];
         return searchQuery;
     }
 
@@ -62,17 +67,17 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
             for (let video = 0; video < videoList.length; video++) {                            // for each video in the videoList...
                 const thisDetails = await videoDetail(videoList[video].id.videoId);             // Get details...
                 const thisDur = toMilli(thisDetails.data.items[0].contentDetails.duration);     // Get duration from details...
-                if (Math.abs(duration_ms - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
+                if (Math.abs(trackDetail.duration_ms - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
                     setChosenVideoID(videoList[video].id.videoId);
                     break;
                 }
             }
             if (!chosenVideoID) {
                 let whitelistObj = {
-                    songID: trackID,
-                    songName: name,
-                    songArtists: artists,
-                    expectedDuration: duration_ms,
+                    songID: trackDetail.id,
+                    songName: trackDetail.name,
+                    songArtists: trackDetail.artists,
+                    expectedDuration: trackDetail.duration_ms,
                 }
 
                 await gateway.addToWhitelist(whitelistObj);
@@ -111,10 +116,11 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
 
     useEffect(() => {        
         async function findYoutubeID() {
-            const result = await gateway.checkReferenceDB(trackID);
+            console.log("INSIDE trackDetial is currently", trackDetail)
+            const result = await gateway.checkReferenceDB(trackDetail.id);
             lastChosenID = "";
             if (result === "") {
-                const whitelistResult = await gateway.checkWhitelistDB(trackID);
+                const whitelistResult = await gateway.checkWhitelistDB(trackDetail.id);
                 if (whitelistResult === "") {
                     fromDatabase = false;
                     const search = createSearchQuery();
@@ -127,19 +133,21 @@ export default function TrackFinder({ name, artists, duration_ms, foundSong, tra
                 setChosenVideoID(result.videoID);
             }
         }
+        console.log("trackDetial is currently", trackDetail)
+        if (trackDetail) findYoutubeID();
+        
 
-        findYoutubeID();
-
-    }, [name, artists, duration_ms]);
+    }, [trackDetail]);
 
     async function videoIDtoMP3(videoID) {
+        // todo convert this to go through proxy
         videoDetailFinder.get('/youtubeMp3', {
             params: {
                 id: videoID
             }
         }).then(response => {
             let audioFormats = response.data;
-            foundSong(name, artists, duration_ms, audioFormats[0].url, trackID, trackImage, videoID, fromDatabase);
+            foundSong(trackDetail.name, trackDetail.artists, trackDetail.duration_ms, audioFormats[0].url, trackDetail.id, trackDetail.album.images[1], videoID, fromDatabase);
             setChosenVideoID("");
         });
     }

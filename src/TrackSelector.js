@@ -187,13 +187,10 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
             <form onSubmit={playlistSearchClicked}>
                 {chosenMix && tracklistSize() === 0 && <button className="begin-mix">Begin mix</button>}
                 <div style={{ marginTop: "4em" }}>
-                    {trackDetail && <TrackFinder name={trackDetail.name}
-                        artists={trackDetail.artists}
-                        duration_ms={trackDetail.duration_ms}
-                        trackID={trackDetail.id}
-                        trackImage={trackDetail.album.images[1]}
+                    <TrackFinder
+                        trackDetail={trackDetail}
                         foundSong={addSongToTracklist}
-                        cantFind={couldntBeFound}/>}
+                        cantFind={couldntBeFound}/>
                 </div>
             </form>
         </div>
