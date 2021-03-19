@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Credentials } from './api/Credentials';
-import axios from 'axios';
 import TrackFinder from "./helper_classes/TrackFinder";
 import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
@@ -21,7 +19,6 @@ const techHouseMix_1 = "7HRYveKYzLJFqb1PTJejoL";
 let chosenPlaylist = null;
 
 let gateway = new Gateway();
-let offset = 0;
 let numChosen = 0;
 let numLimit = 100;
 
@@ -39,29 +36,10 @@ function getMixText() {
 }
 
 function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
-    const spotify = Credentials();
-    const [token, setToken] = useState('');
     const [playlist, setPlaylist] = useState({ selectedPlaylist: null, listOfPlaylistFromAPI: [] });
     const [tracks, setTracks] = useState({ selectedTrack: '', listOfTracksFromAPI: [] });
     const [trackDetail, setTrackDetail] = useState(null);
     const [chosenMix, setChosenMix] = useState(false);
-
-    useEffect(() => {                                       // used for verification
-        axios('https://accounts.spotify.com/api/token', {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + btoa(spotify.ClientId + ':' + spotify.ClientSecret)
-            },
-            data: 'grant_type=client_credentials',
-            method: 'POST'
-        })
-            .then(tokenResponse => {
-                setToken(tokenResponse.data.access_token);
-            });
-
-    }, [spotify.ClientId, spotify.ClientSecret]);
-
-
 
     function changeChosen(playlist) {
         if (playlist === 1) { // euro house
@@ -77,75 +55,51 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
         setPlaylist({ selectedPlaylist: chosenPlaylist });
         setChosenMix(true);
-    }    
+    }
 
     function playlistSearchClicked(e) {
         e.preventDefault();
         numChosen = 0;
-        axios(`https://api.spotify.com/v1/playlists/${playlist.selectedPlaylist}/tracks?limit=${numLimit}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }, 
-            params: {
-                offset: offset
-            }
-        }).then(tracksResponse => {
+        console.log('calling playlsit search clicked');
+        gateway.getPlaylist(playlist.selectedPlaylist).then(tracksResponse => {
+            console.log('got tracks', tracksResponse.data);
             setTracks({
                 selectedTrack: tracks.selectedTrack,
-                listOfTracksFromAPI: tracksResponse.data.items
+                listOfTracksFromAPI: tracksResponse.data
             })
 
             mixChosen(getMixText());
         });
     }
 
-    const selectTrack = useCallback((val) => {
-        if (!trackAlreadyIn(val)) {
-            const currentTracks = [...tracks.listOfTracksFromAPI];
-            const trackInfo = currentTracks.filter(t => t.track.id === val);
-            setTrackDetail(trackInfo[0].track);
-        }
-    });
-
     const chooseSong = useCallback((choiceSelections) => {
         let selected = choiceSelections[Math.floor(Math.random() * (choiceSelections.length - 1))];
-        console.log("random choice:", selected);
-        selectTrack(selected.track.id);
+        if (!trackAlreadyIn(selected.track.id)) {
+            const currentTracks = [...tracks.listOfTracksFromAPI];
+            const trackInfo = currentTracks.filter(t => t.id === selected.id);
+            setTrackDetail(trackInfo[0]);
+        }
     });
 
     useEffect(() => {
         if (tracks.listOfTracksFromAPI.length > 0) {
-            if (trackDetail == null && addMoreSongs) {
+            if (trackDetail == null && addMoreSongs)
                 chooseSong(tracks.listOfTracksFromAPI)
-            }
         }
     }, [tracks, trackDetail, addMoreSongs, chooseSong])
 
     async function addSongToTracklist(songName, songArtists, duration, songURL, trackID, trackImage, youtubeVideoID, fromDatabase) {
-        if (!trackAlreadyIn(trackID)) {
+        if (!trackAlreadyIn(trackID))
             await getAudioAnalysis(trackID, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase);
-        } else {
+        else
             setTrackDetail(null);
-        }
-    }
-
-    async function addSongAnalysisToDatabase(dbObj) {
-        // !temporarily removed
-        // let dbAnalysis = {
-        //     songID: songID,
-        //     songName: songName,
-        //     analysis: songAnalysis
-        // }
-        // await gateway.addToAnalysis(dbObj);
-        
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         let analysisInDB = await gateway.checkAnalysisDB(id);
         let takenFromDB = !analysisInDB;
         if (takenFromDB) {
-            analysisInDB = await gateway.getSpotifyAnalysis(id, token);
+            analysisInDB = await gateway.getSpotifyAnalysis(id);
             let dbAnalysis = {
                 songID: id,
                 songName: songName,
@@ -153,14 +107,12 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
             }
             analysisInDB = dbAnalysis;
         }
-        
+
         await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); // ! todo added "Await" this 
-        addSongAnalysisToDatabase(analysisInDB);
         numChosen++;
         setTrackDetail(null);
         if (numChosen >= numLimit - 10) {
             console.log("Going to refresh the playlist");
-            offset += numLimit;
             playlistSearchClicked();
         }
     }
@@ -175,7 +127,6 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     return (
         <div className="selector-wrapper">
-
             <h1>Select a mix</h1>
             {chosenMix && <h2>{getMixText()}</h2>}
             <div className="playlist-select">
@@ -183,14 +134,14 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(2)}>CHILL HOUSE</button>}
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(3)}>TECH HOUSE</button>}
             </div>
-            
+
             <form onSubmit={playlistSearchClicked}>
                 {chosenMix && tracklistSize() === 0 && <button className="begin-mix">Begin mix</button>}
                 <div style={{ marginTop: "4em" }}>
                     <TrackFinder
                         trackDetail={trackDetail}
                         foundSong={addSongToTracklist}
-                        cantFind={couldntBeFound}/>
+                        cantFind={couldntBeFound} />
                 </div>
             </form>
         </div>

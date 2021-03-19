@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import youtubeApi from '../api/youtube'
+// import youtubeApi from '../api/youtube'
 import videoDetailFinder from '../api/youtubeVideoContent'
 import { parse, end, toSeconds, pattern } from 'iso8601-duration';
 import { Gateway } from './Gateway';
@@ -24,7 +24,9 @@ let fromDatabase = false;
                         // trackImage={trackDetail.album.images[1]}
 export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
     const [chosenVideoID, setChosenVideoID] = useState("");
-
+    useEffect(() => {
+        console.log("just started, track detail is ", trackDetail);
+    }, [trackDetail]);
     function createSearchQuery() {
         let artistNames = [];
         trackDetail.artists.forEach(e => {
@@ -39,11 +41,12 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
 
 
     async function videosSearch(search) {
-        const response = await youtubeApi.get("/youtubeSearch", { // TODO CHANGE THIS TO SERVER
-            params: {
-                q: search
-            }
-        })
+        // const response = await youtubeApi.get("/youtubeSearch", { // TODO CHANGE THIS TO SERVER
+        //     params: {
+        //         q: search
+        //     }
+        // })
+        const response = await gateway.getYoutubeList(search, trackDetail.duration_ms)
         return response;
     }
 
@@ -116,7 +119,6 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
 
     useEffect(() => {        
         async function findYoutubeID() {
-            console.log("INSIDE trackDetial is currently", trackDetail)
             const result = await gateway.checkReferenceDB(trackDetail.id);
             lastChosenID = "";
             if (result === "") {
@@ -133,10 +135,8 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
                 setChosenVideoID(result.videoID);
             }
         }
-        console.log("trackDetial is currently", trackDetail)
+        console.log("detail is currently", trackDetail)
         if (trackDetail) findYoutubeID();
-        
-
     }, [trackDetail]);
 
     async function videoIDtoMP3(videoID) {

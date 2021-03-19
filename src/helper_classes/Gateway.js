@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Analyzer } from './Analyzer';
 const baseURL = 'http://localhost:8080'
+const serverBaseURL = 'https://stark-reef-17924.herokuapp.com/';
 
 const checkUpdateURL = baseURL + '/checkUpdate';
 
@@ -12,6 +13,15 @@ const checkAnalysisURL = baseURL + '/checkAnalysis';
 
 const checkReferenceURL = baseURL +'/checkReference';
 const addReferenceURL = baseURL + '/addReference';
+
+const makeRequest = async (path, p) => {
+    const res = await axios.get(serverBaseURL + path, {
+        params: {
+            data: p
+        }
+    })
+    return res;
+}
 
 export class Gateway {
 
@@ -64,8 +74,12 @@ export class Gateway {
                     data: trackID
                 }
             });
+        } else {
+            console.log('dne');
         }
-        return result.data;
+        if (result) return result.data;
+        else return null;
+        
     }
 
     async checkAnalysisDB(trackID) {
@@ -78,7 +92,8 @@ export class Gateway {
                 }
             });
         }
-        return result.data;
+        if (result) return result.data;
+        else return null;
     }
 
     async checkWhitelistDB(trackID) { 
@@ -95,24 +110,18 @@ export class Gateway {
     }
     
     //*** SPOTIFY */
-    async getSpotifyAnalysis(trackID, token) {
-        let result = null;
-        if (trackID) {
-            let analyzer = new Analyzer();
-            result = await axios(`https://api.spotify.com/v1/audio-analysis/${trackID}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
-            });
+    async getPlaylist(playlistID) {
+        return await makeRequest('playlist', { playlistID: playlistID })
+    }
 
-            let songData = result.data;
-            result = await analyzer.analyzeSong(songData);
-            
-        }
-        return result;
+    async getSpotifyAnalysis(songID) {
+        return await makeRequest('analysis', { songID: songID })
     }
 
     //*** YOUTUBE */
+    async getYoutubeList(songName, duration_ms) {
+        console.log('searching for ', songName, duration_ms);
+        return await makeRequest('search-yt', { songName: songName, duration_ms: duration_ms })
+    }
 
 }
