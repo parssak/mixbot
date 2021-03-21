@@ -118,11 +118,8 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
         let fetchedAnalysis = await gateway.checkAnalysisDB(id);
-        console.log("the analysis was in the db?", fetchedAnalysis);
         if (!fetchedAnalysis) {
-            console.log("we are going to get analysis from spotify");
             let spotifyAnalysis = await gateway.getSpotifyAnalysis(id);
-            console.log("got analysis from spotify ->", spotifyAnalysis);
             fetchedAnalysis = analyzer.analyzeSong(spotifyAnalysis.body)
             let dbAnalysis = {
                 songID: id,
@@ -131,18 +128,8 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
             }
             fetchedAnalysis = dbAnalysis;
         }
-        // let takenFromDB = !analysisInDB;
-        // if (takenFromDB) {
-
-        // }
-        // ! removed "await" from addToQueue
         addToQueue(songName, songArtists, duration, songURL, fetchedAnalysis, trackImage, id, youtubeVideoID, fromDatabase);
-        console.log("[selector]finished add to queue");
         setTrackDetail(null);
-        console.log("[selector]set track detail to none!");
-        // if (numChosen >= numLimit - 10) {
-        //     playlistSearchClicked();
-        // }
     }
 
     const couldntBeFound = (alreadyDB) => {
@@ -168,7 +155,9 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
                     <TrackFinder
                         trackDetail={trackDetail}
                         foundSong={addSongToTracklist}
-                        cantFind={couldntBeFound} />
+                        cantFind={couldntBeFound}
+                        newThought={newThought}
+                    />
                 </div>
             </form>
         </div>
