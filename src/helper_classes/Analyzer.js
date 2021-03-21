@@ -14,9 +14,9 @@ export class Analyzer {
     /**
      * Returns:
      * {
-     *     songSections: All sections of the song, tagged with what they are
-            bars: Bars estimated through the data, used for syncing
-            startPos: Section the song should start
+     *      songSections: All sections of the song, tagged with what they are
+     *      bars: Bars estimated through the data, used for syncing
+     *      startPos: Section the song should start
      * }
      */
     analyzeSong(songData) {

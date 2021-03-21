@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import TrackFinder from "./helper_classes/TrackFinder";
 import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
+import { Analyzer } from './helper_classes/Analyzer';
 /**
  * 
  * * 1. (playlistSearchClicked) Choose Playlist
@@ -32,6 +33,7 @@ const techHouseMix_1 = "7HRYveKYzLJFqb1PTJejoL";
 let chosenPlaylist = null;
 
 let gateway = new Gateway();
+let analyzer = new Analyzer();
 // let numChosen = 0;
 // let numLimit = 100;
 
@@ -93,9 +95,17 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     });
 
     useEffect(() => {
+        console.log("[effect] track selector");
         if (tracks.listOfTracksFromAPI.length > 0) {
-            if (trackDetail == null && addMoreSongs)
+            if (trackDetail == null && addMoreSongs) {
+                console.log("FINDING ANOTHER SONG");
                 chooseSong(tracks.listOfTracksFromAPI)
+            }
+            else {
+                console.log("did not call to choose more songs", trackDetail, addMoreSongs);
+            }
+        } else {
+            console.log("flopped!!!!!!");
         }
     }, [tracks, trackDetail, addMoreSongs, chooseSong])
 
@@ -107,23 +117,29 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     }
 
     const getAudioAnalysis = async (id, songName, songArtists, duration, songURL, trackImage, youtubeVideoID, fromDatabase) => {
-        let analysisInDB = await gateway.checkAnalysisDB(id);
-        let takenFromDB = !analysisInDB;
-        if (takenFromDB) {
+        let fetchedAnalysis = await gateway.checkAnalysisDB(id);
+        console.log("the analysis was in the db?", fetchedAnalysis);
+        if (!fetchedAnalysis) {
             console.log("we are going to get analysis from spotify");
-            analysisInDB = await gateway.getSpotifyAnalysis(id);
-            console.log("got analysis", analysisInDB);
+            let spotifyAnalysis = await gateway.getSpotifyAnalysis(id);
+            console.log("got analysis from spotify ->", spotifyAnalysis);
+            fetchedAnalysis = analyzer.analyzeSong(spotifyAnalysis.body)
             let dbAnalysis = {
                 songID: id,
                 songName: songName,
-                analysis: analysisInDB.body
+                analysis: fetchedAnalysis
             }
-            analysisInDB = dbAnalysis;
+            fetchedAnalysis = dbAnalysis;
         }
+        // let takenFromDB = !analysisInDB;
+        // if (takenFromDB) {
 
-        await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); 
-        // numChosen++;
+        // }
+        // ! removed "await" from addToQueue
+        addToQueue(songName, songArtists, duration, songURL, fetchedAnalysis, trackImage, id, youtubeVideoID, fromDatabase);
+        console.log("[selector]finished add to queue");
         setTrackDetail(null);
+        console.log("[selector]set track detail to none!");
         // if (numChosen >= numLimit - 10) {
         //     playlistSearchClicked();
         // }

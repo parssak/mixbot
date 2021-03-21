@@ -1,17 +1,17 @@
 import axios from 'axios';
-const baseURL = 'http://localhost:8080'
+// const baseURL = 'http://localhost:8080'
 const serverBaseURL = 'https://stark-reef-17924.herokuapp.com/';
 
-const checkUpdateURL = baseURL + '/checkUpdate';
+// const checkUpdateURL = baseURL + '/checkUpdate';
 
-const addWhitelistURL = baseURL + '/addWhitelist';
-const checkWhitelistURL = baseURL + '/checkWhitelist';
+// const addWhitelistURL = baseURL + '/addWhitelist';
+// const checkWhitelistURL = baseURL + '/checkWhitelist';
 
-const addAnalysisURL = baseURL + '/addAnalysis';
-const checkAnalysisURL = baseURL + '/checkAnalysis';
+// const addAnalysisURL = baseURL + '/addAnalysis';
+// const checkAnalysisURL = baseURL + '/checkAnalysis';
 
-const checkReferenceURL = baseURL +'/checkReference';
-const addReferenceURL = baseURL + '/addReference';
+// const checkReferenceURL = baseURL +'/checkReference';
+// const addReferenceURL = baseURL + '/addReference';
 
 const makeRequest = async (path, p) => {
     const res = await axios.get(serverBaseURL + path, {
@@ -23,89 +23,34 @@ const makeRequest = async (path, p) => {
 }
 
 export class Gateway {
-
     async checkForUpdate(currVersion) {
-        let result = null;
-        result = await axios.get(checkUpdateURL, {
-            params:
-            {
-                data: currVersion
-            }
-        });
-        return result.data;
+        return await makeRequest('checkUpdate', { data: currVersion })
     }
 
     //*** ADDING DB*/
     async addToAnalysis(analysisObj) {
-        await axios.get(addAnalysisURL, {
-            params:
-            {
-                data: analysisObj
-            }
-        });
+        return await makeRequest('addAnalysis', { data: analysisObj })
     }
 
-    async addToWhitelist(whitelistObj) { 
-        await axios.get(addWhitelistURL, {
-            params:
-            {
-                data: whitelistObj
-            }
-        });
+    async addToWhitelist(whitelistObj) {
+        return await makeRequest('addWhitelist', { data: whitelistObj })
     }
 
     async addToReference(referenceObj) {
-        await axios.get(addReferenceURL, {
-            params:
-            {
-                data: referenceObj
-            }
-        });
+        return await makeRequest('addReference', { data: referenceObj })
     }
     
     //*** GETTING DB */
-    async checkReferenceDB(trackID) { 
-        let result = null;
-        if (trackID) {
-            result = await axios.get(checkReferenceURL, {
-                params:
-                {
-                    data: trackID
-                }
-            });
-        } else {
-            console.log('dne');
-        }
-        if (result) return result.data;
-        else return null;
-        
+    async checkReferenceDB(trackID) {
+        return await makeRequest('checkReference', { data: trackID })
     }
 
     async checkAnalysisDB(trackID) {
-        let result = null;
-        if (trackID) {
-            result = await axios.get(checkAnalysisURL, {
-                params:
-                {
-                    data: trackID
-                }
-            });
-        }
-        if (result) return result.data;
-        else return null;
+        return await makeRequest('checkAnalysis', { data: trackID })
     }
 
-    async checkWhitelistDB(trackID) { 
-        let result = null;
-        if (trackID) {
-            result = await axios.get(checkWhitelistURL, {
-                params:
-                {
-                    data: trackID
-                }
-            });
-        }
-        return result.data;
+    async checkWhitelistDB(trackID) {
+        return await makeRequest('checkWhitelist', { data: trackID })
     }
     
     //*** SPOTIFY */
@@ -119,11 +64,11 @@ export class Gateway {
 
     //*** YOUTUBE */
     async getYoutubeList(songName, duration_ms) {
-        console.log('searching for ', songName, duration_ms);
         return await makeRequest('search-yt', { songName: songName, duration_ms: duration_ms })
     }
 
     //*** AUDIO */
+    
     // Returns path extension for the audio
     async getAudioPath(videoID) { 
         return await makeRequest('getMP3', { id: videoID })

@@ -1,4 +1,3 @@
-// const e = require('cors');
 const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://parssa:mixbotparssa123@mixbotmain.tgrnx.mongodb.net/mixbotdb?retryWrites=true&w=majority";
 

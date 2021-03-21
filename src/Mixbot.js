@@ -75,16 +75,15 @@ export default function Mixbot() {
      * @param {boolean} fromDatabase: true if fetched yt id from database
      */
     async function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage, songID, videoID, fromDatabase) {
-        console.log("CHECKING ADD TO QUEUE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        console.log("Called addToQueue for", songName);
         if (trackAlreadyIn(songID)) {
-            console.log(songID, " YAHOOOOOOO WAS ALREADY INNNNNNNNNNNNNNN");
+            console.log(songName, " was already in tracklist!");
             return;
         }
 
         if (analysis !== "NOTFOUND") {
             if (!fromDatabase) {
-                console.log("not in db yet, adding it...");
-
+                console.log("Not in db yet, adding it...");
                 let correctedArtists = [];
                 songArtists.forEach(artist => correctedArtists.push(artist.name));
 
@@ -95,8 +94,10 @@ export default function Mixbot() {
                     artists: correctedArtists,
                     duration: duration_ms,
                 }
-                addSongRefDB(songRefEntry);
+                // addSongRefDB(songRefEntry);
             }
+        } else {
+            console.log("analysis was not found!");
         }
 
         const newSong = {
@@ -107,24 +108,29 @@ export default function Mixbot() {
             songAnalysis: analysis,
             trackImage: trackImage
         }
+        console.log("added new song:", fromDatabase)
         // console.log(">>>(MIXBOT): NEW SONG IS:", newSong);
         // console.log(">>>(MIXBOT): ANALYSIS:", analysis);
         let packageSong = { id: "tracklist" + tracklist.length, body: newSong, songID: songID }
+        console.log("packaged song");
         // console.log(">>>(MIXBOT): PACKAGED SONG:", packageSong);
         tracklist.push(packageSong);
+        
         // console.log(">>>(MIXBOT): ADDED TO TRACKLIST:", tracklist);
         upcomingSongs.push(packageSong);
+        console.log("pushed to tracklist and upcoming songs");
         // console.log(">>>(MIXBOT): ADDED TO UPCOMING SONGS:", upcomingSongs);
         const think = `Added ${songName} to the tracklist`;
         // console.log(">>>(MIXBOT): ABOUT TO THINK:", think);
         newThought(think, thoughtType.NEUTRAL);
+        console.log("reached end of function");
     }
 
-    function addSongRefDB(entry) {
-        axios.get(addSongRefURL, {
-            params: { data: entry }
-        });
-    }
+    // function addSongRefDB(entry) {
+    //     axios.get(addSongRefURL, {
+    //         params: { data: entry }
+    //     });
+    // }
 
     function choseMix(mixType) {
         const think = "Selected " + mixType + ", beginning mix";
