@@ -13,9 +13,9 @@ export default function MixConfig({ hitPause }) {
             <div className="queue">
                 <div className={"entry"}>
                     <button onClick={() => playPause()}>{isPaused ? "PLAY" : "PAUSE"}</button> 
-                    <p>Mix Lengths</p>
-                    <p>Master Volume</p>
-                    <p>Current Mix</p>
+                    <p>Mix Lengths (WIP)</p>
+                    <p>Master Volume (WIP)</p>
+                    <p>Current Mix (WIP)</p>
                 </div>
             </div>
         </div>

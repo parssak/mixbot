@@ -190,6 +190,9 @@ button {
             flex-basis: 200px;
             font-size: 1rem;
         }
+        button {
+            opacity: 1;
+        }
     }
 }
 @import "UpdateMixBot.scss";
