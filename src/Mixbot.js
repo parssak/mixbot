@@ -77,7 +77,7 @@ export default function Mixbot() {
     async function addToQueue(songName, songArtists, duration_ms, songURL, analysis, trackImage, songID, videoID, fromDatabase) {
         console.log("CHECKING ADD TO QUEUE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         if (trackAlreadyIn(songID)) {
-            console.log(songID, " YAHOOOOOOO WAS ALREADY INNNNNNNNNNNNNNN");          
+            console.log(songID, " YAHOOOOOOO WAS ALREADY INNNNNNNNNNNNNNN");
             return;
         }
 
@@ -142,17 +142,17 @@ export default function Mixbot() {
     return (
         <>
             <div className="mixbot-body">
-                <TrackPlayer newThought={newThought} masterPlay={masterPlay}/>
+                <TrackPlayer newThought={newThought} masterPlay={masterPlay} />
                 <div className="mixbot-dropdowns">
-                    <Brain decisions={thoughts} mixType={currMixType}/>
+                    <Brain decisions={thoughts} mixType={currMixType} />
                     <QueueBox items={tracklist} />
-                    <MixConfig hitPause={hitMasterPlay}/>
+                    <MixConfig hitPause={hitMasterPlay} />
                 </div>
             </div>
             <div style={{ display: mixChosen ? 'none' : 'inherit' }}>
                 <TrackSelector
                     addToQueue={addToQueue}
-                    addMoreSongs={upcomingSongs.length < 2}
+                    addMoreSongs={upcomingSongs.length < 1}
                     newThought={newThought}
                     mixChosen={choseMix}
                 />

@@ -63,13 +63,19 @@ export default function TrackPlayer({ newThought, masterPlay }) {
     })
 
     useEffect(() => {
-        if (nextSongInQueue() !== null) {
-            if ((deck1BPM == 0) && (deck1Song == '')) {
-                loadTrackA();
-            } else if ((deck2BPM == 0) && (deck2Song == '')) {
-                loadTrackB();
+        function LoadTrack() {
+            if (nextSongInQueue() !== null) {
+                console.log("next song in queue was not null");
+                if ((deck1BPM == 0) && (deck1Song == '')) {
+                    loadTrackA();
+                } else if ((deck2BPM == 0) && (deck2Song == '')) {
+                    loadTrackB();
+                }
+            } else {
+                console.log("got next song in queue to be null");
             }
         }
+        LoadTrack();
     })
 
     function loadTrackA() {

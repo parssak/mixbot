@@ -2,7 +2,20 @@ import React, { useState, useEffect, useCallback } from 'react';
 import TrackFinder from "./helper_classes/TrackFinder";
 import { thoughtType, trackAlreadyIn, tracklistSize } from "./Mixbot";
 import { Gateway } from './helper_classes/Gateway';
-
+/**
+ * 
+ * * 1. (playlistSearchClicked) Choose Playlist
+ * * 2. (chooseSong) Chooses song
+ *                     - Check if song hasn't been already played
+ * *    Keep choosing songs until !addMoreSongs
+ * * 3. <TrackFinder/> For each song, find YouTube video ID for song
+ *                     - If can't find song, remove song from options and try again
+ *                     - If found song, call addSongToTracklist
+ * * 4. (addSongToTracklist) Check if song still hasn't been added to tracklist
+ *                     - If has, repeat process
+ *                     - If hasn't, get audio analysis for song
+ * * 5. (getAudioAnalysis) Get audio analysis, then add it to tracklist
+ */
 const MixType = {
     EURO_HOUSE: 1,
     CHILL_HOUSE: 2,
@@ -19,8 +32,8 @@ const techHouseMix_1 = "7HRYveKYzLJFqb1PTJejoL";
 let chosenPlaylist = null;
 
 let gateway = new Gateway();
-let numChosen = 0;
-let numLimit = 100;
+// let numChosen = 0;
+// let numLimit = 100;
 
 function getMixText() {
     switch (currentMix) {
@@ -34,7 +47,6 @@ function getMixText() {
             break;
     }
 }
-
 function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
     const [playlist, setPlaylist] = useState({ selectedPlaylist: null, listOfPlaylistFromAPI: [] });
     const [tracks, setTracks] = useState({ selectedTrack: '', listOfTracksFromAPI: [] });
@@ -59,13 +71,12 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     function playlistSearchClicked(e) {
         e.preventDefault();
-        numChosen = 0;
-        console.log('calling playlsit search clicked');
+        // numChosen = 0;
         gateway.getPlaylist(playlist.selectedPlaylist).then(tracksResponse => {
-            console.log('got tracks', tracksResponse.data);
+            console.log('got tracks', tracksResponse);
             setTracks({
                 selectedTrack: tracks.selectedTrack,
-                listOfTracksFromAPI: tracksResponse.data
+                listOfTracksFromAPI: tracksResponse
             })
 
             mixChosen(getMixText());
@@ -99,22 +110,23 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
         let analysisInDB = await gateway.checkAnalysisDB(id);
         let takenFromDB = !analysisInDB;
         if (takenFromDB) {
+            console.log("we are going to get analysis from spotify");
             analysisInDB = await gateway.getSpotifyAnalysis(id);
+            console.log("got analysis", analysisInDB);
             let dbAnalysis = {
                 songID: id,
                 songName: songName,
-                analysis: analysisInDB
+                analysis: analysisInDB.body
             }
             analysisInDB = dbAnalysis;
         }
 
-        await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); // ! todo added "Await" this 
-        numChosen++;
+        await addToQueue(songName, songArtists, duration, songURL, analysisInDB, trackImage, id, youtubeVideoID, fromDatabase); 
+        // numChosen++;
         setTrackDetail(null);
-        if (numChosen >= numLimit - 10) {
-            console.log("Going to refresh the playlist");
-            playlistSearchClicked();
-        }
+        // if (numChosen >= numLimit - 10) {
+        //     playlistSearchClicked();
+        // }
     }
 
     const couldntBeFound = (alreadyDB) => {
@@ -127,8 +139,7 @@ function TrackSelector({ addToQueue, addMoreSongs, newThought, mixChosen }) {
 
     return (
         <div className="selector-wrapper">
-            <h1>Select a mix</h1>
-            {chosenMix && <h2>{getMixText()}</h2>}
+            {chosenMix ? <h1>{getMixText()}</h1> : <h1>Select a mix</h1>}
             <div className="playlist-select">
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(1)}>EURO HOUSE</button>}
                 {tracklistSize() === 0 && <button onClick={() => changeChosen(2)}>CHILL HOUSE</button>}

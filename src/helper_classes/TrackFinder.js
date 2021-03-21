@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
-// import youtubeApi from '../api/youtube'
+import { useEffect, useState } from 'react';
 import videoDetailFinder from '../api/youtubeVideoContent'
-import { parse, end, toSeconds, pattern } from 'iso8601-duration';
 import { Gateway } from './Gateway';
-
+const liveServerBase = "https://stark-reef-17924.herokuapp.com/";
 let gateway = new Gateway();
 /**
  * This class handles finding a track based on song name, artists, and duration
@@ -17,16 +15,13 @@ let gateway = new Gateway();
  */
 let lastChosenID = "";
 let fromDatabase = false;
-// name = { trackDetail.name }
-                        // artists={trackDetail.artists}
-                        // duration_ms={trackDetail.duration_ms}
-                        // trackID={trackDetail.id}
-                        // trackImage={trackDetail.album.images[1]}
+
+let intervalCall;
+
 export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
     const [chosenVideoID, setChosenVideoID] = useState("");
-    useEffect(() => {
-        console.log("just started, track detail is ", trackDetail);
-    }, [trackDetail]);
+    const [songPath, setSongPath] = useState("");
+
     function createSearchQuery() {
         let artistNames = [];
         trackDetail.artists.forEach(e => {
@@ -41,21 +36,7 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
 
 
     async function videosSearch(search) {
-        // const response = await youtubeApi.get("/youtubeSearch", { // TODO CHANGE THIS TO SERVER
-        //     params: {
-        //         q: search
-        //     }
-        // })
         const response = await gateway.getYoutubeList(search, trackDetail.duration_ms)
-        return response;
-    }
-
-    async function videoDetail(videoID) {
-        const response = await videoDetailFinder.get("/youtubeDetail", {
-            params: {
-                id: videoID
-            }
-        })
         return response;
     }
 
@@ -65,37 +46,22 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
      * @returns {Promise<void>}
      */
     async function getYoutubeVideo(searchQuery) {
+        console.log("called get youtube video");
         videosSearch(searchQuery).then(async e => {
-            const videoList = e.data.items;                                                     // a list of videos                 
-            for (let video = 0; video < videoList.length; video++) {                            // for each video in the videoList...
-                const thisDetails = await videoDetail(videoList[video].id.videoId);             // Get details...
-                const thisDur = toMilli(thisDetails.data.items[0].contentDetails.duration);     // Get duration from details...
-                if (Math.abs(trackDetail.duration_ms - thisDur) <= 1000) {                                     // If the duration is what we're looking for...
-                    setChosenVideoID(videoList[video].id.videoId);
-                    break;
-                }
-            }
-            if (!chosenVideoID) {
+            console.log("RECIEVED:", e.data);
+            if (e.data) {
+                setChosenVideoID(e.data);
+            } else {
                 let whitelistObj = {
                     songID: trackDetail.id,
                     songName: trackDetail.name,
                     songArtists: trackDetail.artists,
                     expectedDuration: trackDetail.duration_ms,
                 }
-
                 await gateway.addToWhitelist(whitelistObj);
                 cantFind(false);
             }
         })
-    }
-
-    /**
-     * Helper function for converting ISO8 8601 time to milliseconds
-     * @param ISO: ISO time
-     * @returns {the ISO time in milliseconds}
-     */
-    function toMilli(ISO) {
-        return toSeconds(parse(ISO)) * 1000;
     }
 
     /**
@@ -109,23 +75,23 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
      * >> “ "lastChosenID === "" ”
      */
     useEffect(() => {
-
         if (chosenVideoID && lastChosenID === "") {
             lastChosenID = chosenVideoID;
             videoIDtoMP3(chosenVideoID);
         }
-
     }, [chosenVideoID])
 
-    useEffect(() => {        
+    useEffect(() => {
         async function findYoutubeID() {
             const result = await gateway.checkReferenceDB(trackDetail.id);
             lastChosenID = "";
+            // console.log("ENTERED USE EFFECT");
             if (result === "") {
                 const whitelistResult = await gateway.checkWhitelistDB(trackDetail.id);
                 if (whitelistResult === "") {
                     fromDatabase = false;
                     const search = createSearchQuery();
+                    console.log("calling get yt video!!!!!!!!!!!!!!");
                     await getYoutubeVideo(search);
                 } else {
                     cantFind(true);
@@ -135,21 +101,43 @@ export default function TrackFinder({ trackDetail, foundSong, cantFind }) {
                 setChosenVideoID(result.videoID);
             }
         }
-        console.log("detail is currently", trackDetail)
         if (trackDetail) findYoutubeID();
     }, [trackDetail]);
 
     async function videoIDtoMP3(videoID) {
-        // todo convert this to go through proxy
-        videoDetailFinder.get('/youtubeMp3', {
-            params: {
-                id: videoID
-            }
-        }).then(response => {
-            let audioFormats = response.data;
-            foundSong(trackDetail.name, trackDetail.artists, trackDetail.duration_ms, audioFormats[0].url, trackDetail.id, trackDetail.album.images[1], videoID, fromDatabase);
-            setChosenVideoID("");
-        });
+        // let recievedPath = null;
+        gateway.getAudioPath(videoID).then(res => {
+            console.log("got this ->", res);
+            setSongPath(liveServerBase + videoID + ".mp3");
+        })
+    }
+
+    useEffect(() => {
+        if (songPath !== "" && !intervalCall) {
+            intervalCall = setInterval(async function () {
+                let res = await doesFileExist(chosenVideoID);
+                if (res) {
+                    submitSong();
+                }
+            }, 5000)
+        }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [songPath]);
+
+    function submitSong() {
+        console.log(">>> Submitting song!");
+        clearInterval(intervalCall);
+        setSongPath("");
+        foundSong(trackDetail.name, trackDetail.artists, trackDetail.duration_ms, songPath, trackDetail.id, trackDetail.album.images[1], chosenVideoID, fromDatabase); // ! CHANGED THIS FROM PARAM TO CHOSENVIDEOID
     }
     return null;
+}
+
+
+async function doesFileExist(videoID) {
+    console.log("checking if file at", videoID, "exists");
+    let res = await gateway.getAudioLoaded(videoID);
+    console.log("got back", res.isLoaded);
+    return res.isLoaded;
 }
