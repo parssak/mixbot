@@ -1,17 +1,5 @@
 import axios from 'axios';
-// const baseURL = 'http://localhost:8080'
 const serverBaseURL = 'https://stark-reef-17924.herokuapp.com/';
-
-// const checkUpdateURL = baseURL + '/checkUpdate';
-
-// const addWhitelistURL = baseURL + '/addWhitelist';
-// const checkWhitelistURL = baseURL + '/checkWhitelist';
-
-// const addAnalysisURL = baseURL + '/addAnalysis';
-// const checkAnalysisURL = baseURL + '/checkAnalysis';
-
-// const checkReferenceURL = baseURL +'/checkReference';
-// const addReferenceURL = baseURL + '/addReference';
 
 const makeRequest = async (path, p) => {
     const res = await axios.get(serverBaseURL + path, {
